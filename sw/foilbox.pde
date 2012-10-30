@@ -13,19 +13,24 @@ int weaponPinB = 1;         // Weapon B pin
 int lamePinA   = 2;         // Lame A pin
 int lamePinB   = 3;         // Lame B pin
 
-int lameA = 0;
-int lameB = 0;
+int lameA   = 0;
+int lameB   = 0;
 int weaponA = 0;
 int weaponB = 0;
 
-long millisPastA = 0;
-long millisPastB = 0;
+long millisPastA     = 0;
+long millisPastB     = 0;
 long millisPastFirst = 0;
+
+int lockOut        = 300;    // the lockout time between hits for epee is 40ms
+int minHitDuration = 14;     // the minimum amount of time the tip needs to be depressed
 
 boolean hitA = false;
 boolean hitB = false;
 
 boolean isFirstHit = true;
+
+int voltageThresh = 500;         // the threshold that the scoring triggers on
 
 
 void setup() {
@@ -55,18 +60,18 @@ void loop()
   // weapon A 
   if (hitA == false) //ignore if we've hit
   {
-    if (weaponA < 500)
+    if (weaponA < voltageThresh)
     {
-        if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA+300 > millis())))
+        if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
         {
-            if  (millis() <= (millisPastA + 14)) // if 14ms or more have past we have a hit
+            if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
             {
                 hitA = true;
                 if(isFirstHit)
                 {
                   millisPastFirst = millis();
                 }
-                if (lameB > 500)
+                if (lameB > voltageThresh)
                 {
                   //onTarget
                   digitalWrite(onTargetA, HIGH);
@@ -88,17 +93,17 @@ void loop()
   // weapon B
   if (hitB == false) // ignore if we've hit
   {
-    if (weaponB < 500)
+    if (weaponB < voltageThresh)
     {
-        if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA+300 > millis())))
+        if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
         {
-            if  (millis() <= (millisPastB + 14)) // if 14ms or more have past we have a hit
+            if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
                 if(isFirstHit)
                 {
                   millisPastFirst = millis();
                 }
-                if (lameA > 500)
+                if (lameA > voltageThresh)
                 {
                   // onTarget
                   digitalWrite(onTargetB, HIGH);
@@ -123,7 +128,7 @@ void signalHits()
   
   if (hitA || hitB)
   {
-    if (millis() >= (millisPastFirst + 300))
+    if (millis() >= (millisPastFirst + lockOut))
     {
       // time for next action is up!
       delay(1500); 
