@@ -1,7 +1,12 @@
-//  From digitalwestie on github
-//  Plan to edit to include other weapons and tests
-//  Foilbox.pde
-
+//===========================================================================//
+//                                                                           //
+//  Desc: Arduino Code to implement a foil scoring apparatus                 //
+//  Dev:  DigitalWestie & Wnew                                               //
+//  Date: Nov 2012                                                           //
+//  Notes: Origonal code from digitalwestie on github                        //
+//         Plan to edit to include other weapons                             //
+//                                                                           //
+//===========================================================================//
 
 int offTargetA = 10;        // Off Target A Light
 int offTargetB = 11;        // Off Target B Light
@@ -99,6 +104,7 @@ void loop()
         {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
+                hitB = true;
                 if(isFirstHit)
                 {
                   millisPastFirst = millis();

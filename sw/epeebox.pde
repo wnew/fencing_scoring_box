@@ -1,7 +1,12 @@
-//  From digitalwestie on github
-//  Plan to edit to include other weapons and tests
-//  epeebox.pde
-
+//===========================================================================//
+//                                                                           //
+//  Desc: Arduino Code to implement an epee scoring apparatus                //
+//  Dev:  DigitalWestie & Wnew                                               //
+//  Date: Nov 2012                                                           //
+//  Notes: Origonal code from digitalwestie on github                        //
+//         Plan to edit to include other weapons                             // 
+//                                                                           //
+//===========================================================================//
 
 int onTargetA = 12;         // On Target A Light
 int onTargetB = 13;         // On Target B Light
@@ -90,6 +95,7 @@ void loop()
         {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
+                hitB = true;
                 if(isFirstHit)
                 {
                   millisPastFirst = millis();
