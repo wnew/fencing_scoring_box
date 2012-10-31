@@ -8,9 +8,13 @@ int onTargetB = 13;         // On Target B Light
 
 int weaponPinA = 0;         // Weapon A pin
 int weaponPinB = 1;         // Weapon B pin
+int lamePinA   = 2;         // Lame A pin
+int lamePinB   = 3;         // Lame B pin
 
 int weaponA = 0;
 int weaponB = 0;
+int lameA   = 0;
+int lameB   = 0;
 
 long millisPastA     = 0;
 long millisPastB     = 0;
@@ -33,6 +37,8 @@ void setup() {
   
   pinMode(weaponPinA, INPUT);     
   pinMode(weaponPinB, INPUT);     
+  pinMode(lamePinA,   INPUT);    
+  pinMode(lamePinB,   INPUT);
   
   Serial.begin(9600);
   Serial.println("Start");
@@ -42,13 +48,15 @@ void loop()
 {
   weaponA = analogRead(weaponPinA);
   weaponB = analogRead(weaponPinB);
+  lameA   = analogRead(lamePinA);
+  lameB   = analogRead(lamePinB);
   
   signalHits();  
  
   // weapon A 
   if (hitA == false) //ignore if we've hit
   {
-    if (weaponA < voltageThresh)
+    if (weaponA < 3000)
     {
         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
         {
@@ -59,8 +67,11 @@ void loop()
                 {
                   millisPastFirst = millis();
                 }
-                // epee is always onTarget
-                digitalWrite(onTargetA, HIGH);
+                if (lameA > 500)
+                {
+                  //onTarget
+                  digitalWrite(onTargetA, HIGH);
+                }
             }
         } 
     }
@@ -73,7 +84,7 @@ void loop()
   // weapon B
   if (hitB == false) // ignore if we've hit
   {
-    if (weaponB < voltageThresh)
+    if (weaponB < 3000)
     {
         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
         {
@@ -83,8 +94,11 @@ void loop()
                 {
                   millisPastFirst = millis();
                 }
-                // epee is always onTarget
-                digitalWrite(onTargetB, HIGH);
+                if (lameB > 500)
+                {
+                   // epee is always onTarget
+                   digitalWrite(onTargetB, HIGH);
+                }
             }
         }
     }

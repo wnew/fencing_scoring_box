@@ -13,10 +13,10 @@ int weaponPinB = 1;         // Weapon B pin
 int lamePinA   = 2;         // Lame A pin
 int lamePinB   = 3;         // Lame B pin
 
-int lameA   = 0;
-int lameB   = 0;
 int weaponA = 0;
 int weaponB = 0;
+int lameA   = 0;
+int lameB   = 0;
 
 long millisPastA     = 0;
 long millisPastB     = 0;
