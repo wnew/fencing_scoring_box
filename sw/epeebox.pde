@@ -37,102 +37,106 @@ int voltageThresh = 500;         // the threshold that the scoring triggers on
 
 
 void setup() {
-  pinMode(onTargetA,  OUTPUT);
-  pinMode(onTargetB,  OUTPUT);
+   pinMode(onTargetA,  OUTPUT);
+   pinMode(onTargetB,  OUTPUT);
   
-  pinMode(weaponPinA, INPUT);     
-  pinMode(weaponPinB, INPUT);     
-  pinMode(lamePinA,   INPUT);    
-  pinMode(lamePinB,   INPUT);
+   pinMode(weaponPinA, INPUT);     
+   pinMode(weaponPinB, INPUT);     
+   pinMode(lamePinA,   INPUT);    
+   pinMode(lamePinB,   INPUT);
   
-  Serial.begin(9600);
-  Serial.println("Start");
+   Serial.begin(9600);
+   Serial.println("Start");
 }
 
 void loop()
 {
-  weaponA = analogRead(weaponPinA);
-  weaponB = analogRead(weaponPinB);
-  lameA   = analogRead(lamePinA);
-  lameB   = analogRead(lamePinB);
+   weaponA = analogRead(weaponPinA);
+   weaponB = analogRead(weaponPinB);
+   lameA   = analogRead(lamePinA);
+   lameB   = analogRead(lamePinB);
   
-  signalHits();  
+   signalHits();  
  
   // weapon A 
-  if (hitA == false) //ignore if we've hit
-  {
-    if (weaponA < 3000)
-    {
-        if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
-        {
+   if (hitA == false) //ignore if we've hit
+   {
+     if (weaponA < voltageThresh)
+     {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
+         {
             if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
             {
-                hitA = true;
-                if(isFirstHit)
-                {
+               hitA = true;
+               if(isFirstHit)
+               {
+                  isFirstHit = false;
                   millisPastFirst = millis();
-                }
-                if (lameA > 500)
-                {
+               }
+               //if (lameA > 500)
+               //{
                   //onTarget
                   digitalWrite(onTargetA, HIGH);
-                }
+                  Serial.println("HitA");
+               //}
             }
-        } 
-    }
-    else // Nothing happening
-    {
-        millisPastA = millis();
-    }
-  }
-  
-  // weapon B
-  if (hitB == false) // ignore if we've hit
-  {
-    if (weaponB < 3000)
-    {
-        if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
-        {
+         } 
+      }
+      else // Nothing happening
+      {
+          millisPastA = millis();
+      }
+   }
+   
+   // weapon B
+   if (hitB == false) // ignore if we've hit
+   {
+      if (weaponB < voltageThresh)
+      {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
+         {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
-                hitB = true;
-                if(isFirstHit)
-                {
+               hitB = true;
+               if(isFirstHit)
+               {
+                  isFirstHit = false;
                   millisPastFirst = millis();
-                }
-                if (lameB > 500)
-                {
-                   // epee is always onTarget
-                   digitalWrite(onTargetB, HIGH);
-                }
+               }
+               //if (lameB > 500)
+               //{
+                  //onTarget
+                  digitalWrite(onTargetB, HIGH);
+                  Serial.println("HitB");
+               //}
             }
-        }
-    }
-    else // nothing happening
-    {
-        millisPastB = millis();
-    }
-  }
+         }
+      }
+      else // nothing happening
+      {
+         millisPastB = millis();
+      }
+   }
 }
 
 void signalHits()
 {
   
-  if (hitA || hitB)
-  {
-    if (millis() >= (millisPastFirst + lockOut))
-    {
-      // time for next action is up!
-      delay(1500); 
-      resetValues();      
-    }
-  }
-
+   if (hitA || hitB)
+   {
+      if (millis() >= (millisPastFirst + lockOut))
+      {
+        // time for next action is up!
+        delay(3500); 
+        resetValues();      
+      }
+   }
 }
 
 void resetValues()
 {
    // red side wont reset without fiddling with other side!!
+   Serial.println("reset lights");
    digitalWrite(onTargetA, LOW);
    digitalWrite(onTargetB, LOW);
      
