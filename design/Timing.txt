@@ -1,0 +1,36 @@
+Foil
+
+Hit must be registered for 14ms (+-1ms tolerance)
+Opponent has 300ms (+-25ms tolerance) to register his hit after initial hit
+No touch is registered on the piste
+And a shit load more
+
+
+Epee
+
+Register when the circuit is closed.
+Max of 40ms between hits.
+Hits must be 2ms or greater to register.
+Not register a touch on the piste or gaurd.
+
+
+Sabre
+
+lockout used to be 300-350 milliseconds now 120.
+Whipover - Implement later.
+
+
+
+
+// timing constants
+const int FOILLOCKOUTTIME   = 0;  // 300.048 ms
+const int EPEELOCKOUTTIME   = 0;  // 47.88   ms
+const int SABRELOCKOUTTIME  = 0;  // 121.296 ms
+
+const int FOILDEBOUNCETIME  = 0;  // 13.965  ms
+const int EPEEDEBOUNCETIME  = 0;  // 3.9     ms
+const int SABREDEBOUNCETIME = 0;  // 0.798   ms
+
+const int WHIPOVER          = 0;  // 15.162  ms
+const int WHIPOVERWINDOW    = 0;  // 3.99    ms
+const int WHIPOVERLOCKOUT   = 0;  // 15.162  ms

@@ -1,0 +1,74 @@
+Lights
+=================
+Both white/yellow and colour
+	- bicolour or seperate lights
+Be able to dim or brighten
+	- just one or 2 settings?
+Use pwm to save power
+How bright must they be?
+How much current can they draw?
+
+Light Extensions
+=================
+Wireless?
+What type of connector? Din, telephone jack?
+Uses own power?
+How much current does it need?
+How bright must they be?
+
+Buzzer
+=================
+What tpe of buzzer?
+	- design curcuit of buzzing
+	- buy complete buzzer
+	- volume nob 
+	- on/off button
+	- Different buzzer tones for differnt hits
+How much current can it draw?
+
+Timer
+=================
+00:00 to 99:99?
+How big must it be?
+How bright?
+How much current can it draw?
+
+Score
+=================
+0-99?
+How big must it be?
+How much current can it draw?
+
+Display Cards
+=================
+What type or cards are there?
+	- yellow, red, black?
+How big must the display be?
+
+Remote
+=================
+How can I make a reciever?
+What can you control?
+	- Start, stop or pause time
+	- Set time
+	- Increase/Decrease score for each fencer
+	- Cards
+
+Programming button and Lights
+=================
+How many IO pins can I get away with?
+	- 4, one for each light and 1 button?
+	- just one for the button and the LEDs are managed seperately?
+
+Power
+=================
+Power switch connected to pbc? Rather not. Fencers are harsh on equipment.
+Transformer built-in or external?
+
+Debug
+=================
+How can we do debug?
+	- ie, if there is grounding?
+	- flash the lights?
+	- print to an LCD display?
+When power turns on, flash lights and sound buzzer. 

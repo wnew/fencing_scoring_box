@@ -25,8 +25,8 @@ long millisPastA     = 0;
 long millisPastB     = 0;
 long millisPastFirst = 0;
 
-int lockOut        = 40;    // the lockout time between hits for epee is 40ms
-int minHitDuration = 2;     // the minimum amount of time the tip needs to be depressed
+int lockOut        = 48;    // the lockout time between hits for epee is 48ms
+int minHitDuration = 4;     // the minimum amount of time the tip needs to be depressed
 
 boolean hitA = false;
 boolean hitB = false;
@@ -63,29 +63,29 @@ void loop()
    {
       if (weaponA < voltageThresh)
       {
-          if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
-          {
-             if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
-             {
-                //if (lameA > voltageThresh)
-                //{
-                   // onTarget
-                   if(isFirstHit)
-                   {
-                      millisPastFirst = millis();
-                      isFirstHit = false;
-                   }
-                   digitalWrite(onTargetA, HIGH);
-                   hitA = true;
-                   Serial.println("HitA");
-                //}
-             }
-          } 
-       }
-       else // Nothing happening
-       {
-           millisPastA = millis();
-       }
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
+         {
+            if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
+            {
+               if (lameA > voltageThresh)
+               //{
+                  // onTarget
+                  if(isFirstHit)
+                  {
+                     millisPastFirst = millis();
+                     isFirstHit = false;
+                  }
+                  digitalWrite(onTargetA, HIGH);
+                  hitA = true;
+                  Serial.println("HitA");
+               //}
+            }
+         } 
+      }
+      else // Nothing happening
+      {
+          millisPastA = millis();
+      }
    }
    
    // weapon B
@@ -93,7 +93,7 @@ void loop()
    {
       if (weaponB < voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastB + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
          {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
@@ -126,7 +126,7 @@ void signalHits()
       if (millis() >= (millisPastFirst + lockOut))
       {
          // time for next action is up!
-         delay(3500); 
+         delay(3500);
          resetValues();      
       }
    }

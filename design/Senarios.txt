@@ -1,0 +1,23 @@
+Foil
+=====================
+1. Hit on target
+2. Hit off target
+3. Hit on target then hit off target
+4. Hit off target then hit on target
+5. Hit on target then hit on target
+6. Hit off target then hit off target
+7. Hit piste/guard
+
+
+Epee
+=====================
+1. Hit 
+2. Hit then hit again
+3. Hit piste/guard
+
+
+Sabre
+=====================
+1. HitA
+2. HitB
+3. HitA then HitB

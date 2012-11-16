@@ -18,17 +18,17 @@ int weaponPinB = 1;         // Weapon B pin
 int lamePinA   = 2;         // Lame A pin
 int lamePinB   = 3;         // Lame B pin
 
-int weaponA = 0;
-int weaponB = 0;
-int lameA   = 0;
-int lameB   = 0;
+int weaponA    = 0;
+int weaponB    = 0;
+int lameA      = 0;
+int lameB      = 0;
 
 long millisPastA     = 0;
 long millisPastB     = 0;
 long millisPastFirst = 0;
 
-int lockOut        = 300;    // the lockout time between hits for epee is 40ms
-int minHitDuration = 14;     // the minimum amount of time the tip needs to be depressed
+int lockOut        = 121;   // the lockout time between hits for epee is 40ms
+int minHitDuration = 1;     // the minimum amount of time the tip needs to be depressed
 
 boolean hitA = false;
 boolean hitB = false;
@@ -55,93 +55,91 @@ void setup() {
 
 void loop()
 {
-  weaponA = analogRead(weaponPinA);
-  weaponB = analogRead(weaponPinB);
-  lameA   = analogRead(lamePinA);
-  lameB   = analogRead(lamePinB);
+   weaponA = analogRead(weaponPinA);
+   weaponB = analogRead(weaponPinB);
+   lameA   = analogRead(lamePinA);
+   lameB   = analogRead(lamePinB);
+   
+   signalHits();  
   
-  signalHits();  
- 
-  // weapon A 
-  if (hitA == false) //ignore if we've hit
-  {
-    if (weaponA < voltageThresh)
-    {
-        if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
-        {
+   // weapon A 
+   if (hitA == false) //ignore if we've hit
+   {
+      if (weaponA < voltageThresh)
+      {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
+         {
             if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
             {
-                hitA = true;
-                if(isFirstHit)
-                {
+               hitA = true;
+               if(isFirstHit)
+               {
                   millisPastFirst = millis();
-                }
-                if (lameB > voltageThresh)
-                {
+               }
+               if (lameB > voltageThresh)
+               {
                   //onTarget
                   digitalWrite(onTargetA, HIGH);
-                }
-                else
-                {
+               }
+               else
+               {
                   //offTarget
                   digitalWrite(offTargetA, HIGH);
-                }
+               }
             }
-        } 
-    }
-    else // Nothing happening
-    {
-        millisPastA = millis();
-    }
-  }
-  
-  // weapon B
-  if (hitB == false) // ignore if we've hit
-  {
-    if (weaponB < voltageThresh)
-    {
-        if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
-        {
+         } 
+      }
+      else // Nothing happening
+      {
+          millisPastA = millis();
+      }
+   }
+   
+   // weapon B
+   if (hitB == false) // ignore if we've hit
+   {
+      if (weaponB < voltageThresh)
+      {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastB + lockOut > millis())))
+         {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
-                hitB = true;
-                if(isFirstHit)
-                {
+               hitB = true;
+               if(isFirstHit)
+               {
                   millisPastFirst = millis();
-                }
-                if (lameA > voltageThresh)
-                {
+               }
+               if (lameA > voltageThresh)
+               {
                   // onTarget
                   digitalWrite(onTargetB, HIGH);
-                }
-                else
-                {
+               }
+               else
+               {
                   // offTarget
                   digitalWrite(offTargetB, HIGH);
-                }
+               }
             }
-        }
-    }
-    else // nothing happening
-    {
+         }
+      }
+      else // nothing happening
+      {
         millisPastB = millis();
-    }
-  }
+      }
+   }
 }
 
 void signalHits()
 {
-  
-  if (hitA || hitB)
-  {
-    if (millis() >= (millisPastFirst + lockOut))
-    {
-      // time for next action is up!
-      delay(1500); 
-      resetValues();      
-    }
-  }
-
+   if (hitA || hitB)
+   {
+      if (millis() >= (millisPastFirst + lockOut))
+      {
+         // time for next action is up!
+         delay(1500); 
+         resetValues();      
+      }
+   }
 }
 
 void resetValues()

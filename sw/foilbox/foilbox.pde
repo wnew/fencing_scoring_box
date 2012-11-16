@@ -18,16 +18,16 @@ int weaponPinB = 1;         // Weapon B pin
 int lamePinA   = 2;         // Lame A pin
 int lamePinB   = 3;         // Lame B pin
 
-int weaponA = 0;
-int weaponB = 0;
-int lameA   = 0;
-int lameB   = 0;
+int weaponA    = 0;
+int weaponB    = 0;
+int lameA      = 0;
+int lameB      = 0;
 
 long millisPastA     = 0;
 long millisPastB     = 0;
 long millisPastFirst = 0;
 
-int lockOut        = 300;    // the lockout time between hits for epee is 40ms
+int lockOut        = 300;    // the lockout time between hits for epee is 300ms
 int minHitDuration = 14;     // the minimum amount of time the tip needs to be depressed
 
 boolean hitA = false;
@@ -35,7 +35,7 @@ boolean hitB = false;
 
 boolean isFirstHit = true;
 
-int voltageThresh = 500;         // the threshold that the scoring triggers on
+int voltageThresh = 500;     // the threshold that the scoring triggers on
 
 
 void setup() {
@@ -100,7 +100,7 @@ void loop()
    {
       if (weaponB < voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastB + lockOut > millis())))
          {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
