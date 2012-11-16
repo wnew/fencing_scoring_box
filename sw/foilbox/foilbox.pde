@@ -39,109 +39,107 @@ int voltageThresh = 500;         // the threshold that the scoring triggers on
 
 
 void setup() {
-  pinMode(offTargetA, OUTPUT);
-  pinMode(offTargetB, OUTPUT);
-  pinMode(onTargetA,  OUTPUT);
-  pinMode(onTargetB,  OUTPUT);
-  
-  pinMode(weaponPinA, INPUT);     
-  pinMode(weaponPinB, INPUT);     
-  pinMode(lamePinA,   INPUT);    
-  pinMode(lamePinB,   INPUT);
-  
-  Serial.begin(9600);
-  Serial.println("Start");
+   pinMode(offTargetA, OUTPUT);
+   pinMode(offTargetB, OUTPUT);
+   pinMode(onTargetA,  OUTPUT);
+   pinMode(onTargetB,  OUTPUT);
+   
+   pinMode(weaponPinA, INPUT);     
+   pinMode(weaponPinB, INPUT);     
+   pinMode(lamePinA,   INPUT);    
+   pinMode(lamePinB,   INPUT);
+   
+   Serial.begin(9600);
+   Serial.println("Start");
 }
 
 void loop()
 {
-  weaponA = analogRead(weaponPinA);
-  weaponB = analogRead(weaponPinB);
-  lameA   = analogRead(lamePinA);
-  lameB   = analogRead(lamePinB);
+   weaponA = analogRead(weaponPinA);
+   weaponB = analogRead(weaponPinB);
+   lameA   = analogRead(lamePinA);
+   lameB   = analogRead(lamePinB);
+   
+   signalHits();  
   
-  signalHits();  
- 
-  // weapon A 
-  if (hitA == false) //ignore if we've hit
-  {
-    if (weaponA < voltageThresh)
-    {
-        if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
-        {
+   // weapon A 
+   if (hitA == false) //ignore if we've hit
+   {
+      if (weaponA < voltageThresh)
+      {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
+         {
             if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
             {
-                hitA = true;
-                if(isFirstHit)
-                {
+               hitA = true;
+               if(isFirstHit)
+               {
                   millisPastFirst = millis();
-                }
-                if (lameB > voltageThresh)
-                {
+               }
+               if (lameB > voltageThresh)
+               {
                   //onTarget
                   digitalWrite(onTargetA, HIGH);
-                }
-                else
-                {
+               }
+               else
+               {
                   //offTarget
                   digitalWrite(offTargetA, HIGH);
-                }
+               }
             }
-        } 
-    }
-    else // Nothing happening
-    {
-        millisPastA = millis();
-    }
-  }
-  
-  // weapon B
-  if (hitB == false) // ignore if we've hit
-  {
-    if (weaponB < voltageThresh)
-    {
-        if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
-        {
+         } 
+      }
+      else // Nothing happening
+      {
+         millisPastA = millis();
+      }
+   }
+   
+   // weapon B
+   if (hitB == false) // ignore if we've hit
+   {
+      if (weaponB < voltageThresh)
+      {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
+         {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
                 hitB = true;
                 if(isFirstHit)
                 {
-                  millisPastFirst = millis();
+                   millisPastFirst = millis();
                 }
                 if (lameA > voltageThresh)
                 {
-                  // onTarget
-                  digitalWrite(onTargetB, HIGH);
+                   // onTarget
+                   digitalWrite(onTargetB, HIGH);
                 }
                 else
                 {
-                  // offTarget
-                  digitalWrite(offTargetB, HIGH);
+                   // offTarget
+                   digitalWrite(offTargetB, HIGH);
                 }
             }
-        }
-    }
-    else // nothing happening
-    {
-        millisPastB = millis();
-    }
-  }
+         }
+      }
+      else // nothing happening
+      {
+         millisPastB = millis();
+      }
+   }
 }
 
 void signalHits()
 {
-  
-  if (hitA || hitB)
-  {
-    if (millis() >= (millisPastFirst + lockOut))
-    {
-      // time for next action is up!
-      delay(1500); 
-      resetValues();      
-    }
-  }
-
+   if (hitA || hitB)
+   {
+      if (millis() >= (millisPastFirst + lockOut))
+      {
+         // time for next action is up!
+         delay(1500); 
+         resetValues();      
+      }
+   }
 }
 
 void resetValues()

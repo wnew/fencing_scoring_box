@@ -16,10 +16,10 @@ int weaponPinB = 1;         // Weapon B pin
 int lamePinA   = 2;         // Lame A pin
 int lamePinB   = 3;         // Lame B pin
 
-int weaponA = 0;
-int weaponB = 0;
-int lameA   = 0;
-int lameB   = 0;
+int weaponA    = 0;
+int weaponB    = 0;
+int lameA      = 0;
+int lameB      = 0;
 
 long millisPastA     = 0;
 long millisPastB     = 0;
@@ -58,34 +58,34 @@ void loop()
   
    signalHits();  
  
-  // weapon A 
+   // weapon A 
    if (hitA == false) //ignore if we've hit
    {
-     if (weaponA < voltageThresh)
-     {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
-         {
-            if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
-            {
-               hitA = true;
-               if(isFirstHit)
-               {
-                  isFirstHit = false;
-                  millisPastFirst = millis();
-               }
-               //if (lameA > 500)
-               //{
-                  //onTarget
-                  digitalWrite(onTargetA, HIGH);
-                  Serial.println("HitA");
-               //}
-            }
-         } 
-      }
-      else // Nothing happening
+      if (weaponA < voltageThresh)
       {
-          millisPastA = millis();
-      }
+          if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
+          {
+             if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
+             {
+                //if (lameA > voltageThresh)
+                //{
+                   // onTarget
+                   if(isFirstHit)
+                   {
+                      millisPastFirst = millis();
+                      isFirstHit = false;
+                   }
+                   digitalWrite(onTargetA, HIGH);
+                   hitA = true;
+                   Serial.println("HitA");
+                //}
+             }
+          } 
+       }
+       else // Nothing happening
+       {
+           millisPastA = millis();
+       }
    }
    
    // weapon B
@@ -93,20 +93,20 @@ void loop()
    {
       if (weaponB < voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastB + lockOut > millis())))
          {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
-               hitB = true;
-               if(isFirstHit)
-               {
-                  isFirstHit = false;
-                  millisPastFirst = millis();
-               }
-               //if (lameB > 500)
+               //if (lameB > voltageThresh)
                //{
-                  //onTarget
+                  // onTarget
+                  if(isFirstHit)
+                  {
+                     millisPastFirst = millis();
+                     isFirstHit = false;
+                  }
                   digitalWrite(onTargetB, HIGH);
+                  hitB = true;
                   Serial.println("HitB");
                //}
             }
@@ -121,14 +121,13 @@ void loop()
 
 void signalHits()
 {
-  
    if (hitA || hitB)
    {
       if (millis() >= (millisPastFirst + lockOut))
       {
-        // time for next action is up!
-        delay(3500); 
-        resetValues();      
+         // time for next action is up!
+         delay(3500); 
+         resetValues();      
       }
    }
 }
