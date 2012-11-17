@@ -61,24 +61,24 @@ void loop()
    // weapon A 
    if (hitA == false) //ignore if we've hit
    {
-      if (weaponA < voltageThresh)
+      if (weaponA > voltageThresh)
       {
          if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
          {
             if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
             {
                if (lameA > voltageThresh)
-               //{
+               {
                   // onTarget
                   if(isFirstHit)
                   {
-                     millisPastFirst = millis();
+                     millisPastFirst = millisPastA;
                      isFirstHit = false;
                   }
                   digitalWrite(onTargetA, HIGH);
                   hitA = true;
                   Serial.println("HitA");
-               //}
+               }
             }
          } 
       }
@@ -91,24 +91,24 @@ void loop()
    // weapon B
    if (hitB == false) // ignore if we've hit
    {
-      if (weaponB < voltageThresh)
+      if (weaponB > voltageThresh)
       {
          if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
          {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
-               //if (lameB > voltageThresh)
-               //{
+               if (lameB > voltageThresh)
+               {
                   // onTarget
                   if(isFirstHit)
                   {
-                     millisPastFirst = millis();
+                     millisPastFirst = millisPastB;
                      isFirstHit = false;
                   }
                   digitalWrite(onTargetB, HIGH);
                   hitB = true;
                   Serial.println("HitB");
-               //}
+               }
             }
          }
       }
@@ -139,8 +139,10 @@ void resetValues()
    digitalWrite(onTargetA, LOW);
    digitalWrite(onTargetB, LOW);
      
-   millisPastA = millis();
-   millisPastB = millis();
+   //millisPastA = millis();
+   //millisPastB = millis();
+   millisPastA = 0;
+   millisPastB = 0;
    millisPastFirst = 0;
 
    hitA = false;
