@@ -8,17 +8,17 @@
 //                                                                           //
 //===========================================================================//
 
-int onTargetA = 12;         // On Target A Light
-int onTargetB = 13;         // On Target B Light
+int onTargetA = 9;          // On Target A Light
+int onTargetB = 12;         // On Target B Light
 
 int weaponPinA = 0;         // Weapon A pin
 int weaponPinB = 1;         // Weapon B pin
-int lamePinA   = 2;         // Lame A pin
-int lamePinB   = 3;         // Lame B pin
+int lamePinA   = 2;         // Lame A pin (Epee return path)
+int lamePinB   = 3;         // Lame B pin (Epee return path)
 
 int weaponA    = 0;
 int weaponB    = 0;
-int lameA      = 0;
+int lameA      = 0;         
 int lameB      = 0;
 
 long millisPastA     = 0;
@@ -61,13 +61,13 @@ void loop()
    // weapon A 
    if (hitA == false) //ignore if we've hit
    {
-      if (weaponA > voltageThresh)
+      if (weaponA < voltageThresh)
       {
          if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
          {
             if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
             {
-               if (lameB > voltageThresh)
+               if (lameA > voltageThresh)
                {
                   // onTarget
                   if(isFirstHit)
@@ -91,13 +91,13 @@ void loop()
    // weapon B
    if (hitB == false) // ignore if we've hit
    {
-      if (weaponB > voltageThresh)
+      if (weaponB < voltageThresh)
       {
          if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
          {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
-               if (lameA > voltageThresh)
+               if (lameB > voltageThresh)
                {
                   // onTarget
                   if(isFirstHit)
@@ -126,7 +126,7 @@ void signalHits()
       if (millis() >= (millisPastFirst + lockOut))
       {
          // time for next action is up!
-         delay(3500);
+         delay(1500);
          resetValues();      
       }
    }
@@ -150,5 +150,5 @@ void resetValues()
 
    isFirstHit = true;
    
-   delay(500);
+   delay(100);
 }

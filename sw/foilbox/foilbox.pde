@@ -10,8 +10,8 @@
 
 int offTargetA = 10;        // Off Target A Light
 int offTargetB = 11;        // Off Target B Light
-int onTargetA  = 12;        // On Target A Light
-int onTargetB  = 13;        // On Target B Light
+int onTargetA  = 9;        // On Target A Light
+int onTargetB  = 12;        // On Target B Light
 
 int weaponPinA = 0;         // Weapon A pin
 int weaponPinB = 1;         // Weapon B pin
@@ -67,7 +67,7 @@ void loop()
    {
       if (weaponA < voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
          {
             if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
             {
@@ -100,7 +100,7 @@ void loop()
    {
       if (weaponB < voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastB + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
          {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
@@ -159,5 +159,5 @@ void resetValues()
 
    isFirstHit = true;
    
-   delay(500);
+   delay(100);
 }
