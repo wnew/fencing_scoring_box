@@ -67,7 +67,7 @@ void loop()
          {
             if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
             {
-               if (lameA > voltageThresh)
+               if (lameB > voltageThresh)
                {
                   // onTarget
                   if(isFirstHit)
@@ -97,7 +97,7 @@ void loop()
          {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
-               if (lameB > voltageThresh)
+               if (lameA > voltageThresh)
                {
                   // onTarget
                   if(isFirstHit)
