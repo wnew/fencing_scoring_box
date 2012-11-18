@@ -126,7 +126,7 @@ void signalHits()
       if (millis() >= (millisPastFirst + lockOut))
       {
          // time for next action is up!
-         delay(1500);
+         delay(3500);
          resetValues();      
       }
    }
