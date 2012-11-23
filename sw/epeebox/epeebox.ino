@@ -33,7 +33,7 @@ boolean hitB = false;
 
 boolean isFirstHit = true;
 
-int voltageThresh = 500;         // the threshold that the scoring triggers on
+int voltageThresh = 340;         // the threshold that the scoring triggers on (1024/3)
 
 
 void setup() {
@@ -61,7 +61,7 @@ void loop()
    // weapon A 
    if (hitA == false) //ignore if we've hit
    {
-      if (weaponA < voltageThresh)
+      if (weaponA < 1024 - voltageThresh)
       {
          if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
          {
@@ -91,7 +91,7 @@ void loop()
    // weapon B
    if (hitB == false) // ignore if we've hit
    {
-      if (weaponB < voltageThresh)
+      if (weaponB < 1024 - voltageThresh)
       {
          if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
          {
