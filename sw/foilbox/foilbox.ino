@@ -104,21 +104,21 @@ void loop()
          {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
-                hitB = true;
-                if(isFirstHit)
-                {
-                   millisPastFirst = millis();
-                }
-                if (lameA > voltageThresh)
-                {
-                   // onTarget
-                   digitalWrite(onTargetB, HIGH);
-                }
-                else
-                {
-                   // offTarget
-                   digitalWrite(offTargetB, HIGH);
-                }
+               hitB = true;
+               if(isFirstHit)
+               {
+                  millisPastFirst = millis();
+               }
+               if (lameA > voltageThresh)
+               {
+                  // onTarget
+                  digitalWrite(onTargetB, HIGH);
+               }
+               else
+               {
+                  // offTarget
+                  digitalWrite(offTargetB, HIGH);
+               }
             }
          }
       }
