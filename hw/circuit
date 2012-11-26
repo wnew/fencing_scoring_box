@@ -1,0 +1,16 @@
+
+
+
+
+          --------o  Lame Pin
+ 5V___    R
+    |     |
+    R    GND
+    |
+    --------------o  Weapon Pin
+
+
+
+          --------o  Guard Pin
+          |
+         GND
