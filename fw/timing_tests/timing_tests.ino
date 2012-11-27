@@ -28,11 +28,6 @@ char input = ' ';
 int voltageThresh = 500;         // the threshold that the scoring triggers on
 
 void setup() {
-   pinMode(offTargetA, INPUT);
-   pinMode(offTargetB, INPUT);
-   pinMode(onTargetA,  INPUT);
-   pinMode(onTargetB,  INPUT);
-   
    pinMode(weaponPinA, OUTPUT);     
    pinMode(weaponPinB, OUTPUT);     
    pinMode(lamePinA,   OUTPUT);    
@@ -110,7 +105,7 @@ void menu()
 
 void foil_run_all_senarios()
 {
-
+   foil_test_hit();
    foil_hitA();  
    foil_hitB();
    foil_off_targetA();
@@ -121,8 +116,10 @@ void foil_run_all_senarios()
    foil_fB_piste();
    foil_hitA_hitB();
    foil_hitB_hitA();
-   foil_hitB_off_targetA();
    foil_hitA_off_targetB();
+   foil_hitB_off_targetA();
+   foil_off_targetA_hitB();
+   foil_off_targetB_hitA();
    foil_hitA_lockout_off_targetB();
    foil_hitB_lockout_off_targetA();
    foil_hitA_lockout_hitB();
@@ -133,16 +130,17 @@ void foil_run_all_senarios()
 void foil_get_timing(int lockout)
 {
    Serial.println("finding foil lockout time");
-   for (int i = 40; i < 60; i++)
+   for (int i = 295; i < 305; i++)
    {
       Serial.print(i);
       Serial.println("ms");
-      digitalWrite(weaponPinB, LOW);
-      delay(i);
-      digitalWrite(weaponPinA, LOW);
-      delay(100);
-      digitalWrite(weaponPinB, HIGH);
       digitalWrite(weaponPinA, HIGH);
+      digitalWrite(lamePinB, HIGH);
+      delay(i);
+      digitalWrite(weaponPinB, HIGH);
+      digitalWrite(lamePinA, HIGH);
+      delay(100);
+      foil_reset();
       read_lights();
       if (onA > 500 && onB > 500 && offA < 500 && offB < 500)
          Serial.println("Double Hit");
@@ -151,6 +149,33 @@ void foil_get_timing(int lockout)
       delay(3000);
    }
 }
+
+
+// hitA off and 
+void foil_test_hit()
+{
+   Serial.println("A on 10ms released 10ms B on 10ms released");
+   digitalWrite(weaponPinA, HIGH);
+   digitalWrite(lamePinB, HIGH);
+   delay(10);
+   digitalWrite(weaponPinA, LOW);
+   digitalWrite(lamePinB, LOW);
+   delay(10);
+   digitalWrite(weaponPinB, HIGH);
+   digitalWrite(lamePinA, HIGH);
+   delay(10);
+   digitalWrite(weaponPinB, LOW);
+   digitalWrite(lamePinA, LOW);
+   foil_reset();
+   read_lights();
+   if (onA > 500 && onB > 500 && offA < 500 && offB < 500)
+      Serial.println("Pass");
+   else
+      Serial.println("Fail");
+   delay(2000);
+}
+
+
 
 // fencer A ontarget for more then the depressed time
 void foil_hitA()
@@ -347,6 +372,44 @@ void foil_hitB_off_targetA()
 }
 
 // fencer A on target then fencer B on target before lockout
+void foil_off_targetA_hitB()
+{
+   Serial.println("foil_off_targetA_hitB with 280ms delay");
+   digitalWrite(weaponPinA, HIGH);
+   digitalWrite(lamePinB, LOW);
+   delay(280);
+   digitalWrite(weaponPinB, HIGH);
+   digitalWrite(lamePinA, HIGH);
+   delay(100);
+   foil_reset();
+   read_lights();
+   if (onA < 500 && onB > 500 && offA > 500 && offB < 500)
+      Serial.println("Pass");
+   else
+      Serial.println("Fail");
+   delay(2000);
+}
+
+// fencer A on target then fencer B on target before lockout
+void foil_off_targetB_hitA()
+{
+   Serial.println("foil_off_targetB_hitA with 280ms delay");
+   digitalWrite(weaponPinB, HIGH);
+   digitalWrite(lamePinA, LOW);
+   delay(280);
+   digitalWrite(weaponPinA, HIGH);
+   digitalWrite(lamePinB, HIGH);
+   delay(100);
+   foil_reset();
+   read_lights();
+   if (onA > 500 && onB < 500 && offA < 500 && offB > 500)
+      Serial.println("Pass");
+   else
+      Serial.println("Fail");
+   delay(2000);
+}
+
+// fencer A on target then fencer B on target before lockout
 void foil_hitA_lockout_off_targetB()
 {
    Serial.println("foil_hitA_lockout_off_targetB with 320ms delay");
@@ -465,9 +528,11 @@ void epee_get_timing(int lockout)
    {
       Serial.print(i);
       Serial.println("ms");
-      digitalWrite(weaponPinB, LOW);
-      delay(i);
       digitalWrite(weaponPinA, LOW);
+      digitalWrite(lamePinA, HIGH);
+      delay(i);
+      digitalWrite(weaponPinB, LOW);
+      digitalWrite(lamePinB, HIGH);
       delay(100);
       epee_reset();
       read_lights();
