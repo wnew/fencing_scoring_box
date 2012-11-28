@@ -1,6 +1,6 @@
 //===========================================================================//
 //                                                                           //
-//  Desc: Arduino Code to implement a sabre scoring apparatus                //
+//  Desc: Arduino Code to implement a foil scoring apparatus                 //
 //  Dev:  DigitalWestie & Wnew                                               //
 //  Date: Nov 2012                                                           //
 //  Notes: Origonal code from digitalwestie on github                        //
@@ -10,8 +10,8 @@
 
 int offTargetA = 10;        // Off Target A Light
 int offTargetB = 11;        // Off Target B Light
-int onTargetA  = 12;        // On Target A Light
-int onTargetB  = 13;        // On Target B Light
+int onTargetA  = 9;         // On Target A Light
+int onTargetB  = 12;        // On Target B Light
 
 int weaponPinA = 0;         // Weapon A pin
 int weaponPinB = 1;         // Weapon B pin
@@ -27,30 +27,30 @@ long millisPastA     = 0;
 long millisPastB     = 0;
 long millisPastFirst = 0;
 
-int lockOut        = 121;   // the lockout time between hits for epee is 40ms
-int minHitDuration = 1;     // the minimum amount of time the tip needs to be depressed
+int lockOut        = 300;    // the lockout time between hits for epee is 300ms
+int minHitDuration = 14;     // the minimum amount of time the tip needs to be depressed
 
 boolean hitA = false;
 boolean hitB = false;
 
 boolean isFirstHit = true;
 
-int voltageThresh = 500;         // the threshold that the scoring triggers on
+int voltageThresh = 340;     // the threshold that the scoring triggers on (1024/3)
 
 
 void setup() {
-  pinMode(offTargetA, OUTPUT);
-  pinMode(offTargetB, OUTPUT);
-  pinMode(onTargetA,  OUTPUT);
-  pinMode(onTargetB,  OUTPUT);
-  
-  pinMode(weaponPinA, INPUT);     
-  pinMode(weaponPinB, INPUT);     
-  pinMode(lamePinA,   INPUT);    
-  pinMode(lamePinB,   INPUT);
-  
-  Serial.begin(9600);
-  Serial.println("Start");
+   pinMode(offTargetA, OUTPUT);
+   pinMode(offTargetB, OUTPUT);
+   pinMode(onTargetA,  OUTPUT);
+   pinMode(onTargetB,  OUTPUT);
+   
+   pinMode(weaponPinA, INPUT);     
+   pinMode(weaponPinB, INPUT);     
+   pinMode(lamePinA,   INPUT);    
+   pinMode(lamePinB,   INPUT);
+   
+   Serial.begin(9600);
+   Serial.println("Start");
 }
 
 void loop()
@@ -65,9 +65,9 @@ void loop()
    // weapon A 
    if (hitA == false) //ignore if we've hit
    {
-      if (weaponA < voltageThresh)
+      if (weaponA > voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastA + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
          {
             if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
             {
@@ -80,27 +80,23 @@ void loop()
                {
                   //onTarget
                   digitalWrite(onTargetA, HIGH);
-               }
-               else
-               {
-                  //offTarget
-                  digitalWrite(offTargetA, HIGH);
+                  Serial.write("A");
                }
             }
          } 
       }
       else // Nothing happening
       {
-          millisPastA = millis();
+         millisPastA = millis();
       }
    }
    
    // weapon B
    if (hitB == false) // ignore if we've hit
    {
-      if (weaponB < voltageThresh)
+      if (weaponB > voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastB + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
          {
             if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
             {
@@ -113,18 +109,14 @@ void loop()
                {
                   // onTarget
                   digitalWrite(onTargetB, HIGH);
-               }
-               else
-               {
-                  // offTarget
-                  digitalWrite(offTargetB, HIGH);
+                  Serial.write("B");
                }
             }
          }
       }
       else // nothing happening
       {
-        millisPastB = millis();
+         millisPastB = millis();
       }
    }
 }
@@ -145,10 +137,11 @@ void signalHits()
 void resetValues()
 {
    // red side wont reset without fiddling with other side!!
+   Serial.print("R");
    digitalWrite(offTargetA, LOW);
-   digitalWrite(onTargetA, LOW);
+   digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetB, LOW);
-   digitalWrite(onTargetB, LOW);
+   digitalWrite(onTargetB,  LOW);
      
    millisPastA = millis();
    millisPastB = millis();
@@ -159,6 +152,5 @@ void resetValues()
 
    isFirstHit = true;
    
-   delay(500);
+   delay(100);
 }
-

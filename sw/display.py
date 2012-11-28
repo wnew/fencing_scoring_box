@@ -23,10 +23,6 @@ class MyTkApp(threading.Thread):
       coord3 = 410, 10, 600, 200
       global coord4
       coord4 = 610, 10, 800, 200
-      self.on_targ_red  = C.create_rectangle(coord1, fill="grey")
-      self.off_targ_red = C.create_rectangle(coord2, fill="grey")
-      self.off_targ_grn = C.create_rectangle(coord3, fill="grey")
-      self.on_targ_grn  = C.create_rectangle(coord4, fill="grey")
       C.pack()
       self.top.mainloop()
       #self.root=Tkinter.Tk()
@@ -50,6 +46,7 @@ class serial_coms():
       self.ser = serial.Serial(device, speed, timeout=timeout)
       print self.ser.portstr       # check which port was really used
    def wait_for_hit(self):
+      reset_lights(self)
       for i in range(0,10000):
          time.sleep(0.01);
          s = ""

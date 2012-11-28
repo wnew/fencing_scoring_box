@@ -10,7 +10,7 @@
 
 int offTargetA = 10;        // Off Target A Light
 int offTargetB = 11;        // Off Target B Light
-int onTargetA  = 9;        // On Target A Light
+int onTargetA  = 9;         // On Target A Light
 int onTargetB  = 12;        // On Target B Light
 
 int weaponPinA = 0;         // Weapon A pin
