@@ -80,11 +80,13 @@ void loop()
                {
                   //onTarget
                   digitalWrite(onTargetA, HIGH);
+                  Serial.write("A");
                }
                else
                {
                   //offTarget
                   digitalWrite(offTargetA, HIGH);
+                  Serial.write("C");
                }
             }
          } 
@@ -113,11 +115,13 @@ void loop()
                {
                   // onTarget
                   digitalWrite(onTargetB, HIGH);
+                  Serial.write("B");
                }
                else
                {
                   // offTarget
                   digitalWrite(offTargetB, HIGH);
+                  Serial.write("D");
                }
             }
          }
@@ -145,6 +149,7 @@ void signalHits()
 void resetValues()
 {
    // red side wont reset without fiddling with other side!!
+   Serial.print("R");
    digitalWrite(offTargetA, LOW);
    digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetB, LOW);

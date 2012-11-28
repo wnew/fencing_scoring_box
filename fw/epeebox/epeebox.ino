@@ -77,7 +77,7 @@ void loop()
                   }
                   digitalWrite(onTargetA, HIGH);
                   hitA = true;
-                  Serial.println("HitA");
+                  Serial.println("A");
                }
             }
          } 
@@ -107,7 +107,7 @@ void loop()
                   }
                   digitalWrite(onTargetB, HIGH);
                   hitB = true;
-                  Serial.println("HitB");
+                  Serial.println("B");
                }
             }
          }
@@ -135,7 +135,7 @@ void signalHits()
 void resetValues()
 {
    // red side wont reset without fiddling with other side!!
-   Serial.println("reset lights");
+   Serial.println("R");
    digitalWrite(onTargetA, LOW);
    digitalWrite(onTargetB, LOW);
      
