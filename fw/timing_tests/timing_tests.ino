@@ -59,7 +59,7 @@ void menu()
       input = Serial.read();
       if (input == '1')
       {
-         foil_get_timing(0);
+         foil_get_lockout(0);
       }
       if (input == '2')
       {
@@ -127,7 +127,7 @@ void foil_run_all_senarios()
 }
 
 
-void foil_get_timing(int lockout)
+void foil_get_lockout(int lockout)
 {
    Serial.println("finding foil lockout time");
    for (int i = 295; i < 305; i++)
@@ -146,6 +146,29 @@ void foil_get_timing(int lockout)
          Serial.println("Double Hit");
       else
          Serial.println("Single Hit");
+      delay(3000);
+   }
+}
+
+void foil_get_depress(int depress)
+{
+   Serial.println("finding foil depress time");
+   for (int i = 10; i < 20; i++)
+   {
+      Serial.print(i);
+      Serial.println("ms");
+      digitalWrite(weaponPinA, HIGH);
+      digitalWrite(lamePinB, HIGH);
+      delay(i);
+      digitalWrite(weaponPinA, LOW);
+      digitalWrite(lamePinB, LOW);
+      delay(100);
+      foil_reset();
+      read_lights();
+      if (onA > 500 && onB < 500 && offA < 500 && offB < 500)
+         Serial.println("Hit");
+      else
+         Serial.println("No Hit");
       delay(3000);
    }
 }
@@ -521,7 +544,7 @@ void generic_Epee_hit(bool a_hit_first, int time_between_hits, bool hitB)
    read_lights();
 }
 
-void epee_get_timing(int lockout)
+void epee_get_lockout(int lockout)
 {
    Serial.println("finding epee lockout time");
    for (int i = 40; i < 60; i++)
@@ -540,6 +563,29 @@ void epee_get_timing(int lockout)
          Serial.println("Double Hit");
       else
          Serial.println("Single Hit");
+      delay(3000);
+   }
+}
+
+void epee_get_depress(int depress)
+{
+   Serial.println("finding epee depress time");
+   for (int i = 1; i < 10; i++)
+   {
+      Serial.print(i);
+      Serial.println("ms");
+      digitalWrite(weaponPinA, LOW);
+      digitalWrite(lamePinA, HIGH);
+      delay(i);
+      digitalWrite(weaponPinA, HIGH);
+      digitalWrite(lamePinA, LOW);
+      delay(100);
+      epee_reset();
+      read_lights();
+      if (onA > 500 && onB < 500 && offA < 500 && offB < 500)
+         Serial.println(" Hit");
+      else
+         Serial.println("No Hit");
       delay(3000);
    }
 }
