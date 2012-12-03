@@ -27,8 +27,12 @@ long millisPastA     = 0;
 long millisPastB     = 0;
 long millisPastFirst = 0;
 
-int lockOut        = 300;    // the lockout time between hits for epee is 300ms
-int minHitDuration = 14;     // the minimum amount of time the tip needs to be depressed
+int foilLockout  = 300;    // the lockout time between hits for foil is 300ms
+int foilDepress  = 14;     // the minimum amount of time the tip needs to be depressed for foil
+int epeeLockout  = 48;    // the lockout time between hits for foil is 300ms
+int epeeDepress  = 4;     // the minimum amount of time the tip needs to be depressed for foil
+int sabreLockout = 120;    // the lockout time between hits for foil is 120ms +/-5ms   Was 250 -> 120 -> now talk of 180-200
+int sabreDepress = ;     // the minimum amount of time the tip needs to be depressed for foil
 
 boolean hitA = false;
 boolean hitB = false;
@@ -98,9 +102,9 @@ void foil()
    {
       if (weaponA > voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + foilLockout > millis())))
          {
-            if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
+            if  (millis() <= (millisPastA + foilDepress)) // if 14ms or more have past we have a hit
             {
                hitA = true;
                if(isFirstHit)
@@ -133,9 +137,9 @@ void foil()
    {
       if (weaponB > voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + foilLockout > millis())))
          {
-            if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
+            if  (millis() <= (millisPastB + foilDepress)) // if 14ms or more have past we have a hit
             {
                hitB = true;
                if(isFirstHit)
@@ -178,9 +182,9 @@ void epee()
    {
       if (weaponA < 1024 - voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + epeeLockout > millis())))
          {
-            if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
+            if  (millis() <= (millisPastA + epeeDepress)) // if 14ms or more have past we have a hit
             {
                if (lameA > voltageThresh)
                {
@@ -208,9 +212,9 @@ void epee()
    {
       if (weaponB < 1024 - voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + epeeLockout > millis())))
          {
-            if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
+            if  (millis() <= (millisPastB + epeeDepress)) // if 14ms or more have past we have a hit
             {
                if (lameB > voltageThresh)
                {
@@ -248,9 +252,9 @@ void sabre()
    {
       if (weaponA > voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + sabreLockout > millis())))
          {
-            if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
+            if  (millis() <= (millisPastA + sabreDepress)) // if 14ms or more have past we have a hit
             {
                hitA = true;
                if(isFirstHit)
@@ -277,9 +281,9 @@ void sabre()
    {
       if (weaponB > voltageThresh)
       {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + sabreLockout > millis())))
          {
-            if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
+            if  (millis() <= (millisPastB + sabreDepress)) // if 14ms or more have past we have a hit
             {
                hitB = true;
                if(isFirstHit)
