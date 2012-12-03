@@ -43,6 +43,8 @@ void loop()
 
 void menu()
 {
+   Serial.println("Welcome to the Fencing Scoring Machine tester");
+   Serial.println("==============================================");
    Serial.println("Select Weapon:");
    Serial.println("1. Foil");
    Serial.println("2. Epee");
@@ -54,7 +56,8 @@ void menu()
       // foil menu
       Serial.println("Select Foil Test:");
       Serial.println("1. Get foil lockout time");
-      Serial.println("2. Run all foil senarios");
+      Serial.println("2. Get foil depress time");
+      Serial.println("3. Run all foil senarios");
       while(!Serial.available());
       input = Serial.read();
       if (input == '1')
@@ -62,6 +65,10 @@ void menu()
          foil_get_lockout(0);
       }
       if (input == '2')
+      {
+         foil_get_depress(0);
+      }
+      if (input == '3')
       {
          foil_run_all_senarios();
       }
@@ -71,14 +78,19 @@ void menu()
       // epee menu
       Serial.println("Select Epee Test:");
       Serial.println("1. Get epee lockout time");
-      Serial.println("2. Run all epee senarios");
+      Serial.println("2. Get epee depress time");
+      Serial.println("3. Run all epee senarios");
       while(!Serial.available());
       input = Serial.read();
       if (input == '1')
       {
-         epee_get_timing(0);
+         epee_get_lockout(0);
       }
       if (input == '2')
+      {
+         epee_get_depress(0);
+      }
+      if (input == '3')
       {
          epee_run_all_senarios();
       }

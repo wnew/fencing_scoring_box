@@ -37,8 +37,19 @@ boolean isFirstHit = true;
 
 int voltageThresh = 340;     // the threshold that the scoring triggers on (1024/3)
 
+const int modePin = 0;
+int mode = 0;
+
+// mode constants
+const int FOIL_MODE  = 0;
+const int EPEE_MODE  = 1;
+const int SABRE_MODE = 2;
 
 void setup() {
+
+   // add the interrupt to the mode pin
+   attachInterrupt(modePin, changeMode, RISING);
+
    pinMode(offTargetA, OUTPUT);
    pinMode(offTargetB, OUTPUT);
    pinMode(onTargetA,  OUTPUT);
@@ -50,11 +61,30 @@ void setup() {
    pinMode(lamePinB,   INPUT);
    
    Serial.begin(9600);
-   Serial.println("Foil Scoring Box");
-   Serial.println("================");
+   Serial.println("3 Weapon Scoring Box");
+   Serial.println("====================");
 }
 
-void loop()
+void loop() {
+  if (mode == FOIL_MODE)
+    foil();
+  if (mode == EPEE_MODE)
+    epee();
+  if (mode == SABRE_MODE)
+    sabre();
+}
+
+// when the mode button is pressed this method is run
+void changeMode() {
+  delay(500);
+  if (mode == 2)
+    mode = 0;
+  else
+    mode++;
+  Serial.println(mode);
+}
+
+void foil()
 {
    weaponA = analogRead(weaponPinA);
    weaponB = analogRead(weaponPinB);
@@ -123,6 +153,144 @@ void loop()
                   // offTarget
                   digitalWrite(offTargetB, HIGH);
                   Serial.write("D");
+               }
+            }
+         }
+      }
+      else // nothing happening
+      {
+         millisPastB = millis();
+      }
+   }
+}
+
+void epee()
+{
+   weaponA = analogRead(weaponPinA);
+   weaponB = analogRead(weaponPinB);
+   lameA   = analogRead(lamePinA);
+   lameB   = analogRead(lamePinB);
+  
+   signalHits();  
+ 
+   // weapon A 
+   if (hitA == false) //ignore if we've hit
+   {
+      if (weaponA < 1024 - voltageThresh)
+      {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
+         {
+            if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
+            {
+               if (lameA > voltageThresh)
+               {
+                  // onTarget
+                  if(isFirstHit)
+                  {
+                     millisPastFirst = millisPastA;
+                     isFirstHit = false;
+                  }
+                  digitalWrite(onTargetA, HIGH);
+                  hitA = true;
+                  Serial.println("A");
+               }
+            }
+         } 
+      }
+      else // Nothing happening
+      {
+          millisPastA = millis();
+      }
+   }
+   
+   // weapon B
+   if (hitB == false) // ignore if we've hit
+   {
+      if (weaponB < 1024 - voltageThresh)
+      {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
+         {
+            if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
+            {
+               if (lameB > voltageThresh)
+               {
+                  // onTarget
+                  if(isFirstHit)
+                  {
+                     millisPastFirst = millisPastB;
+                     isFirstHit = false;
+                  }
+                  digitalWrite(onTargetB, HIGH);
+                  hitB = true;
+                  Serial.println("B");
+               }
+            }
+         }
+      }
+      else // nothing happening
+      {
+         millisPastB = millis();
+      }
+   }
+}
+
+void sabre()
+{
+   weaponA = analogRead(weaponPinA);
+   weaponB = analogRead(weaponPinB);
+   lameA   = analogRead(lamePinA);
+   lameB   = analogRead(lamePinB);
+   
+   signalHits();  
+  
+   // weapon A 
+   if (hitA == false) //ignore if we've hit
+   {
+      if (weaponA > voltageThresh)
+      {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
+         {
+            if  (millis() <= (millisPastA + minHitDuration)) // if 14ms or more have past we have a hit
+            {
+               hitA = true;
+               if(isFirstHit)
+               {
+                  millisPastFirst = millis();
+               }
+               if (lameB > voltageThresh)
+               {
+                  //onTarget
+                  digitalWrite(onTargetA, HIGH);
+                  Serial.write("A");
+               }
+            }
+         } 
+      }
+      else // Nothing happening
+      {
+         millisPastA = millis();
+      }
+   }
+   
+   // weapon B
+   if (hitB == false) // ignore if we've hit
+   {
+      if (weaponB > voltageThresh)
+      {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis())))
+         {
+            if  (millis() <= (millisPastB + minHitDuration)) // if 14ms or more have past we have a hit
+            {
+               hitB = true;
+               if(isFirstHit)
+               {
+                  millisPastFirst = millis();
+               }
+               if (lameA > voltageThresh)
+               {
+                  // onTarget
+                  digitalWrite(onTargetB, HIGH);
+                  Serial.write("B");
                }
             }
          }

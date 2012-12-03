@@ -46,7 +46,8 @@ void setup() {
    pinMode(lamePinB,   INPUT);
   
    Serial.begin(9600);
-   Serial.println("Start");
+   Serial.println("Epee Scoring Box");
+   Serial.println("================");
 }
 
 void loop()

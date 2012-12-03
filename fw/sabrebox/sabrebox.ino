@@ -50,7 +50,9 @@ void setup() {
    pinMode(lamePinB,   INPUT);
    
    Serial.begin(9600);
-   Serial.println("Start");
+   Serial.println("Sabre Scoring Box");
+   Serial.println("=================");
+
 }
 
 void loop()
