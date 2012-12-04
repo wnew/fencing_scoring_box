@@ -1,23 +1,23 @@
 Foil
-
-Hit must be registered for 14ms (+-1ms tolerance)
-Opponent has 300ms (+-25ms tolerance) to register his hit after initial hit
+=====
+Depress 14ms (+/-1ms)
+Lockout 300ms (+/-25ms tolerance)
 No touch is registered on the piste
-And a shit load more
 
 
 Epee
-
+=====
 Register when the circuit is closed.
-Max of 40ms between hits.
-Hits must be 2ms or greater to register.
-Not register a touch on the piste or gaurd.
+Lockout 45ms (+/-5ms).
+Depress >2ms
+Not register a touch on the piste or gaurd
 
 
 Sabre
-
-lockout used to be 300-350 milliseconds now 120.
-Whipover - Implement later.
+======
+Lockout 120ms +/-10ms
+Depress (touch length) 0.1ms -1ms
+Whipover, bloody complex!
 
 
 
