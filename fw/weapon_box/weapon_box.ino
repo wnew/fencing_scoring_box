@@ -27,12 +27,12 @@ long millisPastA     = 0;
 long millisPastB     = 0;
 long millisPastFirst = 0;
 
-int foilLockout  = 300;    // the lockout time between hits for foil is 300ms
-int foilDepress  = 14;     // the minimum amount of time the tip needs to be depressed for foil
-int epeeLockout  = 48;    // the lockout time between hits for foil is 300ms
-int epeeDepress  = 4;     // the minimum amount of time the tip needs to be depressed for foil
-int sabreLockout = 120;    // the lockout time between hits for foil is 120ms +/-5ms   Was 250 -> 120 -> now talk of 180-200
-int sabreDepress = ;     // the minimum amount of time the tip needs to be depressed for foil
+int foilLockout  = 300;    // the lockout time between hits for foil is 300ms +/-25ms
+int foilDepress  = 14;     // the minimum amount of time the tip needs to be depressed for foil 14ms +/-1ms
+int epeeLockout  = 45;     // the lockout time between hits for epee is 45ms +/-5ms (40ms -> 50ms)
+int epeeDepress  = 2;      // the minimum amount of time the tip needs to be depressed for epee
+int sabreLockout = 120;    // the lockout time between hits for sabre is 120ms +/-10ms
+int sabreDepress = 1;      // the minimum amount of time the tip needs to be depressed for sabre 0.1ms -> 1ms
 
 boolean hitA = false;
 boolean hitB = false;
@@ -310,12 +310,27 @@ void signalHits()
 {
    if (hitA || hitB)
    {
-      if (millis() >= (millisPastFirst + lockOut))
-      {
-         // time for next action is up!
-         delay(1500); 
-         resetValues();      
-      }
+      if (mode == FOIL_MODE)
+         if (millis() >= (millisPastFirst + foilLockout))
+         {
+            // time for next action is up!
+            delay(1500); 
+            resetValues();      
+         }
+      if (mode == EPEE_MODE)
+         if (millis() >= (millisPastFirst + epeeLockout))
+         {
+            // time for next action is up!
+            delay(1500); 
+            resetValues();      
+         }
+      if (mode == SABRE_MODE)
+         if (millis() >= (millisPastFirst + sabreLockout))
+         {
+            // time for next action is up!
+            delay(1500); 
+            resetValues();      
+         }
    }
 }
 
