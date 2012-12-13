@@ -19,18 +19,3 @@ Lockout 120ms +/-10ms
 Depress (touch length) 0.1ms -1ms
 Whipover, bloody complex!
 
-
-
-
-// timing constants
-const int FOILLOCKOUTTIME   = 0;  // 300.048 ms
-const int EPEELOCKOUTTIME   = 0;  // 47.88   ms
-const int SABRELOCKOUTTIME  = 0;  // 121.296 ms
-
-const int FOILDEBOUNCETIME  = 0;  // 13.965  ms
-const int EPEEDEBOUNCETIME  = 0;  // 3.9     ms
-const int SABREDEBOUNCETIME = 0;  // 0.798   ms
-
-const int WHIPOVER          = 0;  // 15.162  ms
-const int WHIPOVERWINDOW    = 0;  // 3.99    ms
-const int WHIPOVERLOCKOUT   = 0;  // 15.162  ms

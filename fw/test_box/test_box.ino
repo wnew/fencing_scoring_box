@@ -7,6 +7,15 @@
 //         Plan to edit to include other weapons                             //
 //                                                                           //
 //===========================================================================//
+#include <Adafruit_GFX.h>
+#include <Adafruit_PCD8544.h>
+
+// pin 8 - Serial clock out (SCLK)
+// pin 7 - Serial data out (DIN)
+// pin 6 - Data/Command select (D/C)
+// pin 5 - LCD chip select (CS)
+// pin 4 - LCD reset (RST)
+Adafruit_PCD8544 display = Adafruit_PCD8544(8, 7, 6, 5, 4);
 
 int offTargetA = 2;         // Off Target A Light
 int offTargetB = 1;         // Off Target B Light
@@ -25,6 +34,9 @@ int offB = 0;
 
 char input = ' ';
 
+int menu_state = 0;
+int select_state = 1;
+
 int voltageThresh = 500;         // the threshold that the scoring triggers on
 
 void setup() {
@@ -32,16 +44,230 @@ void setup() {
    pinMode(weaponPinB, OUTPUT);     
    pinMode(lamePinA,   OUTPUT);    
    pinMode(lamePinB,   OUTPUT);
+
+   pinMode(2, OUTPUT);
+   attachInterrupt(0, down_button, RISING);
+   pinMode(3, OUTPUT);
+   attachInterrupt(1, select_button, RISING);
    
    Serial.begin(9600);
+   Serial.println("Start");
+
+   display.begin();
+   display.setContrast(40);
+
+   //display.display(); // show splashscreen
+   //delay(2000);
+   display.clearDisplay();   // clears the screen and buffer
 }
 
 void loop()
 {
-   menu();
+   display.clearDisplay();
+   display_menu();
 }
 
-void menu()
+void select_button() {
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  if (interrupt_time - last_interrupt_time > 100 && digitalRead(3) == HIGH) 
+  {
+  if (menu_state == 0) {
+    if (select_state == 1) {
+      menu_state = 1;
+      foil_menu(1);
+    }
+    if (select_state == 2) {
+      menu_state = 2;
+      epee_menu(1);
+    }
+    if (select_state == 3) {
+      menu_state = 3;
+      sabre_menu(1);
+    }
+  }
+  else
+  if (menu_state == 1) {
+    if (select_state == 1) {
+      foil_get_lockout(0);
+      menu_state = 0;
+    }
+    if (select_state == 2) {
+      foil_get_depress(0);
+      menu_state = 0;
+    }
+    if (select_state == 3) {
+      foil_run_all_senarios();
+      menu_state = 0;
+    }
+  }
+
+  else
+  if (menu_state == 2) {
+    if (select_state == 1) {
+      epee_get_lockout(0);
+      menu_state = 0;
+    }
+    if (select_state == 2) {
+      epee_get_depress(0);
+      menu_state = 0;
+    }
+    if (select_state == 3) {
+      epee_run_all_senarios();
+      menu_state = 0;
+    }
+  }
+  else if (menu_state == 3) {
+    if (select_state == 1) {
+      //sabre_get_lockout(0);
+      menu_state = 0;
+    }
+    if (select_state == 2) {
+      //sabre_get_depress(0);
+      menu_state = 0;
+    }
+    if (select_state == 3) {
+      //sabre_run_all_senarios();
+      menu_state = 0;
+    }
+  }
+  select_state = 1;
+  }
+  last_interrupt_time = interrupt_time; 
+}
+
+void down_button() {
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  if (interrupt_time - last_interrupt_time > 50 && digitalRead(2) == HIGH) 
+  {
+    if (select_state >= 3)
+      select_state = 1;
+    else
+      select_state++;
+  }
+  last_interrupt_time = interrupt_time;
+}
+
+
+void display_menu() {
+  if (menu_state == 0) {
+    main_menu(select_state);
+  }
+  if (menu_state == 1) {
+    foil_menu(select_state);
+  }
+  if (menu_state == 2) {
+    epee_menu(select_state);
+  }
+  if (menu_state == 3) {
+    sabre_menu(select_state);
+  }
+}
+
+void main_menu(int i) {
+  // text display tests
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(0,0);
+  display.setTextColor(BLACK, WHITE);
+  display.println("Select Weapon:");
+  if (i == 1)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("1. Foil");
+  if (i == 2)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("2. Epee");
+  if (i == 3)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("3. Sabre");
+  display.display();
+}
+
+void foil_menu(int i) {
+  // text display tests
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(0,0);
+  display.setTextColor(BLACK, WHITE);
+  display.println("Foil Tests:");
+  if (i == 1)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("1.Lockout");
+  if (i == 2)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("2.Depress");
+  if (i == 3)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("3.All Senarios");
+  display.display();
+}
+
+void epee_menu(int i) {
+  // text display tests
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(0,0);
+  display.setTextColor(BLACK, WHITE);
+  display.println("Epee Tests:");
+  if (i == 1)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("1.Lockout");
+  if (i == 2)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("2.Depress");
+  if (i == 3)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("3.All Senarios");
+  display.display();
+}  
+  
+void sabre_menu(int i) {
+  // text display tests
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(0,0);
+  display.setTextColor(BLACK, WHITE);
+  display.println("Sabre Tests:");
+  if (i == 1)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("1.Lockout");
+  if (i == 2)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("2.Depress");
+  if (i == 3)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("3.All Senarios");
+  display.display();
+}
+
+/*void menu()
 {
    Serial.println("Welcome to the Fencing Scoring Machine tester");
    Serial.println("==============================================");
@@ -112,7 +338,7 @@ void menu()
          //sabre_all_senarios();
       }
    }
-}
+}*/
 
 
 void foil_run_all_senarios()

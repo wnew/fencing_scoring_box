@@ -8,9 +8,11 @@
 //                                                                           //
 //===========================================================================//
 
-int offTargetA = 10;        // Off Target A Light
+int onTargetA  = 7;         // On Target A Light
+int offTargetA = 8;         // Off Target A Light
+int shortLEDA  = 9;         // Short Circuit A Light
+int shortLEDB  = 10;        // Short Circuit A Light
 int offTargetB = 11;        // Off Target B Light
-int onTargetA  = 9;         // On Target A Light
 int onTargetB  = 12;        // On Target B Light
 
 int weaponPinA = 0;         // Weapon A pin
@@ -53,6 +55,7 @@ void setup() {
 
    // add the interrupt to the mode pin
    attachInterrupt(modePin, changeMode, RISING);
+   pinMode(modePin, INPUT);
 
    pinMode(offTargetA, OUTPUT);
    pinMode(offTargetB, OUTPUT);
@@ -64,28 +67,28 @@ void setup() {
    pinMode(lamePinA,   INPUT);    
    pinMode(lamePinB,   INPUT);
    
+   resetValues();
+   
    Serial.begin(9600);
    Serial.println("3 Weapon Scoring Box");
    Serial.println("====================");
 }
 
 void loop() {
-  if (mode == FOIL_MODE)
-    foil();
-  if (mode == EPEE_MODE)
-    epee();
-  if (mode == SABRE_MODE)
-    sabre();
+   if (mode == FOIL_MODE)
+      foil();
+   if (mode == EPEE_MODE)
+      epee();
+   if (mode == SABRE_MODE)
+      sabre();
 }
 
 // when the mode button is pressed this method is run
 void changeMode() {
-  delay(500);
-  if (mode == 2)
-    mode = 0;
-  else
-    mode++;
-  Serial.println(mode);
+   if (mode == 2)
+      mode = 0;
+   else
+      mode++;
 }
 
 void foil()
@@ -198,6 +201,11 @@ void epee()
                   hitA = true;
                   Serial.println("A");
                }
+               else
+               {
+                  // offTarget
+                  Serial.write("D");
+               }
             }
          } 
       }
@@ -227,6 +235,11 @@ void epee()
                   digitalWrite(onTargetB, HIGH);
                   hitB = true;
                   Serial.println("B");
+               }
+               else
+               {
+                  // offTarget
+                  Serial.write("D");
                }
             }
          }
@@ -336,7 +349,6 @@ void signalHits()
 
 void resetValues()
 {
-   // red side wont reset without fiddling with other side!!
    Serial.print("R");
    digitalWrite(offTargetA, LOW);
    digitalWrite(onTargetA,  LOW);

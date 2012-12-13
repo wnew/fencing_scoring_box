@@ -78,8 +78,9 @@ def reset_lights(self):
 class serial_coms():
    def __init__(self, device, speed, timeout):
       self.ser = serial.Serial(device, speed, timeout=timeout)
+      # create new timer here
       print self.ser.portstr       # check which port was really used
-   def wait_for_hit(self):
+   def wait_for_command(self):
       reset_lights(self)
       s = ""
       while 1:
@@ -88,17 +89,20 @@ class serial_coms():
             #print s
             if s == 'A':
                self.on_targ_red  = display.create_rectangle(coord1, fill="red")
+               # pause timer here
             if s == "C":
                self.off_targ_red = display.create_rectangle(coord2, fill="yellow")
+               # pause timer here
             if s == "D":
                self.off_targ_grn = display.create_rectangle(coord3, fill="yellow")
+               # pause timer here
             if s == "B":
                self.on_targ_grn  = display.create_rectangle(coord4, fill="green")
+               # pause timer here
             if s == "R":
                reset_lights(self)
       self.ser.close()
 
-
 app = MyTkApp()
 serial_coms = serial_coms('/dev/ttyUSB0', 9600, 0)
-serial_coms.wait_for_hit()
+serial_coms.wait_for_command()

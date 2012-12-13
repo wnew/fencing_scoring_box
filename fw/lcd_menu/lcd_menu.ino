@@ -63,9 +63,9 @@ void setup()   {
   display.setContrast(40);
 
   pinMode(2, OUTPUT);
-  attachInterrupt(0, down_button, CHANGE);
+  attachInterrupt(0, down_button, RISING);
   pinMode(3, OUTPUT);
-  attachInterrupt(1, select_button, CHANGE);
+  attachInterrupt(1, select_button, RISING);
 
   //display.display(); // show splashscreen
   //delay(2000);
@@ -75,11 +75,14 @@ void setup()   {
 void loop() {
   display.clearDisplay();
   display_menu();
-  delay(70);
 }
 
 void select_button() {
-  Serial.println("select button");
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  if (interrupt_time - last_interrupt_time > 100 && digitalRead(3) == HIGH) 
+  {
   if (menu_state == 0) {
     if (select_state == 1) {
       menu_state = 1;
@@ -94,6 +97,7 @@ void select_button() {
       sabre_menu(1);
     }
   }
+  else
   if (menu_state == 1) {
     if (select_state == 1) {
       menu_state = 0;
@@ -105,6 +109,7 @@ void select_button() {
       menu_state = 0;
     }
   }
+  else
   if (menu_state == 2) {
     if (select_state == 1) {
       menu_state = 0;
@@ -116,7 +121,7 @@ void select_button() {
       menu_state = 0;
     }
   }
-  if (menu_state == 3) {
+  else if (menu_state == 3) {
     if (select_state == 1) {
       menu_state = 0;
     }
@@ -128,14 +133,24 @@ void select_button() {
     }
   }
   select_state = 1;
+  }
+  last_interrupt_time = interrupt_time; 
+  Serial.println("select button");
 }
 
 void down_button() {
-  Serial.println("select_state");
-  if (select_state == 3)
-    select_state = 1;
-  else
-    select_state++;
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  if (interrupt_time - last_interrupt_time > 50 && digitalRead(2) == HIGH) 
+  {
+    Serial.println("select_state");
+    if (select_state == 3)
+      select_state = 1;
+    else
+      select_state++;
+  }
+  last_interrupt_time = interrupt_time;
 }
 
 
@@ -210,7 +225,7 @@ void epee_menu(int i) {
   display.setTextColor(BLACK);
   display.setCursor(0,0);
   display.setTextColor(BLACK, WHITE);
-  display.println("Foil Tests:");
+  display.println("Epee Tests:");
   if (i == 1)
     display.setTextColor(WHITE, BLACK);
   else
@@ -235,7 +250,7 @@ void sabre_menu(int i) {
   display.setTextColor(BLACK);
   display.setCursor(0,0);
   display.setTextColor(BLACK, WHITE);
-  display.println("Foil Tests:");
+  display.println("Sabre Tests:");
   if (i == 1)
     display.setTextColor(WHITE, BLACK);
   else
