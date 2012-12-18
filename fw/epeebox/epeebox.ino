@@ -16,6 +16,8 @@ int weaponPinB = 1;         // Weapon B pin
 int lamePinA   = 2;         // Lame A pin (Epee return path)
 int lamePinB   = 3;         // Lame B pin (Epee return path)
 
+int buzzerPin  = 4;
+
 int weaponA    = 0;
 int weaponB    = 0;
 int lameA      = 0;         
@@ -44,6 +46,8 @@ void setup() {
    pinMode(weaponPinB, INPUT);     
    pinMode(lamePinA,   INPUT);    
    pinMode(lamePinB,   INPUT);
+   
+   pinMode(buzzerPin,  OUTPUT);
   
    Serial.begin(9600);
    Serial.println("Epee Scoring Box");
@@ -77,6 +81,7 @@ void loop()
                      isFirstHit = false;
                   }
                   digitalWrite(onTargetA, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   hitA = true;
                   Serial.println("A");
                }
@@ -107,6 +112,7 @@ void loop()
                      isFirstHit = false;
                   }
                   digitalWrite(onTargetB, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   hitB = true;
                   Serial.println("B");
                }
@@ -127,8 +133,10 @@ void signalHits()
       if (millis() >= (millisPastFirst + lockOut))
       {
          // time for next action is up!
-         delay(3500);
-         resetValues();      
+         delay(1000);
+         digitalWrite(buzzerPin, 0);
+         delay(3000);
+         resetValues();
       }
    }
 }

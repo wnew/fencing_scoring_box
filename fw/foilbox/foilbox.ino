@@ -18,6 +18,8 @@ int weaponPinB = 1;         // Weapon B pin
 int lamePinA   = 2;         // Lame A pin
 int lamePinB   = 3;         // Lame B pin
 
+int buzzerPin  = 4;
+
 int weaponA    = 0;
 int weaponB    = 0;
 int lameA      = 0;
@@ -81,12 +83,14 @@ void loop()
                {
                   //onTarget
                   digitalWrite(onTargetA, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   Serial.write("A");
                }
                else
                {
                   //offTarget
                   digitalWrite(offTargetA, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   Serial.write("C");
                }
             }
@@ -116,12 +120,14 @@ void loop()
                {
                   // onTarget
                   digitalWrite(onTargetB, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   Serial.write("B");
                }
                else
                {
                   // offTarget
                   digitalWrite(offTargetB, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   Serial.write("D");
                }
             }
@@ -141,7 +147,9 @@ void signalHits()
       if (millis() >= (millisPastFirst + lockOut))
       {
          // time for next action is up!
-         delay(1500); 
+         delay(1000);
+         digitalWrite(buzzerPin, LOW);
+         delay(2500);
          resetValues();      
       }
    }

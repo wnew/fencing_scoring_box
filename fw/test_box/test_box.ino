@@ -1,9 +1,10 @@
 //===========================================================================//
 //                                                                           //
-//  Desc: Arduino Code to characterize a fencing scoring apparatus           //
-//  Dev:  Wnew                                                               //
+//  Desc: Arduino Code to implement a foil scoring apparatus                 //
+//  Dev:  DigitalWestie & Wnew                                               //
 //  Date: Nov 2012                                                           //
-//  Notes:                                                                   //
+//  Notes: Origonal code from digitalwestie on github                        //
+//         Plan to edit to include other weapons                             //
 //                                                                           //
 //===========================================================================//
 #include <Adafruit_GFX.h>
@@ -16,52 +17,37 @@
 // pin 4 - LCD reset (RST)
 Adafruit_PCD8544 display = Adafruit_PCD8544(8, 7, 6, 5, 4);
 
-int offTargetA   = 2;  // Off Target A Light (Analog Pin)
-int offTargetB   = 1;  // Off Target B Light (Analog Pin)
-int onTargetA    = 3;  // On  Target A Light (Analog Pin)
-int onTargetB    = 0;  // On  Target B Light (Analog Pin)
-  
-int weaponPinA   = 12; // Weapon A pin (Digital Pin)
-int weaponPinB   = 11; // Weapon B pin (Digital Pin)
-int lamePinA     = 10; // Lame   A pin (Digital Pin)
-int lamePinB     = 9;  // Lame   B pin (Digital Pin)
-int guardPinA    = 8;  // Guard  A Pin (Digital Pin)
-int guardPinB    = 7;  // Guard  B Pin (Digital Pin)
+int offTargetA = 2;         // Off Target A Light
+int offTargetB = 1;         // Off Target B Light
+int onTargetA  = 3;         // On Target A Light
+int onTargetB  = 0;         // On Target B Light
+
+int weaponPinA = 12;        // Weapon A pin
+int weaponPinB = 11;        // Weapon B pin
+int lamePinA   = 10;        // Lame A pin
+int lamePinB   = 9;         // Lame B pin
+//int guardPinA    = 8;  // Guard  A Pin (Digital Pin)
+//int guardPinB    = 7;  // Guard  B Pin (Digital Pin)
 
 int downButton   = 2;  // Button to move the menu cursor down (Digital Pin)
 int selectButton = 3;  // Button to select from the menu      (Digital Pin)
 
-int onA          = 0;  // Analog voltage from On  Target A Light
-int onB          = 0;  // Analog voltage from On  Target B Light
-int offA         = 0;  // Analog voltage from Off Target A Light
-int offB         = 0;  // Analog voltage from Off Target A Light
+int onA  = 0;
+int onB  = 0;
+int offA = 0;         
+int offB = 0;
 
 char input = ' ';
 
-int menu_state   = 0;
+int menu_state = 0;
 int select_state = 1;
 
-int voltageThresh = 500;  // the threshold that scoring triggers on
+int voltageThresh = 500;         // the threshold that the scoring triggers on
 
 void setup() {
-
-   pinMode(weaponPinA, INPUT);
-   pinMode(weaponPinB, INPUT);
-   pinMode(lamePinA,   INPUT);
-   pinMode(lamePinB,   INPUT);
-   pinMode(guardPinA,  INPUT);
-   pinMode(guardPinB,  INPUT);
-
-   Serial.println("Weapon Pin A : " + digitalRead(weaponPinA));
-   Serial.println("Weapon Pin B : " + digitalRead(weaponPinB));
-   Serial.println("Lame   Pin A : " + digitalRead(lamePinA));
-   Serial.println("Lame   Pin B : " + digitalRead(lamePinB));
-   Serial.println("Guard  Pin A : " + digitalRead(guardPinA));
-   Serial.println("Guard  Pin B : " + digitalRead(guardPinB));
-
-   pinMode(weaponPinA, OUTPUT);
-   pinMode(weaponPinB, OUTPUT);
-   pinMode(lamePinA,   OUTPUT);
+   pinMode(weaponPinA, OUTPUT);     
+   pinMode(weaponPinB, OUTPUT);     
+   pinMode(lamePinA,   OUTPUT);    
    pinMode(lamePinB,   OUTPUT);
 
    pinMode(downButton,   OUTPUT);
@@ -76,204 +62,202 @@ void setup() {
    display.setContrast(40);
 
    //display.display(); // show splashscreen
-   display.clearDisplay();  // clears the screen and buffer
+   //delay(2000);
+   display.clearDisplay();   // clears the screen and buffer
 }
 
-void loop() {
+void loop()
+{
    display.clearDisplay();
    display_menu();
 }
 
 void select_button() {
-   static unsigned long last_interrupt_time = 0;
-   unsigned long interrupt_time = millis();
-   // If interrupts come faster than 50ms, assume it's a bounce and ignore
-   if (interrupt_time - last_interrupt_time > 50 && digitalRead(3) == HIGH) {
-      if (menu_state == 0) {
-         if (select_state == 1) {
-            menu_state = 1;
-            foil_menu(1);
-         }
-         if (select_state == 2) {
-            menu_state = 2;
-            epee_menu(1);
-         }
-         if (select_state == 3) {
-            menu_state = 3;
-            sabre_menu(1);
-         }
-      }
-   }
-   else if (menu_state == 1) {
-      if (select_state == 1) {
-         foil_get_lockout(0);
-         menu_state = 0;
-      }
-      if (select_state == 2) {
-         foil_get_depress(0);
-         menu_state = 0;
-      }
-      if (select_state == 3) {
-         foil_run_all_senarios();
-         menu_state = 0;
-      }
-   }
-   else if (menu_state == 2) {
-      if (select_state == 1) {
-         epee_get_lockout(0);
-         menu_state = 0;
-      }
-      if (select_state == 2) {
-         epee_get_depress(0);
-         menu_state = 0;
-      }
-      if (select_state == 3) {
-         epee_run_all_senarios();
-         menu_state = 0;
-      }
-   }
-   else if (menu_state == 3) {
-      if (select_state == 1) {
-         //sabre_get_lockout(0);
-         menu_state = 0;
-      }
-      if (select_state == 2) {
-         //sabre_get_depress(0);
-         menu_state = 0;
-      }
-      if (select_state == 3) {
-         //sabre_run_all_senarios();
-         menu_state = 0;
-      }
-   }
-   select_state = 1;
-   last_interrupt_time = interrupt_time;
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  if (interrupt_time - last_interrupt_time > 100 && digitalRead(3) == HIGH) 
+  {
+  if (menu_state == 0) {
+    if (select_state == 1) {
+      menu_state = 1;
+    }
+    if (select_state == 2) {
+      menu_state = 2;
+    }
+    if (select_state == 3) {
+      menu_state = 3;
+    }
+  }
+  else
+  if (menu_state == 1) {
+    if (select_state == 1) {
+      menu_state = 0;
+    }
+    if (select_state == 2) {
+      menu_state = 0;
+    }
+    if (select_state == 3) {
+      menu_state = 0;
+    }
+  }
+
+  else
+  if (menu_state == 2) {
+    if (select_state == 1) {
+      menu_state = 0;
+    }
+    if (select_state == 2) {
+      menu_state = 0;
+    }
+    if (select_state == 3) {
+      menu_state = 0;
+    }
+  }
+  else if (menu_state == 3) {
+    if (select_state == 1) {
+      menu_state = 0;
+    }
+    if (select_state == 2) {
+      menu_state = 0;
+    }
+    if (select_state == 3) {
+      menu_state = 0;
+    }
+  }
+  select_state = 1;
+  }
+  last_interrupt_time = interrupt_time; 
 }
 
 void down_button() {
-   static unsigned long last_interrupt_time = 0;
-   unsigned long interrupt_time = millis();
-   // If interrupts come faster than 50ms, assume it's a bounce and ignore
-   if (interrupt_time - last_interrupt_time > 50 && digitalRead(2) == HIGH)
-   {
-      if (select_state >= 3)
-         select_state = 1;
-      else
-         select_state++;
-   }
-   last_interrupt_time = interrupt_time;
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  if (interrupt_time - last_interrupt_time > 50 && digitalRead(2) == HIGH) 
+  {
+    if (select_state >= 3)
+      select_state = 1;
+    else
+      select_state++;
+  }
+  last_interrupt_time = interrupt_time;
 }
 
 
 void display_menu() {
-   if (menu_state == 0) {
-      main_menu(select_state);
-   }
-   if (menu_state == 1) {
-      foil_menu(select_state);
-   }
-   if (menu_state == 2) {
-      epee_menu(select_state);
-   }
-   if (menu_state == 3) {
-      sabre_menu(select_state);
-   }
+  if (menu_state == 0) {
+    main_menu(select_state);
+  }
+  if (menu_state == 1) {
+    foil_menu(select_state);
+  }
+  if (menu_state == 2) {
+    epee_menu(select_state);
+  }
+  if (menu_state == 3) {
+    sabre_menu(select_state);
+  }
 }
 
 void main_menu(int i) {
-   // text display tests
-   display.setTextSize(1);
-   display.setCursor(0, 0);
-   display.setTextColor(BLACK, WHITE);
-   display.println("Select Weapon:");
-   if (i == 1)
-      display.setTextColor(WHITE, BLACK);
-   else
-      display.setTextColor(BLACK, WHITE);
-   display.println("1. Foil");
-   if (i == 2)
-      display.setTextColor(WHITE, BLACK);
-   else
-      display.setTextColor(BLACK, WHITE);
-   display.println("2. Epee");
-   if (i == 3)
-      display.setTextColor(WHITE, BLACK);
-   else
-      display.setTextColor(BLACK, WHITE);
-   display.println("3. Sabre");
-   display.display();
+  // text display tests
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(0,0);
+  display.setTextColor(BLACK, WHITE);
+  display.println("Select Weapon:");
+  if (i == 1)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("1. Foil");
+  if (i == 2)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("2. Epee");
+  if (i == 3)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("3. Sabre");
+  display.display();
 }
 
 void foil_menu(int i) {
-   // text display tests
-   display.setTextSize(1);
-   display.setCursor(0, 0);
-   display.setTextColor(BLACK, WHITE);
-   display.println("Foil Tests:");
-   if (i == 1)
-      display.setTextColor(WHITE, BLACK);
-   else
-      display.setTextColor(BLACK, WHITE);
-   display.println("1.Lockout");
-   if (i == 2)
-      display.setTextColor(WHITE, BLACK);
-   else
-      display.setTextColor(BLACK, WHITE);
-   display.println("2.Depress");
-   if (i == 3)
-      display.setTextColor(WHITE, BLACK);
-   else
-      display.setTextColor(BLACK, WHITE);
-   display.println("3.All Senarios");
-   display.display();
+  // text display tests
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(0,0);
+  display.setTextColor(BLACK, WHITE);
+  display.println("Foil Tests:");
+  if (i == 1)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("1.Lockout");
+  if (i == 2)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("2.Depress");
+  if (i == 3)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("3.All Senarios");
+  display.display();
 }
 
 void epee_menu(int i) {
-   // text display tests
-   display.setTextSize(1);
-   display.setCursor(0, 0);
-   display.setTextColor(BLACK, WHITE);
-   display.println("Epee Tests:");
-   if (i == 1)
-      display.setTextColor(WHITE, BLACK);
-   else
-      display.setTextColor(BLACK, WHITE);
-   display.println("1.Lockout");
-   if (i == 2)
-      display.setTextColor(WHITE, BLACK);
-   else
-      display.setTextColor(BLACK, WHITE);
-   display.println("2.Depress");
-   if (i == 3)
-      display.setTextColor(WHITE, BLACK);
-   else
-     display.setTextColor(BLACK, WHITE);
-   display.println("3.All Senarios");
-   display.display();
+  // text display tests
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(0,0);
+  display.setTextColor(BLACK, WHITE);
+  display.println("Epee Tests:");
+  if (i == 1)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("1.Lockout");
+  if (i == 2)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("2.Depress");
+  if (i == 3)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("3.All Senarios");
+  display.display();
 }  
   
 void sabre_menu(int i) {
-   // text display tests
-   display.setTextSize(1);
-   display.setCursor(0, 0);
-   display.setTextColor(BLACK, WHITE);
-   display.println("Sabre Tests:");
-   if (i == 1)
-     display.setTextColor(WHITE, BLACK);
-   else
-      display.setTextColor(BLACK, WHITE);
-   display.println("1.Lockout");
-   if (i == 2)
-      display.setTextColor(WHITE, BLACK);
-   else
-      display.setTextColor(BLACK, WHITE);
-   display.println("2.Depress");
-   if (i == 3)
-      display.setTextColor(WHITE, BLACK);
-   else
-      display.setTextColor(BLACK, WHITE);
-   display.println("3.All Senarios");
-   display.display();
+  // text display tests
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(0,0);
+  display.setTextColor(BLACK, WHITE);
+  display.println("Sabre Tests:");
+  if (i == 1)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("1.Lockout");
+  if (i == 2)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("2.Depress");
+  if (i == 3)
+    display.setTextColor(WHITE, BLACK);
+  else
+    display.setTextColor(BLACK, WHITE);
+  display.println("3.All Senarios");
+  display.display();
 }
 
 /*void menu()
@@ -352,6 +336,7 @@ void sabre_menu(int i) {
 
 void foil_run_all_senarios()
 {
+   Serial.print("here");
    display.clearDisplay();
    display.setTextSize(1);
    display.setCursor(0, 0);
@@ -381,18 +366,10 @@ void foil_run_all_senarios()
 
 void foil_get_lockout(int lockout)
 {
-   display.clearDisplay();
-   display.setTextSize(1);
-   display.setCursor(0, 0);
-   display.setTextColor(BLACK, WHITE);
-   display.println("Foil Lockout:");
-   Serial.println("Finding foil lockout time");
+   Serial.println("finding foil lockout time");
    for (int i = 295; i < 305; i++)
    {
-      display.setCursor(0, 1);
-      display.print(i);
-      display.println("ms");
-      Serial.println(i);
+      Serial.print(i);
       Serial.println("ms");
       digitalWrite(weaponPinA, HIGH);
       digitalWrite(lamePinB, HIGH);
@@ -402,34 +379,20 @@ void foil_get_lockout(int lockout)
       delay(100);
       foil_reset();
       read_lights();
-      if (onA > 500 && onB > 500 && offA < 500 && offB < 500) {
-         display.setCursor(0, 2);
-         display.println("Double Hit");
+      if (onA > 500 && onB > 500 && offA < 500 && offB < 500)
          Serial.println("Double Hit");
-      }
-      else {
-         display.setCursor(0, 2);
-         display.println("Single Hit");
+      else
          Serial.println("Single Hit");
-      }
       delay(3000);
    }
 }
 
 void foil_get_depress(int depress)
 {
-   display.clearDisplay();
-   display.setTextSize(1);
-   display.setCursor(0, 0);
-   display.setTextColor(BLACK, WHITE);
-   display.println("Foil Depress:");
    Serial.println("finding foil depress time");
    for (int i = 10; i < 20; i++)
    {
-      display.setCursor(0,1);
-      display.print(i);
-      display.println("ms");
-      Serial.println(i);
+      Serial.print(i);
       Serial.println("ms");
       digitalWrite(weaponPinA, HIGH);
       digitalWrite(lamePinB, HIGH);
@@ -439,24 +402,19 @@ void foil_get_depress(int depress)
       delay(100);
       foil_reset();
       read_lights();
-      if (onA > 500 && onB < 500 && offA < 500 && offB < 500) {
-         display.setCursor(0, 2);
-         display.println("Hit");
+      if (onA > 500 && onB < 500 && offA < 500 && offB < 500)
          Serial.println("Hit");
-      }
-      else {
-         display.setCursor(0, 2);
-         display.println("No Hit");
+      else
          Serial.println("No Hit");
-      }
       delay(3000);
    }
 }
 
 
 // hitA off and 
-void foil_test_hit() {
-   Serial.println("A on target depress 10ms, 10ms lockout, B on target depress 10ms");
+void foil_test_hit()
+{
+   Serial.println("A on 10ms released 10ms B on 10ms released");
    digitalWrite(weaponPinA, HIGH);
    digitalWrite(lamePinB, HIGH);
    delay(10);
@@ -470,18 +428,14 @@ void foil_test_hit() {
    digitalWrite(lamePinA, LOW);
    foil_reset();
    read_lights();
-   if (onA > 500 && onB > 500 && offA < 500 && offB < 500) {
-      display.setCursor(0, 2);
-      display.println("Pass");
+   if (onA > 500 && onB > 500 && offA < 500 && offB < 500)
       Serial.println("Pass");
-   }
-   else {
-      display.setCursor(0, 2);
-      display.println("Fail");
+   else
       Serial.println("Fail");
-   }
    delay(2000);
 }
+
+
 
 // fencer A ontarget for more then the depressed time
 void foil_hitA()
