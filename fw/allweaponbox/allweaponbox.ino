@@ -1,24 +1,33 @@
 //===========================================================================//
 //                                                                           //
-//  Desc: Arduino Code to implement a foil scoring apparatus                 //
-//  Dev:  DigitalWestie & Wnew                                               //
+//  Desc: Arduino Code to implement a fencing scoring apparatus              //
+//  Dev:  Wnew                                                               //
 //  Date: Nov 2012                                                           //
-//  Notes: Origonal code from digitalwestie on github                        //
-//         Plan to edit to include other weapons                             //
+//  Notes: Basis of code from digitalwestie on github                        //
 //                                                                           //
 //===========================================================================//
 
-int onTargetA  = 7;         // On Target A Light
-int offTargetA = 8;         // Off Target A Light
-int shortLEDA  = 9;         // Short Circuit A Light
-int shortLEDB  = 10;        // Short Circuit A Light
-int offTargetB = 11;        // Off Target B Light
-int onTargetB  = 12;        // On Target B Light
+//============
+// Pin Setup
+//============
+const int onTargetA  = 7;         // On Target A Light
+const int offTargetA = 8;         // Off Target A Light
+const int shortLEDA  = 9;         // Short Circuit A Light
+const int shortLEDB  = 10;        // Short Circuit A Light
+const int offTargetB = 11;        // Off Target B Light
+const int onTargetB  = 12;        // On Target B Light
 
-int weaponPinA = 0;         // Weapon A pin
-int weaponPinB = 1;         // Weapon B pin
-int lamePinA   = 2;         // Lame A pin
-int lamePinB   = 3;         // Lame B pin
+const int weaponPinA = 0;         // Weapon A pin
+const int weaponPinB = 1;         // Weapon B pin
+const int lamePinA   = 2;         // Lame A pin
+const int lamePinB   = 3;         // Lame B pin
+const int gndPinA    = 4;         // Lame A pin
+const int gndPinB    = 5;         // Lame B pin
+
+const int irPin      = 6;         // IR receiver pin
+const int modePin    = 0;         // Mode change button pin
+
+int mode = 0;
 
 int weaponA    = 0;
 int weaponB    = 0;
@@ -29,12 +38,15 @@ long millisPastA     = 0;
 long millisPastB     = 0;
 long millisPastFirst = 0;
 
-int foilLockout  = 300;    // the lockout time between hits for foil is 300ms +/-25ms
-int foilDepress  = 14;     // the minimum amount of time the tip needs to be depressed for foil 14ms +/-1ms
-int epeeLockout  = 45;     // the lockout time between hits for epee is 45ms +/-5ms (40ms -> 50ms)
-int epeeDepress  = 2;      // the minimum amount of time the tip needs to be depressed for epee
-int sabreLockout = 120;    // the lockout time between hits for sabre is 120ms +/-10ms
-int sabreDepress = 1;      // the minimum amount of time the tip needs to be depressed for sabre 0.1ms -> 1ms
+//==========================
+// Lockout & Depress Times
+//==========================
+const int foilLockout  = 300;    // the lockout time between hits for foil is 300ms +/-25ms
+const int foilDepress  = 14;     // the minimum amount of time the tip needs to be depressed for foil 14ms +/-1ms
+const int epeeLockout  = 45;     // the lockout time between hits for epee is 45ms +/-5ms (40ms -> 50ms)
+const int epeeDepress  = 2;      // the minimum amount of time the tip needs to be depressed for epee
+const int sabreLockout = 120;    // the lockout time between hits for sabre is 120ms +/-10ms
+const int sabreDepress = 1;      // the minimum amount of time the tip needs to be depressed for sabre 0.1ms -> 1ms
 
 boolean hitA = false;
 boolean hitB = false;
@@ -43,19 +55,21 @@ boolean isFirstHit = true;
 
 int voltageThresh = 340;     // the threshold that the scoring triggers on (1024/3)
 
-const int modePin = 0;
-int mode = 0;
+unsigned long bit;
+int lastTimeIRChecked;
 
 // mode constants
 const int FOIL_MODE  = 0;
 const int EPEE_MODE  = 1;
 const int SABRE_MODE = 2;
 
+int modeJustChangedFlag = 0;
+
 void setup() {
 
    // add the interrupt to the mode pin
    attachInterrupt(modePin, changeMode, RISING);
-   pinMode(modePin, INPUT);
+   pinMode(irPin, INPUT);
 
    pinMode(offTargetA, OUTPUT);
    pinMode(offTargetB, OUTPUT);
@@ -66,6 +80,8 @@ void setup() {
    pinMode(weaponPinB, INPUT);     
    pinMode(lamePinA,   INPUT);    
    pinMode(lamePinB,   INPUT);
+   pinMode(gndPinA,    INPUT);    
+   pinMode(gndPinB,    INPUT);
    
    resetValues();
    
@@ -75,6 +91,8 @@ void setup() {
 }
 
 void loop() {
+   checkIfModeChanged();
+   irReceive();
    if (mode == FOIL_MODE)
       foil();
    if (mode == EPEE_MODE)
@@ -83,14 +101,65 @@ void loop() {
       sabre();
 }
 
-// when the mode button is pressed this method is run
+//====================
+// Mode pin interupt
+//====================
 void changeMode() {
-   if (mode == 2)
-      mode = 0;
-   else
-      mode++;
+   modeJustChangedFlag = 1;
 }
 
+//========================
+// Run when mode changed
+//========================
+void checkIfModeChanged() {
+ if (modeJustChangedFlag) {
+      if (digitalRead(modePin)) {
+         if (mode == 2)
+            mode = 0;
+         else
+            mode++;
+      }
+      Serial.print("Mode Changed to: ");
+      Serial.println(mode);
+      delay(200);
+      modeJustChangedFlag = 0;
+   }
+}
+
+//=====================
+// Check if IR sensor
+//=====================
+void irReceive() {
+   //look for a header pulse from the IR Receiver
+   long lengthHeader = pulseIn(irPin, LOW);
+   if(lengthHeader > 5000 && (millis() - lastTimeIRChecked > 100))
+   {
+      //step through each of the 32 bits that streams from the remote
+      int byteValue = 0;
+      for(int i = 1; i <= 32; i++)
+      {
+         bit = pulseIn(irPin, HIGH);
+
+         //read the 8 bits that are specifically the key code
+         //use bitwise operations to convert binary to decimal
+         if (i > 16 && i <= 24)
+            if(bit > 1000)
+            byteValue = byteValue + (1 << (i - 17)); 
+       }
+
+      //send the key code to the processing.org program
+      Serial.println(byteValue);
+      Serial.flush();
+      
+      if (byteValue == 5)
+         changeMode();
+   }
+   lastTimeIRChecked = millis();
+}
+
+//===================
+// Main foil method
+//===================
 void foil()
 {
    weaponA = analogRead(weaponPinA);
@@ -171,6 +240,9 @@ void foil()
    }
 }
 
+//===================
+// Main epee method
+//===================
 void epee()
 {
    weaponA = analogRead(weaponPinA);
@@ -251,6 +323,9 @@ void epee()
    }
 }
 
+//====================
+// Main sabre method
+//====================
 void sabre()
 {
    weaponA = analogRead(weaponPinA);
@@ -319,6 +394,9 @@ void sabre()
    }
 }
 
+//===============
+// Sets signals
+//===============
 void signalHits()
 {
    if (hitA || hitB)
@@ -347,6 +425,9 @@ void signalHits()
    }
 }
 
+//===================
+// Resets after hit
+//===================
 void resetValues()
 {
    Serial.print("R");
