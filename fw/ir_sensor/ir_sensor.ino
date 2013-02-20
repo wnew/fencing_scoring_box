@@ -28,7 +28,7 @@ void loop()
          //use bitwise operations to convert binary to decimal
          if (i > 16 && i <= 24)
             if(bit > 1000)
-            byteValue = byteValue + (1 << (i - 17)); 
+            byteValue = byteValue + (1 << (i - 17));
        }
 
       //send the key code to the processing.org program

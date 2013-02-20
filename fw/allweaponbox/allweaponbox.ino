@@ -75,16 +75,16 @@ void setup() {
    pinMode(offTargetB, OUTPUT);
    pinMode(onTargetA,  OUTPUT);
    pinMode(onTargetB,  OUTPUT);
-   
-   pinMode(weaponPinA, INPUT);     
-   pinMode(weaponPinB, INPUT);     
-   pinMode(lamePinA,   INPUT);    
+
+   pinMode(weaponPinA, INPUT);
+   pinMode(weaponPinB, INPUT);
+   pinMode(lamePinA,   INPUT);
    pinMode(lamePinB,   INPUT);
-   pinMode(gndPinA,    INPUT);    
+   pinMode(gndPinA,    INPUT);
    pinMode(gndPinB,    INPUT);
-   
+
    resetValues();
-   
+
    Serial.begin(9600);
    Serial.println("3 Weapon Scoring Box");
    Serial.println("====================");
@@ -132,25 +132,23 @@ void checkIfModeChanged() {
 void irReceive() {
    //look for a header pulse from the IR Receiver
    long lengthHeader = pulseIn(irPin, LOW);
-   if(lengthHeader > 5000 && (millis() - lastTimeIRChecked > 100))
-   {
+   if(lengthHeader > 5000 && (millis() - lastTimeIRChecked > 100)) {
       //step through each of the 32 bits that streams from the remote
       int byteValue = 0;
-      for(int i = 1; i <= 32; i++)
-      {
+      for(int i = 1; i <= 32; i++) {
          bit = pulseIn(irPin, HIGH);
 
          //read the 8 bits that are specifically the key code
          //use bitwise operations to convert binary to decimal
          if (i > 16 && i <= 24)
             if(bit > 1000)
-            byteValue = byteValue + (1 << (i - 17)); 
+               byteValue = byteValue + (1 << (i - 17));
        }
 
       //send the key code to the processing.org program
       Serial.println(byteValue);
       Serial.flush();
-      
+
       if (byteValue == 5)
          changeMode();
    }
@@ -160,81 +158,67 @@ void irReceive() {
 //===================
 // Main foil method
 //===================
-void foil()
-{
+void foil() {
    weaponA = analogRead(weaponPinA);
    weaponB = analogRead(weaponPinB);
    lameA   = analogRead(lamePinA);
    lameB   = analogRead(lamePinB);
-   
-   signalHits();  
-  
-   // weapon A 
-   if (hitA == false) //ignore if we've hit
-   {
-      if (weaponA > voltageThresh)
-      {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + foilLockout > millis())))
-         {
-            if  (millis() <= (millisPastA + foilDepress)) // if 14ms or more have past we have a hit
-            {
+
+   signalHits();
+
+   // weapon A
+   if (hitA == false) {
+      // ignore if we've hit
+      if (weaponA > voltageThresh) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + foilLockout > millis()))) {
+            // if foil depress time has past we have a hit
+            if  (millis() <= (millisPastA + foilDepress)) {
                hitA = true;
-               if(isFirstHit)
-               {
+               if(isFirstHit) {
                   millisPastFirst = millis();
                }
-               if (lameB > voltageThresh)
-               {
-                  //onTarget
+               // if other lame hit we have an onTarget
+               if (lameB > voltageThresh) {
+
                   digitalWrite(onTargetA, HIGH);
                   Serial.write("A");
-               }
-               else
-               {
-                  //offTarget
+               // otherwise we have an offTarget
+               } else {
                   digitalWrite(offTargetA, HIGH);
                   Serial.write("C");
                }
             }
-         } 
-      }
-      else // Nothing happening
-      {
+         }
+      // nothing happening
+      } else {
          millisPastA = millis();
       }
    }
-   
+
    // weapon B
-   if (hitB == false) // ignore if we've hit
-   {
-      if (weaponB > voltageThresh)
-      {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + foilLockout > millis())))
-         {
-            if  (millis() <= (millisPastB + foilDepress)) // if 14ms or more have past we have a hit
-            {
+   if (hitB == false) {
+      // ignore if we've hit
+      if (weaponB > voltageThresh) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + foilLockout > millis()))) {
+            // if foil depress time has past we have a hit
+            if  (millis() <= (millisPastB + foilDepress)) {
                hitB = true;
-               if(isFirstHit)
-               {
+               if(isFirstHit) {
                   millisPastFirst = millis();
                }
-               if (lameA > voltageThresh)
-               {
-                  // onTarget
+               // if other lame hit we have an onTarget
+               if (lameA > voltageThresh) {
                   digitalWrite(onTargetB, HIGH);
                   Serial.write("B");
-               }
-               else
-               {
-                  // offTarget
+               // otherwise we have an offTarget
+               } else {
                   digitalWrite(offTargetB, HIGH);
                   Serial.write("D");
                }
             }
          }
-      }
-      else // nothing happening
-      {
+      // nothing happening
+      } else {
          millisPastB = millis();
       }
    }
@@ -243,81 +227,65 @@ void foil()
 //===================
 // Main epee method
 //===================
-void epee()
-{
+void epee() {
    weaponA = analogRead(weaponPinA);
    weaponB = analogRead(weaponPinB);
    lameA   = analogRead(lamePinA);
    lameB   = analogRead(lamePinB);
-  
-   signalHits();  
- 
-   // weapon A 
-   if (hitA == false) //ignore if we've hit
-   {
-      if (weaponA < 1024 - voltageThresh)
-      {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + epeeLockout > millis())))
-         {
-            if  (millis() <= (millisPastA + epeeDepress)) // if 14ms or more have past we have a hit
-            {
-               if (lameA > voltageThresh)
-               {
-                  // onTarget
-                  if(isFirstHit)
-                  {
+
+   signalHits();
+
+   // weapon A
+   if (hitA == false) {
+      // ignore if we've hit
+      if (weaponA < 1024 - voltageThresh) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + epeeLockout > millis()))) {
+            // if epee depress time has past we have a hit
+            if  (millis() <= (millisPastA + epeeDepress)) {
+               // onTarget
+               if (lameA > voltageThresh) {
+                  if(isFirstHit) {
                      millisPastFirst = millisPastA;
                      isFirstHit = false;
                   }
                   digitalWrite(onTargetA, HIGH);
                   hitA = true;
                   Serial.println("A");
-               }
-               else
-               {
-                  // offTarget
+               // offTarget
+               } else {
                   Serial.write("D");
                }
             }
-         } 
-      }
-      else // Nothing happening
-      {
+         }
+      } else { // Nothing happening
           millisPastA = millis();
       }
    }
-   
+
    // weapon B
-   if (hitB == false) // ignore if we've hit
-   {
-      if (weaponB < 1024 - voltageThresh)
-      {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + epeeLockout > millis())))
-         {
-            if  (millis() <= (millisPastB + epeeDepress)) // if 14ms or more have past we have a hit
-            {
-               if (lameB > voltageThresh)
-               {
-                  // onTarget
-                  if(isFirstHit)
-                  {
+   if (hitB == false) {
+      // ignore if we've hit
+      if (weaponB < 1024 - voltageThresh) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + epeeLockout > millis()))) {
+            // if epee depress time has past we have a hit
+            if  (millis() <= (millisPastB + epeeDepress)) {
+               // onTarget
+               if (lameB > voltageThresh) {
+                  if(isFirstHit) {
                      millisPastFirst = millisPastB;
                      isFirstHit = false;
                   }
                   digitalWrite(onTargetB, HIGH);
                   hitB = true;
                   Serial.println("B");
-               }
-               else
-               {
-                  // offTarget
+               // offTarget
+               } else {
                   Serial.write("D");
                }
             }
          }
-      }
-      else // nothing happening
-      {
+      // nothing happening
+      } else {
          millisPastB = millis();
       }
    }
@@ -326,69 +294,58 @@ void epee()
 //====================
 // Main sabre method
 //====================
-void sabre()
-{
+void sabre() {
    weaponA = analogRead(weaponPinA);
    weaponB = analogRead(weaponPinB);
    lameA   = analogRead(lamePinA);
    lameB   = analogRead(lamePinB);
-   
-   signalHits();  
-  
-   // weapon A 
-   if (hitA == false) //ignore if we've hit
-   {
-      if (weaponA > voltageThresh)
-      {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + sabreLockout > millis())))
-         {
-            if  (millis() <= (millisPastA + sabreDepress)) // if 14ms or more have past we have a hit
-            {
+
+   signalHits();
+
+   // weapon A
+   if (hitA == false) {
+      //ignore if we've hit
+      if (weaponA > voltageThresh) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + sabreLockout > millis()))) {
+            // if sabre depress time has past we have a hit
+            if  (millis() <= (millisPastA + sabreDepress)) {
                hitA = true;
-               if(isFirstHit)
-               {
+               if(isFirstHit) {
                   millisPastFirst = millis();
                }
-               if (lameB > voltageThresh)
-               {
-                  //onTarget
+               //onTarget
+               if (lameB > voltageThresh) {
                   digitalWrite(onTargetA, HIGH);
                   Serial.write("A");
                }
             }
-         } 
-      }
-      else // Nothing happening
-      {
+         }
+      // Nothing happening
+      } else {
          millisPastA = millis();
       }
    }
-   
+
    // weapon B
-   if (hitB == false) // ignore if we've hit
-   {
-      if (weaponB > voltageThresh)
-      {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + sabreLockout > millis())))
-         {
-            if  (millis() <= (millisPastB + sabreDepress)) // if 14ms or more have past we have a hit
-            {
+   if (hitB == false) {
+      // ignore if we've hit
+      if (weaponB > voltageThresh) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + sabreLockout > millis()))) {
+            // if sabre depress time has past we have a hit
+            if  (millis() <= (millisPastB + sabreDepress)) {
                hitB = true;
-               if(isFirstHit)
-               {
+               if(isFirstHit) {
                   millisPastFirst = millis();
                }
-               if (lameA > voltageThresh)
-               {
-                  // onTarget
+               // onTarget
+               if (lameA > voltageThresh) {
                   digitalWrite(onTargetB, HIGH);
                   Serial.write("B");
                }
             }
          }
-      }
-      else // nothing happening
-      {
+      // nothing happening
+      } else {
          millisPastB = millis();
       }
    }
@@ -397,30 +354,25 @@ void sabre()
 //===============
 // Sets signals
 //===============
-void signalHits()
-{
-   if (hitA || hitB)
-   {
+void signalHits() {
+   if (hitA || hitB) {
       if (mode == FOIL_MODE)
-         if (millis() >= (millisPastFirst + foilLockout))
-         {
-            // time for next action is up!
-            delay(1500); 
-            resetValues();      
+         // if lockout time is up
+         if (millis() >= (millisPastFirst + foilLockout)) {
+            delay(1500);
+            resetValues();
          }
       if (mode == EPEE_MODE)
-         if (millis() >= (millisPastFirst + epeeLockout))
-         {
-            // time for next action is up!
-            delay(1500); 
-            resetValues();      
+         // if lockout time is up
+         if (millis() >= (millisPastFirst + epeeLockout)) {
+            delay(1500);
+            resetValues();
          }
       if (mode == SABRE_MODE)
-         if (millis() >= (millisPastFirst + sabreLockout))
-         {
-            // time for next action is up!
-            delay(1500); 
-            resetValues();      
+         // if lockout time is up
+         if (millis() >= (millisPastFirst + sabreLockout)) {
+            delay(1500);
+            resetValues();
          }
    }
 }
@@ -428,14 +380,13 @@ void signalHits()
 //===================
 // Resets after hit
 //===================
-void resetValues()
-{
+void resetValues() {
    Serial.print("R");
    digitalWrite(offTargetA, LOW);
    digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetB, LOW);
    digitalWrite(onTargetB,  LOW);
-     
+
    millisPastA = millis();
    millisPastB = millis();
    millisPastFirst = 0;
@@ -444,6 +395,6 @@ void resetValues()
    hitB = false;
 
    isFirstHit = true;
-   
+
    delay(100);
 }

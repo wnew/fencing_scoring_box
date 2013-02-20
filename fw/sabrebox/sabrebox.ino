@@ -43,12 +43,12 @@ void setup() {
    pinMode(offTargetB, OUTPUT);
    pinMode(onTargetA,  OUTPUT);
    pinMode(onTargetB,  OUTPUT);
-   
-   pinMode(weaponPinA, INPUT);     
-   pinMode(weaponPinB, INPUT);     
-   pinMode(lamePinA,   INPUT);    
+
+   pinMode(weaponPinA, INPUT);
+   pinMode(weaponPinB, INPUT);
+   pinMode(lamePinA,   INPUT);
    pinMode(lamePinB,   INPUT);
-   
+
    Serial.begin(9600);
    Serial.println("Sabre Scoring Box");
    Serial.println("=================");
@@ -61,10 +61,10 @@ void loop()
    weaponB = analogRead(weaponPinB);
    lameA   = analogRead(lamePinA);
    lameB   = analogRead(lamePinB);
-   
-   signalHits();  
-  
-   // weapon A 
+
+   signalHits();
+
+   // weapon A
    if (hitA == false) //ignore if we've hit
    {
       if (weaponA > voltageThresh)
@@ -85,14 +85,14 @@ void loop()
                   Serial.write("A");
                }
             }
-         } 
+         }
       }
       else // Nothing happening
       {
          millisPastA = millis();
       }
    }
-   
+
    // weapon B
    if (hitB == false) // ignore if we've hit
    {
@@ -130,8 +130,8 @@ void signalHits()
       if (millis() >= (millisPastFirst + lockOut))
       {
          // time for next action is up!
-         delay(1500); 
-         resetValues();      
+         delay(1500);
+         resetValues();
       }
    }
 }
@@ -144,7 +144,7 @@ void resetValues()
    digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetB, LOW);
    digitalWrite(onTargetB,  LOW);
-     
+
    millisPastA = millis();
    millisPastB = millis();
    millisPastFirst = 0;
@@ -153,6 +153,6 @@ void resetValues()
    hitB = false;
 
    isFirstHit = true;
-   
+
    delay(100);
 }

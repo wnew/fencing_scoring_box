@@ -4,7 +4,7 @@
 //  Dev:  DigitalWestie & Wnew                                               //
 //  Date: Nov 2012                                                           //
 //  Notes: Origonal code from digitalwestie on github                        //
-//         Plan to edit to include other weapons                             // 
+//         Plan to edit to include other weapons                             //
 //                                                                           //
 //===========================================================================//
 
@@ -20,7 +20,7 @@ int buzzerPin  = 4;
 
 int weaponA    = 0;
 int weaponB    = 0;
-int lameA      = 0;         
+int lameA      = 0;
 int lameB      = 0;
 
 long millisPastA     = 0;
@@ -41,14 +41,14 @@ int voltageThresh = 340;         // the threshold that the scoring triggers on (
 void setup() {
    pinMode(onTargetA,  OUTPUT);
    pinMode(onTargetB,  OUTPUT);
-  
-   pinMode(weaponPinA, INPUT);     
-   pinMode(weaponPinB, INPUT);     
-   pinMode(lamePinA,   INPUT);    
+
+   pinMode(weaponPinA, INPUT);
+   pinMode(weaponPinB, INPUT);
+   pinMode(lamePinA,   INPUT);
    pinMode(lamePinB,   INPUT);
-   
+
    pinMode(buzzerPin,  OUTPUT);
-  
+
    Serial.begin(9600);
    Serial.println("Epee Scoring Box");
    Serial.println("================");
@@ -60,10 +60,10 @@ void loop()
    weaponB = analogRead(weaponPinB);
    lameA   = analogRead(lamePinA);
    lameB   = analogRead(lamePinB);
-  
-   signalHits();  
- 
-   // weapon A 
+
+   signalHits();
+
+   // weapon A
    if (hitA == false) //ignore if we've hit
    {
       if (weaponA < 1024 - voltageThresh)
@@ -86,14 +86,14 @@ void loop()
                   Serial.println("A");
                }
             }
-         } 
+         }
       }
       else // Nothing happening
       {
           millisPastA = millis();
       }
    }
-   
+
    // weapon B
    if (hitB == false) // ignore if we've hit
    {
@@ -147,7 +147,7 @@ void resetValues()
    Serial.println("R");
    digitalWrite(onTargetA, LOW);
    digitalWrite(onTargetB, LOW);
-     
+
    //millisPastA = millis();
    //millisPastB = millis();
    millisPastA = 0;
@@ -158,6 +158,6 @@ void resetValues()
    hitB = false;
 
    isFirstHit = true;
-   
+
    delay(100);
 }

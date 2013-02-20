@@ -34,7 +34,7 @@ int selectButton = 3;  // Button to select from the menu      (Digital Pin)
 
 int onA  = 0;
 int onB  = 0;
-int offA = 0;         
+int offA = 0;
 int offB = 0;
 
 char input = ' ';
@@ -45,16 +45,16 @@ int select_state = 1;
 int voltageThresh = 500;         // the threshold that the scoring triggers on
 
 void setup() {
-   pinMode(weaponPinA, OUTPUT);     
-   pinMode(weaponPinB, OUTPUT);     
-   pinMode(lamePinA,   OUTPUT);    
+   pinMode(weaponPinA, OUTPUT);
+   pinMode(weaponPinB, OUTPUT);
+   pinMode(lamePinA,   OUTPUT);
    pinMode(lamePinB,   OUTPUT);
 
    pinMode(downButton,   OUTPUT);
    pinMode(selectButton, OUTPUT);
    attachInterrupt(downButton   - 2, down_button,   RISING);
    attachInterrupt(selectButton - 2, select_button, RISING);
-   
+
    Serial.begin(9600);
    Serial.println("Start");
 
@@ -76,7 +76,7 @@ void select_button() {
   static unsigned long last_interrupt_time = 0;
   unsigned long interrupt_time = millis();
   // If interrupts come faster than 200ms, assume it's a bounce and ignore
-  if (interrupt_time - last_interrupt_time > 100 && digitalRead(3) == HIGH) 
+  if (interrupt_time - last_interrupt_time > 100 && digitalRead(3) == HIGH)
   {
   if (menu_state == 0) {
     if (select_state == 1) {
@@ -127,14 +127,14 @@ void select_button() {
   }
   select_state = 1;
   }
-  last_interrupt_time = interrupt_time; 
+  last_interrupt_time = interrupt_time;
 }
 
 void down_button() {
   static unsigned long last_interrupt_time = 0;
   unsigned long interrupt_time = millis();
   // If interrupts come faster than 200ms, assume it's a bounce and ignore
-  if (interrupt_time - last_interrupt_time > 50 && digitalRead(2) == HIGH) 
+  if (interrupt_time - last_interrupt_time > 50 && digitalRead(2) == HIGH)
   {
     if (select_state >= 3)
       select_state = 1;
@@ -233,8 +233,8 @@ void epee_menu(int i) {
     display.setTextColor(BLACK, WHITE);
   display.println("3.All Senarios");
   display.display();
-}  
-  
+}
+
 void sabre_menu(int i) {
   // text display tests
   display.setTextSize(1);
@@ -343,12 +343,12 @@ void foil_run_all_senarios()
    display.setTextColor(BLACK, WHITE);
    display.println("Foil Tests:");
    foil_test_hit();
-   foil_hitA();  
+   foil_hitA();
    foil_hitB();
    foil_off_targetA();
    foil_off_targetB();
-   foil_short_hitA();  
-   foil_short_hitB();  
+   foil_short_hitA();
+   foil_short_hitB();
    foil_fA_piste();
    foil_fB_piste();
    foil_hitA_hitB();
@@ -411,7 +411,7 @@ void foil_get_depress(int depress)
 }
 
 
-// hitA off and 
+// hitA off and
 void foil_test_hit()
 {
    Serial.println("A on 10ms released 10ms B on 10ms released");
@@ -751,8 +751,8 @@ void epee_run_all_senarios()
    epee_reset();
    epee_hitA();
    epee_hitB();
-   epee_short_hitA();  
-   epee_short_hitB();  
+   epee_short_hitA();
+   epee_short_hitB();
    epee_fA_piste();
    epee_fB_piste();
    epee_hitA_hitB();

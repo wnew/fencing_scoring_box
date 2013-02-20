@@ -81,7 +81,7 @@ void select_button() {
   static unsigned long last_interrupt_time = 0;
   unsigned long interrupt_time = millis();
   // If interrupts come faster than 200ms, assume it's a bounce and ignore
-  if (interrupt_time - last_interrupt_time > 100 && digitalRead(3) == HIGH) 
+  if (interrupt_time - last_interrupt_time > 100 && digitalRead(3) == HIGH)
   {
   if (menu_state == 0) {
     if (select_state == 1) {
@@ -134,7 +134,7 @@ void select_button() {
   }
   select_state = 1;
   }
-  last_interrupt_time = interrupt_time; 
+  last_interrupt_time = interrupt_time;
   Serial.println("select button");
 }
 
@@ -142,7 +142,7 @@ void down_button() {
   static unsigned long last_interrupt_time = 0;
   unsigned long interrupt_time = millis();
   // If interrupts come faster than 200ms, assume it's a bounce and ignore
-  if (interrupt_time - last_interrupt_time > 50 && digitalRead(2) == HIGH) 
+  if (interrupt_time - last_interrupt_time > 50 && digitalRead(2) == HIGH)
   {
     Serial.println("select_state");
     if (select_state == 3)
@@ -242,8 +242,8 @@ void epee_menu(int i) {
     display.setTextColor(BLACK, WHITE);
   display.println("3.All Senarios");
   display.display();
-}  
-  
+}
+
 void sabre_menu(int i) {
   // text display tests
   display.setTextSize(1);
