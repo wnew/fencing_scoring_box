@@ -1,10 +1,10 @@
 fencing_scoring_box
 ===================
 
-Fencing Scoring Box based on the arduino platform.
+Fencing Scoring Box code for the arduino platform.
 
-sw - Software, python code which communicates over the serial interface to the arduino
+sw - Software, python code which communicates over the serial interface with the arduino
 
 fw - Firmware, the code that runs on the arduino
 
-hw - Hardware, the circuit designs that surrounds the arduino
+hw - Hardware, the circuit designs around the arduino
