@@ -27,7 +27,7 @@ const int gndPinB    = 5;         // Lame B pin
 const int irPin      = 6;         // IR receiver pin
 const int modePin    = 0;         // Mode change button pin
 
-int mode = 0;
+int currentMode = 0;
 
 int weaponA    = 0;
 int weaponB    = 0;
@@ -41,12 +41,14 @@ long millisPastFirst = 0;
 //==========================
 // Lockout & Depress Times
 //==========================
-const int foilLockout  = 300;    // the lockout time between hits for foil is 300ms +/-25ms
-const int foilDepress  = 14;     // the minimum amount of time the tip needs to be depressed for foil 14ms +/-1ms
-const int epeeLockout  = 45;     // the lockout time between hits for epee is 45ms +/-5ms (40ms -> 50ms)
-const int epeeDepress  = 2;      // the minimum amount of time the tip needs to be depressed for epee
-const int sabreLockout = 120;    // the lockout time between hits for sabre is 120ms +/-10ms
-const int sabreDepress = 1;      // the minimum amount of time the tip needs to be depressed for sabre 0.1ms -> 1ms
+// the lockout time between hits for foil is 300ms +/-25ms
+// the minimum amount of time the tip needs to be depressed for foil 14ms +/-1ms
+// the lockout time between hits for epee is 45ms +/-5ms (40ms -> 50ms)
+// the minimum amount of time the tip needs to be depressed for epee
+// the lockout time between hits for sabre is 120ms +/-10ms
+// the minimum amount of time the tip needs to be depressed for sabre 0.1ms -> 1ms
+const int lockout[] = {300, 45, 120};
+const int depress[] = { 14,  2,   1};
 
 boolean hitA = false;
 boolean hitB = false;
@@ -93,11 +95,16 @@ void setup() {
 void loop() {
    checkIfModeChanged();
    irReceive();
-   if (mode == FOIL_MODE)
+   weaponA = analogRead(weaponPinA);
+   weaponB = analogRead(weaponPinB);
+   lameA   = analogRead(lamePinA);
+   lameB   = analogRead(lamePinB);
+   signalHits();
+   if (currentMode == FOIL_MODE)
       foil();
-   if (mode == EPEE_MODE)
+   if (currentMode == EPEE_MODE)
       epee();
-   if (mode == SABRE_MODE)
+   if (currentMode == SABRE_MODE)
       sabre();
 }
 
@@ -114,13 +121,13 @@ void changeMode() {
 void checkIfModeChanged() {
  if (modeJustChangedFlag) {
       if (digitalRead(modePin)) {
-         if (mode == 2)
-            mode = 0;
+         if (currentMode == 2)
+            currentMode = 0;
          else
-            mode++;
+            currentMode++;
       }
       Serial.print("Mode Changed to: ");
-      Serial.println(mode);
+      Serial.println(currentMode);
       delay(200);
       modeJustChangedFlag = 0;
    }
@@ -140,17 +147,19 @@ void irReceive() {
 
          //read the 8 bits that are specifically the key code
          //use bitwise operations to convert binary to decimal
-         if (i > 16 && i <= 24)
+         if (i > 16 && i <= 24) {
             if(bit > 1000)
                byteValue = byteValue + (1 << (i - 17));
-       }
+         }
+      }
 
       //send the key code to the processing.org program
       Serial.println(byteValue);
       Serial.flush();
 
-      if (byteValue == 5)
+      if (byteValue == 5) {
          changeMode();
+      }
    }
    lastTimeIRChecked = millis();
 }
@@ -159,22 +168,15 @@ void irReceive() {
 // Main foil method
 //===================
 void foil() {
-   weaponA = analogRead(weaponPinA);
-   weaponB = analogRead(weaponPinB);
-   lameA   = analogRead(lamePinA);
-   lameB   = analogRead(lamePinB);
-
-   signalHits();
-
    // weapon A
    if (hitA == false) {
       // ignore if we've hit
       if (weaponA > voltageThresh) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + foilLockout > millis()))) {
+         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[FOIL_MODE] > millis()))) {
             // if foil depress time has past we have a hit
-            if  (millis() <= (millisPastA + foilDepress)) {
+            if (millis() <= (millisPastA + depress[FOIL_MODE])) {
                hitA = true;
-               if(isFirstHit) {
+               if (isFirstHit) {
                   millisPastFirst = millis();
                }
                // if other lame hit we have an onTarget
@@ -199,11 +201,11 @@ void foil() {
    if (hitB == false) {
       // ignore if we've hit
       if (weaponB > voltageThresh) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + foilLockout > millis()))) {
+         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[FOIL_MODE] > millis()))) {
             // if foil depress time has past we have a hit
-            if  (millis() <= (millisPastB + foilDepress)) {
+            if (millis() <= (millisPastB + depress[FOIL_MODE])) {
                hitB = true;
-               if(isFirstHit) {
+               if (isFirstHit) {
                   millisPastFirst = millis();
                }
                // if other lame hit we have an onTarget
@@ -228,23 +230,16 @@ void foil() {
 // Main epee method
 //===================
 void epee() {
-   weaponA = analogRead(weaponPinA);
-   weaponB = analogRead(weaponPinB);
-   lameA   = analogRead(lamePinA);
-   lameB   = analogRead(lamePinB);
-
-   signalHits();
-
    // weapon A
    if (hitA == false) {
       // ignore if we've hit
       if (weaponA < 1024 - voltageThresh) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + epeeLockout > millis()))) {
+         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[EPEE_MODE] > millis()))) {
             // if epee depress time has past we have a hit
-            if  (millis() <= (millisPastA + epeeDepress)) {
+            if (millis() <= (millisPastA + depress[EPEE_MODE])) {
                // onTarget
                if (lameA > voltageThresh) {
-                  if(isFirstHit) {
+                  if (isFirstHit) {
                      millisPastFirst = millisPastA;
                      isFirstHit = false;
                   }
@@ -266,12 +261,12 @@ void epee() {
    if (hitB == false) {
       // ignore if we've hit
       if (weaponB < 1024 - voltageThresh) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + epeeLockout > millis()))) {
+         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[EPEE_MODE] > millis()))) {
             // if epee depress time has past we have a hit
-            if  (millis() <= (millisPastB + epeeDepress)) {
+            if (millis() <= (millisPastB + depress[EPEE_MODE])) {
                // onTarget
                if (lameB > voltageThresh) {
-                  if(isFirstHit) {
+                  if (isFirstHit) {
                      millisPastFirst = millisPastB;
                      isFirstHit = false;
                   }
@@ -295,22 +290,15 @@ void epee() {
 // Main sabre method
 //====================
 void sabre() {
-   weaponA = analogRead(weaponPinA);
-   weaponB = analogRead(weaponPinB);
-   lameA   = analogRead(lamePinA);
-   lameB   = analogRead(lamePinB);
-
-   signalHits();
-
    // weapon A
    if (hitA == false) {
       //ignore if we've hit
       if (weaponA > voltageThresh) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + sabreLockout > millis()))) {
+         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[SABRE_MODE] > millis()))) {
             // if sabre depress time has past we have a hit
-            if  (millis() <= (millisPastA + sabreDepress)) {
+            if (millis() <= (millisPastA + depress[SABRE_MODE])) {
                hitA = true;
-               if(isFirstHit) {
+               if (isFirstHit) {
                   millisPastFirst = millis();
                }
                //onTarget
@@ -330,11 +318,11 @@ void sabre() {
    if (hitB == false) {
       // ignore if we've hit
       if (weaponB > voltageThresh) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + sabreLockout > millis()))) {
+         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[SABRE_MODE] > millis()))) {
             // if sabre depress time has past we have a hit
-            if  (millis() <= (millisPastB + sabreDepress)) {
+            if (millis() <= (millisPastB + depress[SABRE_MODE])) {
                hitB = true;
-               if(isFirstHit) {
+               if (isFirstHit) {
                   millisPastFirst = millis();
                }
                // onTarget
@@ -356,24 +344,11 @@ void sabre() {
 //===============
 void signalHits() {
    if (hitA || hitB) {
-      if (mode == FOIL_MODE)
-         // if lockout time is up
-         if (millis() >= (millisPastFirst + foilLockout)) {
-            delay(1500);
-            resetValues();
-         }
-      if (mode == EPEE_MODE)
-         // if lockout time is up
-         if (millis() >= (millisPastFirst + epeeLockout)) {
-            delay(1500);
-            resetValues();
-         }
-      if (mode == SABRE_MODE)
-         // if lockout time is up
-         if (millis() >= (millisPastFirst + sabreLockout)) {
-            delay(1500);
-            resetValues();
-         }
+      // if lockout time is up
+      if (millis() >= (millisPastFirst + lockout[currentMode])) {
+         delay(1500);
+         resetValues();
+      }
    }
 }
 
