@@ -10,22 +10,28 @@
 //============
 // Pin Setup
 //============
-const int onTargetA  = 7;         // On Target A Light
-const int offTargetA = 8;         // Off Target A Light
-const int shortLEDA  = 9;         // Short Circuit A Light
-const int shortLEDB  = 10;        // Short Circuit A Light
-const int offTargetB = 11;        // Off Target B Light
-const int onTargetB  = 12;        // On Target B Light
+const int onTargetA    = 7;    // On Target A Light
+const int offTargetA   = 8;    // Off Target A Light
+const int shortLEDA    = 9;    // Short Circuit A Light
+const int shortLEDB    = 10;   // Short Circuit A Light
+const int offTargetB   = 11;   // Off Target B Light
+const int onTargetB    = 12;   // On Target B Light
 
-const int weaponPinA = 0;         // Weapon A pin
-const int weaponPinB = 1;         // Weapon B pin
-const int lamePinA   = 2;         // Lame A pin
-const int lamePinB   = 3;         // Lame B pin
-const int gndPinA    = 4;         // Lame A pin
-const int gndPinB    = 5;         // Lame B pin
+const int weaponPinA   = 0;    // Weapon A pin - Analog
+const int lamePinA     = 1;    // Lame A pin   - Analog
+const int groundPinA   = 2;    // Ground A pin - Analog
+const int groundPinB   = 3;    // Ground B pin - Analog
+const int lamePinB     = 4;    // Lame B pin   - Analog
+const int weaponPinB   = 5;    // Weapon B pin - Analog
 
-const int irPin      = 6;         // IR receiver pin
-const int modePin    = 0;         // Mode change button pin
+const int modePin      = 0;    // Mode change button pin
+const int irPin        = 1;    // IR receiver pin
+const int buzzerPin    = 2;    // Pin to control the buzzer
+const int foilModeLed  = 3;    // LED to indicate foil  mode selected
+const int epeeModeLed  = 4;    // LED to indicate epee  mode selected
+const int sabreModeLed = 5;    // LED to indicate sabre mode selected
+const int modeLeds[] = {3, 4, 5};
+
 
 int currentMode = 0;
 
@@ -47,8 +53,8 @@ long millisPastFirst = 0;
 // the minimum amount of time the tip needs to be depressed for epee
 // the lockout time between hits for sabre is 120ms +/-10ms
 // the minimum amount of time the tip needs to be depressed for sabre 0.1ms -> 1ms
-const int lockout[] = {300, 45, 120};
-const int depress[] = { 14,  2,   1};
+const int lockout [] = {300, 45, 120};
+const int depress [] = { 14,  2,   1};
 
 boolean hitA = false;
 boolean hitB = false;
@@ -68,10 +74,15 @@ const int SABRE_MODE = 2;
 int modeJustChangedFlag = 0;
 
 void setup() {
-
+   // Set the internal pullup resistor on modePin
+   pinMode(modePin, INPUT_PULLUP);
    // add the interrupt to the mode pin
    attachInterrupt(modePin, changeMode, RISING);
-   pinMode(irPin, INPUT);
+   pinMode(irPin,        INPUT);
+   pinMode(buzzerPin,    OUTPUT);
+   pinMode(foilModeLed,  OUTPUT);
+   pinMode(epeeModeLed,  OUTPUT);
+   pinMode(sabreModeLed, OUTPUT);
 
    pinMode(offTargetA, OUTPUT);
    pinMode(offTargetB, OUTPUT);
@@ -82,8 +93,8 @@ void setup() {
    pinMode(weaponPinB, INPUT);
    pinMode(lamePinA,   INPUT);
    pinMode(lamePinB,   INPUT);
-   pinMode(gndPinA,    INPUT);
-   pinMode(gndPinB,    INPUT);
+   pinMode(groundPinA, INPUT);
+   pinMode(groundPinB, INPUT);
 
    resetValues();
 
@@ -115,6 +126,16 @@ void changeMode() {
    modeJustChangedFlag = 1;
 }
 
+//============================
+// Sets the correct mode led
+//============================
+void setModeLeds() {
+   for (int i = 0; i < 3; i++) {
+      digitalWrite(modeLeds[i], LOW);
+   }
+   digitalWrite(modeLeds[currentMode], HIGH);
+}
+
 //========================
 // Run when mode changed
 //========================
@@ -126,6 +147,7 @@ void checkIfModeChanged() {
          else
             currentMode++;
       }
+      setModeLeds();
       Serial.print("Mode Changed to: ");
       Serial.println(currentMode);
       delay(200);
@@ -181,12 +203,13 @@ void foil() {
                }
                // if other lame hit we have an onTarget
                if (lameB > voltageThresh) {
-
                   digitalWrite(onTargetA, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   Serial.write("A");
                // otherwise we have an offTarget
                } else {
                   digitalWrite(offTargetA, HIGH);
+                  digitalWrite(buzzerPin,  HIGH);
                   Serial.write("C");
                }
             }
@@ -211,10 +234,12 @@ void foil() {
                // if other lame hit we have an onTarget
                if (lameA > voltageThresh) {
                   digitalWrite(onTargetB, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   Serial.write("B");
                // otherwise we have an offTarget
                } else {
                   digitalWrite(offTargetB, HIGH);
+                  digitalWrite(buzzerPin,  HIGH);
                   Serial.write("D");
                }
             }
@@ -244,6 +269,7 @@ void epee() {
                      isFirstHit = false;
                   }
                   digitalWrite(onTargetA, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   hitA = true;
                   Serial.println("A");
                // offTarget
@@ -271,6 +297,7 @@ void epee() {
                      isFirstHit = false;
                   }
                   digitalWrite(onTargetB, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   hitB = true;
                   Serial.println("B");
                // offTarget
@@ -304,6 +331,7 @@ void sabre() {
                //onTarget
                if (lameB > voltageThresh) {
                   digitalWrite(onTargetA, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   Serial.write("A");
                }
             }
@@ -328,6 +356,7 @@ void sabre() {
                // onTarget
                if (lameA > voltageThresh) {
                   digitalWrite(onTargetB, HIGH);
+                  digitalWrite(buzzerPin, HIGH);
                   Serial.write("B");
                }
             }
@@ -357,6 +386,7 @@ void signalHits() {
 //===================
 void resetValues() {
    Serial.print("R");
+   digitalWrite(buzzerPin,  LOW);
    digitalWrite(offTargetA, LOW);
    digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetB, LOW);
