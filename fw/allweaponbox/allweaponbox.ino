@@ -10,28 +10,26 @@
 //============
 // Pin Setup
 //============
+const int freePin0     = 0;    // Open analog pin
+const int freePin1     = 1;    // Open analog pin
+const int weaponPinA   = 2;    // Weapon A pin - Analog
+const int lamePinA     = 3;    // Lame A pin   - Analog
+const int groundPinA   = 4;    // Ground A pin - Analog
+const int groundPinB   = 5;    // Ground B pin - Analog
+const int lamePinB     = 6;    // Lame B pin   - Analog
+const int weaponPinB   = 7;    // Weapon B pin - Analog
+
+const int modePin      = 0;    // Mode change button interrupt pin 0 (digital pin 2)
+const int buzzerPin    = 3;    // Pin to control the buzzer
+const int modeLeds[]   = {4, 5, 6}; // LED pins to indicate weapon mode selected
+const int irPin        = 13;    // IR receiver pin
+
 const int onTargetA    = 7;    // On Target A Light
 const int offTargetA   = 8;    // Off Target A Light
 const int shortLEDA    = 9;    // Short Circuit A Light
 const int shortLEDB    = 10;   // Short Circuit A Light
 const int offTargetB   = 11;   // Off Target B Light
 const int onTargetB    = 12;   // On Target B Light
-
-const int weaponPinA   = 0;    // Weapon A pin - Analog
-const int lamePinA     = 1;    // Lame A pin   - Analog
-const int groundPinA   = 2;    // Ground A pin - Analog
-const int groundPinB   = 3;    // Ground B pin - Analog
-const int lamePinB     = 4;    // Lame B pin   - Analog
-const int weaponPinB   = 5;    // Weapon B pin - Analog
-
-const int modePin      = 0;    // Mode change button pin
-const int irPin        = 1;    // IR receiver pin
-const int buzzerPin    = 2;    // Pin to control the buzzer
-const int foilModeLed  = 3;    // LED to indicate foil  mode selected
-const int epeeModeLed  = 4;    // LED to indicate epee  mode selected
-const int sabreModeLed = 5;    // LED to indicate sabre mode selected
-const int modeLeds[] = {3, 4, 5};
-
 
 int currentMode = 0;
 
@@ -78,29 +76,22 @@ void setup() {
    pinMode(modePin, INPUT_PULLUP);
    // add the interrupt to the mode pin
    attachInterrupt(modePin, changeMode, RISING);
-   pinMode(irPin,        INPUT);
-   pinMode(buzzerPin,    OUTPUT);
-   pinMode(foilModeLed,  OUTPUT);
-   pinMode(epeeModeLed,  OUTPUT);
-   pinMode(sabreModeLed, OUTPUT);
+   pinMode(irPin,       INPUT);
+   pinMode(buzzerPin,   OUTPUT);
+   pinMode(modeLeds[0], OUTPUT);
+   pinMode(modeLeds[1], OUTPUT);
+   pinMode(modeLeds[2], OUTPUT);
 
    pinMode(offTargetA, OUTPUT);
    pinMode(offTargetB, OUTPUT);
    pinMode(onTargetA,  OUTPUT);
    pinMode(onTargetB,  OUTPUT);
 
-   pinMode(weaponPinA, INPUT);
-   pinMode(weaponPinB, INPUT);
-   pinMode(lamePinA,   INPUT);
-   pinMode(lamePinB,   INPUT);
-   pinMode(groundPinA, INPUT);
-   pinMode(groundPinB, INPUT);
-
-   resetValues();
-
    Serial.begin(9600);
    Serial.println("3 Weapon Scoring Box");
    Serial.println("====================");
+   
+   resetValues();
 }
 
 void loop() {
@@ -161,16 +152,16 @@ void checkIfModeChanged() {
 void irReceive() {
    //look for a header pulse from the IR Receiver
    long lengthHeader = pulseIn(irPin, LOW);
-   if(lengthHeader > 5000 && (millis() - lastTimeIRChecked > 100)) {
+   if (lengthHeader > 5000 && (millis() - lastTimeIRChecked > 100)) {
       //step through each of the 32 bits that streams from the remote
       int byteValue = 0;
-      for(int i = 1; i <= 32; i++) {
+      for (int i = 1; i <= 32; i++) {
          bit = pulseIn(irPin, HIGH);
 
          //read the 8 bits that are specifically the key code
          //use bitwise operations to convert binary to decimal
          if (i > 16 && i <= 24) {
-            if(bit > 1000)
+            if (bit > 1000)
                byteValue = byteValue + (1 << (i - 17));
          }
       }
@@ -387,8 +378,8 @@ void signalHits() {
 void resetValues() {
    Serial.print("R");
    digitalWrite(buzzerPin,  LOW);
-   digitalWrite(offTargetA, LOW);
    digitalWrite(onTargetA,  LOW);
+   digitalWrite(offTargetA, LOW);
    digitalWrite(offTargetB, LOW);
    digitalWrite(onTargetB,  LOW);
 
