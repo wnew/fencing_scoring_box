@@ -15,14 +15,14 @@ int onTargetALight  = 3;   // On Target A Light
 int onTargetBLight  = 0;   // On Target B Light
 
 
-int B1_C1 = 4;    // Foil closed circuit 1
-int B2_C2 = 5;    // Foil closed circuit 2
-int A2_B1 = 6;    // Foil lame touch 1
-int A1_B2 = 7;    // Foil lame touch 2
+int B1_C1 = 12;   // Foil closed circuit 1
+int B2_C2 = 11;   // Foil closed circuit 2
+int A2_B1 = 10;   // Foil lame touch 1
+int A1_B2 = 9;    // Foil lame touch 2
 int A1_B1 = 8;    // Epee open circuit 1
-int A2_B2 = 9;    // Epee open circuit 2
-int A1_C2 = 10;   // Epee guard touch 1
-int A2_C1 = 11;   // Epee guard touch 2
+int A2_B2 = 7;    // Epee open circuit 2
+int A1_C2 = 6;    // Epee guard touch 1
+int A2_C1 = 5;    // Epee guard touch 2
 
 int onA  = 0;
 int onB  = 0;
@@ -67,23 +67,20 @@ void sabreSetup() {
    digitalWrite(A1_B2, LOW);
 }
 
-void loop()
-{
+void loop() {
    menu();
 }
 
-void menu()
-{
+void menu() {
    Serial.println("Welcome to the Fencing Scoring Machine tester");
    Serial.println("==============================================");
    Serial.println("Select Weapon:");
    Serial.println("1. Foil");
    Serial.println("2. Epee");
    Serial.println("3. Sabre");
-   while(!Serial.available());
+   while (!Serial.available());
    input = Serial.read();
-   if (input == '1')
-   {
+   if (input == '1') {
       foilSetup();
       // foil menu
       Serial.println("Select Foil Test:");
@@ -92,66 +89,58 @@ void menu()
       Serial.println("3. Run all foil senarios");
       while(!Serial.available());
       input = Serial.read();
-      if (input == '1')
-      {
+      if (input == '1') {
          foilGetLockout(0);
       }
-      if (input == '2')
-      {
+      if (input == '2') {
          foilGetDepress(0);
       }
-      if (input == '3')
-      {
+      if (input == '3') {
          foilRunAllSenarios();
       }
+      input = 0;
    }
-   if (input == '2')
-   {
+   if (input == '2') {
       epeeSetup();
       // epee menu
       Serial.println("Select Epee Test:");
       Serial.println("1. Get epee lockout time");
       Serial.println("2. Get epee depress time");
       Serial.println("3. Run all epee senarios");
-      while(!Serial.available());
+      while (!Serial.available());
       input = Serial.read();
-      if (input == '1')
-      {
+      if (input == '1') {
          epeeGetLockout(0);
       }
-      if (input == '2')
-      {
+      if (input == '2') {
          epeeGetDepress(0);
       }
-      if (input == '3')
-      {
+      if (input == '3') {
          epeeRunAllSenarios();
       }
+      input = 0;
    }
-   if (input == '3')
-   {
+   if (input == '3') {
       sabreSetup();
       // sabre menu
       Serial.println("Select Sabre Test:");
       Serial.println("1. Get sabre lockout time");
       Serial.println("2. Run all sabre senarios");
-      while(!Serial.available());
+      while (!Serial.available());
       input = Serial.read();
-      if (input == '1')
-      {
+      if (input == '1') {
          //sabre_get_timing(0);
       }
-      if (input == '2')
-      {
+      if (input == '2') {
          //sabre_all_senarios();
       }
+      input = 0;
    }
 }
 
 
-void foilRunAllSenarios()
-{
-   foilTestHit();
+void foilRunAllSenarios() {
+   //foilTestHit();
    foilHitA();  
    foilHitB();
    foilOffTargetA();
@@ -173,18 +162,17 @@ void foilRunAllSenarios()
 }
 
 
-void foilGetLockout(int lockout)
-{
+void foilGetLockout(int lockout) {
    Serial.println("finding foil lockout time");
    for (int i = 295; i < 305; i++)
    {
       Serial.print(i);
       Serial.println("ms");
-      digitalWrite(A1_B2, HIGH);
       digitalWrite(B2_C2, LOW);
+      digitalWrite(A1_B2, HIGH);
       delay(i);
-      digitalWrite(A2_B1, HIGH);
       digitalWrite(B1_C1, LOW);
+      digitalWrite(A2_B1, HIGH);
       delay(100);
       foilSetup();
       readLights();
@@ -196,18 +184,16 @@ void foilGetLockout(int lockout)
    }
 }
 
-void foilGetDepress(int depress)
-{
+void foilGetDepress(int depress) {
    Serial.println("finding foil depress time");
-   for (int i = 10; i < 20; i++)
-   {
+   for (int i = 1; i < 20; i++) {
       Serial.print(i);
       Serial.println("ms");
-      digitalWrite(A1_B2, HIGH);
       digitalWrite(B2_C2, LOW);
+      digitalWrite(A1_B2, HIGH);
       delay(i);
-      digitalWrite(A1_B2, LOW);
       digitalWrite(B2_C2, HIGH);
+      digitalWrite(A1_B2, LOW);
       delay(100);
       foilSetup();
       readLights();
@@ -221,20 +207,19 @@ void foilGetDepress(int depress)
 
 
 // hitA off and 
-void foilTestHit()
-{
+void foilTestHit() {
    Serial.println("A on 10ms released 10ms B on 10ms released");
-   digitalWrite(A1_B2, HIGH);
    digitalWrite(B2_C2, LOW);
-   delay(10);
-   digitalWrite(A1_B2, LOW);
-   digitalWrite(B2_C2, HIGH);
-   delay(10);
    digitalWrite(A1_B2, HIGH);
-   digitalWrite(B2_C2, LOW);
    delay(10);
-   digitalWrite(A1_B2, LOW);
    digitalWrite(B2_C2, HIGH);
+   digitalWrite(A1_B2, LOW);
+   delay(10);
+   digitalWrite(B2_C2, LOW);
+   digitalWrite(A1_B2, HIGH);
+   delay(10);
+   digitalWrite(B2_C2, HIGH);
+   digitalWrite(A1_B2, LOW);
    foilSetup();
    readLights();
    if (onA > 500 && onB > 500 && offA < 500 && offB < 500)
@@ -247,11 +232,10 @@ void foilTestHit()
 
 
 // fencer A ontarget for more then the depressed time
-void foilHitA()
-{
+void foilHitA() {
    Serial.println("foilHitA");
-   digitalWrite(A1_B2, HIGH);
-   digitalWrite(B2_C2, LOW);
+   digitalWrite(B1_C1, LOW);
+   digitalWrite(A2_B1, HIGH);
    delay(50);
    foilSetup();
    readLights();
@@ -263,11 +247,10 @@ void foilHitA()
 }
 
 // fencer B ontarget for more then the depressed time
-void foilHitB()
-{
+void foilHitB() {
    Serial.println("foil hitB");
-   digitalWrite(A2_B1, HIGH);
    digitalWrite(B2_C2, LOW);
+   digitalWrite(A1_B2, HIGH);
    delay(50);
    foilSetup();
    readLights();
@@ -279,8 +262,7 @@ void foilHitB()
 }
 
 // fencer A ontarget for more then the depressed time
-void foilOffTargetA()
-{
+void foilOffTargetA() {
    Serial.println("foil_offtargetA");
    digitalWrite(B1_C1, LOW);
    delay(50);
@@ -294,8 +276,7 @@ void foilOffTargetA()
 }
 
 // fencer B ontarget for more then the depressed time
-void foilOffTargetB()
-{
+void foilOffTargetB() {
    Serial.println("foil offtargetB");
    digitalWrite(B2_C2, LOW);
    delay(50);
@@ -309,11 +290,10 @@ void foilOffTargetB()
 }
 
 // fencer A ontarget for less then the depressed time
-void foilShortHitA()
-{
+void foilShortHitA() {
    Serial.println("foilShortHitA no delay ???");
-   digitalWrite(A1_B2, HIGH);
    digitalWrite(B2_C2, LOW);
+   digitalWrite(A1_B2, HIGH);
    foilSetup();
    readLights();
    if (onA < 500 && onB < 500 && offA < 500 && offB < 500)
@@ -324,11 +304,10 @@ void foilShortHitA()
 }
 
 // fencer B ontarget for less then the depressed time
-void foilShortHitB()
-{
+void foilShortHitB() {
    Serial.println("foilShortHitB no delay ???");
-   digitalWrite(A2_B1, HIGH);
    digitalWrite(B1_C1, LOW);
+   digitalWrite(A2_B1, HIGH);
    foilSetup();
    readLights();
    if (onA < 500 && onB < 500 && offA < 500 && offB < 500)
@@ -339,8 +318,7 @@ void foilShortHitB()
 }
 
 // fencer A hits the piste
-void foilFAPiste()
-{
+void foilFAPiste() {
    /*Serial.println("foilFAPiste");
    digitalWrite(weaponPinA, LOW);
    foilSetup();
@@ -353,8 +331,7 @@ void foilFAPiste()
 }
 
 // fencer B hits the piste
-void foilFBPiste()
-{
+void foilFBPiste() {
    /*Serial.println("foilFBPiste");
    digitalWrite(weaponPinB, LOW);
    foilSetup();
@@ -367,14 +344,13 @@ void foilFBPiste()
 }
 
 // fencer A on target then fencer B on target before lockout
-void foilHitAHitB()
-{
+void foilHitAHitB() {
    Serial.println("foilHitAHitB with 40ms delay");
-   digitalWrite(A2_B1, HIGH);
    digitalWrite(B1_C1, LOW);
+   digitalWrite(A2_B1, HIGH);
    delay(40);
-   digitalWrite(A1_B2, HIGH);
    digitalWrite(B2_C2, LOW);
+   digitalWrite(A1_B2, HIGH);
    delay(100);
    foilSetup();
    readLights();
@@ -386,14 +362,13 @@ void foilHitAHitB()
 }
 
 // fencer B on target then fencer A on target before lockout
-void foilHitBHitA()
-{
+void foilHitBHitA() {
    Serial.println("foilHitBHitA with 40ms delay");
-   digitalWrite(A1_B2, HIGH);
    digitalWrite(B2_C2, LOW);
+   digitalWrite(A1_B2, HIGH);
    delay(40);
-   digitalWrite(A2_B1, HIGH);
    digitalWrite(B1_C1, LOW);
+   digitalWrite(A2_B1, HIGH);
    delay(100);
    foilSetup();
    readLights();
@@ -405,11 +380,10 @@ void foilHitBHitA()
 }
 
 // fencer A on target then fencer B on target before lockout
-void foilHitAOffTargetB()
-{
+void foilHitAOffTargetB() {
    Serial.println("foilHitAOffTargetB with 280ms delay");
-   digitalWrite(A2_B1, HIGH);
    digitalWrite(B1_C1, LOW);
+   digitalWrite(A2_B1, HIGH);
    delay(280);
    digitalWrite(B2_C2, LOW);
    delay(100);
@@ -423,11 +397,10 @@ void foilHitAOffTargetB()
 }
 
 // fencer B on target then fencer A on target before lockout
-void foilHitBOffTargetA()
-{
+void foilHitBOffTargetA() {
    Serial.println("foilHitBOffTargetA with 280ms delay");
-   digitalWrite(A1_B2, HIGH);
    digitalWrite(B2_C2, LOW);
+   digitalWrite(A1_B2, HIGH);
    delay(280);
    digitalWrite(B1_C1, LOW);
    delay(100);
@@ -441,13 +414,12 @@ void foilHitBOffTargetA()
 }
 
 // fencer A on target then fencer B on target before lockout
-void foilOffTargetAHitB()
-{
+void foilOffTargetAHitB() {
    Serial.println("foilOffTargetAHitB with 280ms delay");
    digitalWrite(B1_C1, LOW);
    delay(280);
-   digitalWrite(A1_B2, HIGH);
    digitalWrite(B2_C2, LOW);
+   digitalWrite(A1_B2, HIGH);
    delay(100);
    foilSetup();
    readLights();
@@ -459,11 +431,10 @@ void foilOffTargetAHitB()
 }
 
 // fencer A on target then fencer B on target before lockout
-void foilOffTargetBHitA()
-{
+void foilOffTargetBHitA() {
    Serial.println("foilOffTargetBHitA with 280ms delay");
-   digitalWrite(A2_B1, HIGH);
    digitalWrite(B1_C1, LOW);
+   digitalWrite(A2_B1, HIGH);
    delay(280);
    digitalWrite(B2_C2, LOW);
    delay(100);
@@ -477,11 +448,10 @@ void foilOffTargetBHitA()
 }
 
 // fencer A on target then fencer B on target before lockout
-void foilHitALockoutOffTargetB()
-{
+void foilHitALockoutOffTargetB() {
    Serial.println("foilHitALockoutOffTargetB with 320ms delay");
-   digitalWrite(A2_B1, HIGH);
    digitalWrite(B1_C1, LOW);
+   digitalWrite(A2_B1, HIGH);
    delay(320);
    digitalWrite(B2_C2, LOW);
    delay(100);
@@ -495,11 +465,10 @@ void foilHitALockoutOffTargetB()
 }
 
 // fencer B on target then fencer A on target before lockout
-void foilHitBLockoutOffTargetA()
-{
+void foilHitBLockoutOffTargetA() {
    Serial.println("foilHitBLockoutOffTargetA with 320ms delay");
-   digitalWrite(A1_B2, HIGH);
    digitalWrite(B2_C2, LOW);
+   digitalWrite(A1_B2, HIGH);
    delay(320);
    digitalWrite(B1_C1, LOW);
    delay(100);
@@ -513,14 +482,13 @@ void foilHitBLockoutOffTargetA()
 }
 
 // fencer A on target then fencer B on target after lockout
-void foilHitALockoutHitB()
-{
+void foilHitALockoutHitB() {
    Serial.println("foilHitALockoutHitB 320ms delay");
-   digitalWrite(A2_B1, HIGH);
    digitalWrite(B1_C1, LOW);
+   digitalWrite(A2_B1, HIGH);
    delay(320);
-   digitalWrite(A1_B2, HIGH);
    digitalWrite(B2_C2, LOW);
+   digitalWrite(A1_B2, HIGH);
    delay(100);
    foilSetup();
    readLights();
@@ -532,14 +500,13 @@ void foilHitALockoutHitB()
 }
 
 // fencer B on target then fencer A on target after lockout
-void foilHitBLockoutHitA()
-{
+void foilHitBLockoutHitA() {
    Serial.println("foilHitBLockoutHitA 320ms delay");
-   digitalWrite(A1_B2, HIGH);
    digitalWrite(B2_C2, LOW);
+   digitalWrite(A1_B2, HIGH);
    delay(320);
-   digitalWrite(A2_B1, HIGH);
    digitalWrite(B1_C1, LOW);
+   digitalWrite(A2_B1, HIGH);
    delay(100);
    foilSetup();
    readLights();
@@ -553,8 +520,7 @@ void foilHitBLockoutHitA()
 
 
 
-void epeeRunAllSenarios()
-{
+void epeeRunAllSenarios() {
    epeeSetup();
    epeeHitA();
    epeeHitB();
@@ -571,8 +537,7 @@ void epeeRunAllSenarios()
 // is a_first_hit true/false
 // time_between_hits
 // hitB true/false is there a 2nd hit?
-void genericEpeeHit(bool a_hit_first, int time_between_hits, bool hitB)
-{
+void genericEpeeHit(bool a_hit_first, int time_between_hits, bool hitB) {
    /*if (a_hit_first)
       digitalWrite(weaponPinA, LOW);
    else
@@ -588,11 +553,9 @@ void genericEpeeHit(bool a_hit_first, int time_between_hits, bool hitB)
    readLights();*/
 }
 
-void epeeGetLockout(int lockout)
-{
+void epeeGetLockout(int lockout) {
    Serial.println("finding epee lockout time");
-   for (int i = 40; i < 60; i++)
-   {
+   for (int i = 40; i < 60; i++) {
       Serial.print(i);
       Serial.println("ms");
       digitalWrite(A1_B1, HIGH);
@@ -609,11 +572,9 @@ void epeeGetLockout(int lockout)
    }
 }
 
-void epeeGetDepress(int depress)
-{
+void epeeGetDepress(int depress) {
    Serial.println("finding epee depress time");
-   for (int i = 1; i < 10; i++)
-   {
+   for (int i = 1; i < 10; i++) {
       Serial.print(i);
       Serial.println("ms");
       digitalWrite(A1_B1, HIGH);
@@ -631,8 +592,7 @@ void epeeGetDepress(int depress)
 }
 
 // fencer A ontarget for more then the depressed time
-void epeeHitA()
-{
+void epeeHitA() {
    Serial.println("epeeHitA");
    digitalWrite(A1_B1, HIGH);
    delay(50);
@@ -646,8 +606,7 @@ void epeeHitA()
 }
 
 // fencer B ontarget for more then the depressed time
-void epeeHitB()
-{
+void epeeHitB() {
    Serial.println("epee hitB");
    digitalWrite(A2_B2, HIGH);
    delay(50);
@@ -661,8 +620,7 @@ void epeeHitB()
 }
 
 // fencer A ontarget for less then the depressed time
-void epeeShortHitA()
-{
+void epeeShortHitA() {
    Serial.println("epeeShortHitA no delay ???");
    digitalWrite(A1_B1, HIGH);
    epeeSetup();
@@ -675,8 +633,7 @@ void epeeShortHitA()
 }
 
 // fencer B ontarget for less then the depressed time
-void epeeShortHitB()
-{
+void epeeShortHitB() {
    Serial.println("epeeShortHitB no delay ???");
    digitalWrite(A2_B2, HIGH);
    epeeSetup();
@@ -689,8 +646,7 @@ void epeeShortHitB()
 }
 
 // fencer A hits the piste
-void epeeFAPiste()
-{
+void epeeFAPiste() {
    /*Serial.println("epeeFAPiste");
    digitalWrite(weaponPinA, LOW);
    digitalWrite(lamePinA, LOW);
@@ -705,8 +661,7 @@ void epeeFAPiste()
 }
 
 // fencer B hits the piste
-void epeeFBPiste()
-{
+void epeeFBPiste() {
    /*Serial.println("epeeFBPiste");
    digitalWrite(weaponPinB, LOW);
    digitalWrite(lamePinB, LOW);
@@ -721,8 +676,7 @@ void epeeFBPiste()
 }
 
 // fencer A on target then fencer B on target before lockout
-void epeeHitAHitB()
-{
+void epeeHitAHitB() {
    Serial.println("epeeHitAHitB with 40ms delay");
    digitalWrite(A1_B1, HIGH);
    delay(40);
@@ -738,8 +692,7 @@ void epeeHitAHitB()
 }
 
 // fencer B on target then fencer A on target before lockout
-void epeeHitBHitA()
-{
+void epeeHitBHitA() {
    Serial.println("epeeHitBHitA with 40ms delay");
    digitalWrite(A2_B2, HIGH);
    delay(40);
@@ -755,8 +708,7 @@ void epeeHitBHitA()
 }
 
 // fencer A on target then fencer B on target after lockout
-void epeeHitALockoutHitB()
-{
+void epeeHitALockoutHitB() {
    Serial.println("epeeHitALockoutHitB 50ms delay");
    digitalWrite(A1_B1, HIGH);
    delay(50);
@@ -772,8 +724,7 @@ void epeeHitALockoutHitB()
 }
 
 // fencer B on target then fencer A on target after lockout
-void epeeHitBLockoutHitA()
-{
+void epeeHitBLockoutHitA() {
    Serial.println("epeeHitBLockoutHitA 50ms delay");
    digitalWrite(A2_B2, HIGH);
    delay(50);
@@ -789,8 +740,7 @@ void epeeHitBLockoutHitA()
 }
 
 
-void readLights()
-{
+void readLights() {
    delay(1000);
    offA = analogRead(offTargetALight);
    offB = analogRead(offTargetBLight);
