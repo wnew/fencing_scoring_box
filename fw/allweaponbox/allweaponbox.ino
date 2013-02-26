@@ -12,12 +12,12 @@
 //============
 const int freePin0     = 0;    // Open analog pin
 const int freePin1     = 1;    // Open analog pin
-const int weaponPinA   = 2;    // Weapon A pin - Analog
-const int lamePinA     = 3;    // Lame A pin   - Analog
+const int lamePinA     = 2;    // Lame A pin   - Analog
+const int weaponPinA   = 3;    // Weapon A pin - Analog
 const int groundPinA   = 4;    // Ground A pin - Analog
 const int groundPinB   = 5;    // Ground B pin - Analog
-const int lamePinB     = 6;    // Lame B pin   - Analog
-const int weaponPinB   = 7;    // Weapon B pin - Analog
+const int weaponPinB   = 6;    // Weapon B pin - Analog
+const int lamePinB     = 7;    // Lame B pin   - Analog
 
 const int modePin      = 0;    // Mode change button interrupt pin 0 (digital pin 2)
 const int buzzerPin    = 3;    // Pin to control the buzzer
@@ -87,6 +87,8 @@ void setup() {
    pinMode(onTargetA,  OUTPUT);
    pinMode(onTargetB,  OUTPUT);
 
+   digitalWrite(modeLeds[currentMode], HIGH);
+
    Serial.begin(9600);
    Serial.println("3 Weapon Scoring Box");
    Serial.println("====================");
@@ -96,7 +98,7 @@ void setup() {
 
 void loop() {
    checkIfModeChanged();
-   irReceive();
+   //irReceive();  // this takes to long to run and slows the main loop down
    weaponA = analogRead(weaponPinA);
    weaponB = analogRead(weaponPinB);
    lameA   = analogRead(lamePinA);
@@ -141,7 +143,7 @@ void checkIfModeChanged() {
       setModeLeds();
       Serial.print("Mode Changed to: ");
       Serial.println(currentMode);
-      delay(200);
+      //delay(200);
       modeJustChangedFlag = 0;
    }
 }
