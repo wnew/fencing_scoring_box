@@ -1,5 +1,5 @@
-fencing_scoring_box
-===================
+Arduino Fencing Scoring Box
+=============================
 
 Fencing Scoring Machine/Box/Apparatus code for the arduino platform.
 
