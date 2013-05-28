@@ -5,9 +5,9 @@ int onTargetA = 12;         // choose the pin for the LED
 int onTargetB = 11;         // choose the pin for the LED
 
 int weaponPinA = 'A0';         // choose the input pin
-int weaponPinB = 'A1';         // choose the input pin 
+int weaponPinB = 'A1';         // choose the input pin
 int lamePinA = 'A2';           // choose the input pin
-int lamePinB = 'A3';           // choose the input pin 
+int lamePinB = 'A3';           // choose the input pin
 
 int lameA = 0;
 int lameB = 0;
@@ -30,7 +30,7 @@ void setup() {
   pinMode(offTargetB, OUTPUT);      // declare LED as output
   pinMode(onTargetA, OUTPUT);       // declare LED as output
   pinMode(onTargetB, OUTPUT);       // declare LED as output
-  
+
   Serial.begin(9600);
   Serial.println("Start");
 }
@@ -39,13 +39,13 @@ void loop()
 {
   weaponA = analogRead(weaponPinA);  // read input value
   weaponB = analogRead(weaponPinB);  // read input value
-  
+
   lameA = analogRead(lamePinA);  // read input value
   lameB = analogRead(lamePinB);  // read input value
-  
-  signalHits();  
- 
-  //WEAPON B 
+
+  signalHits();
+
+  //WEAPON B
   if (hitB == false) //ignore if we've hit
   {
     if (weaponB < 500)
@@ -79,9 +79,9 @@ void loop()
         millisPastB = millis();
     }
   }
-   
-  
-  //WEAPON A 
+
+
+  //WEAPON A
   if (hitA == false) //ignore if we've hit
   {
     if (weaponA < 500)
@@ -114,19 +114,19 @@ void loop()
     {
         millisPastA = millis();
     }
-  }  
+  }
 }
 
 void signalHits()
 {
-  
+
   if (hitB || hitA)
   {
     if (millis() >= (millisPastFirst + 300))
     {
       //time for next action is up!
       delay(2000); //wait for a second
-      resetValues();      
+      resetValues();
     }
   }
 
@@ -134,13 +134,13 @@ void signalHits()
 
 void resetValues()
 {
-  
+
   //RED SIDE WONT RESET WITHOUT FIDDLING WITH OTHER SIDE!!
    digitalWrite(offTargetA, LOW);
    digitalWrite(onTargetA, LOW);
    digitalWrite(offTargetB, LOW);
    digitalWrite(onTargetB, LOW);
-     
+
    millisPastA = millis();
    millisPastB = millis();
    millisPastFirst = 0;
@@ -149,6 +149,6 @@ void resetValues()
    hitB = false;
 
    isFirstHit = true;
-   
+
    delay(500);
 }

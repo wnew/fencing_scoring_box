@@ -20,7 +20,7 @@ int lamePinB   = 9;         // Lame B pin
 
 int onA  = 0;
 int onB  = 0;
-int offA = 0;         
+int offA = 0;
 int offB = 0;
 
 char input = ' ';
@@ -28,11 +28,11 @@ char input = ' ';
 int voltageThresh = 500;         // the threshold that the scoring triggers on
 
 void setup() {
-   pinMode(weaponPinA, OUTPUT);     
-   pinMode(weaponPinB, OUTPUT);     
-   pinMode(lamePinA,   OUTPUT);    
+   pinMode(weaponPinA, OUTPUT);
+   pinMode(weaponPinB, OUTPUT);
+   pinMode(lamePinA,   OUTPUT);
    pinMode(lamePinB,   OUTPUT);
-   
+
    Serial.begin(9600);
 }
 
@@ -118,12 +118,12 @@ void menu()
 void foil_run_all_senarios()
 {
    foil_test_hit();
-   foil_hitA();  
+   foil_hitA();
    foil_hitB();
    foil_off_targetA();
    foil_off_targetB();
-   foil_short_hitA();  
-   foil_short_hitB();  
+   foil_short_hitA();
+   foil_short_hitB();
    foil_fA_piste();
    foil_fB_piste();
    foil_hitA_hitB();
@@ -186,7 +186,7 @@ void foil_get_depress(int depress)
 }
 
 
-// hitA off and 
+// hitA off and
 void foil_test_hit()
 {
    Serial.println("A on 10ms released 10ms B on 10ms released");
@@ -526,8 +526,8 @@ void epee_run_all_senarios()
    epee_reset();
    epee_hitA();
    epee_hitB();
-   epee_short_hitA();  
-   epee_short_hitB();  
+   epee_short_hitA();
+   epee_short_hitB();
    epee_fA_piste();
    epee_fB_piste();
    epee_hitA_hitB();

@@ -5,7 +5,8 @@
 //  Date: Feb 2013                                                           //
 //  Notes: Version 2                                                         //
 //         This version is implemented in a more generic way that allows     //
-//         for the testing of any scoring box                                //
+//         for the testing of any scoring box, by the toggling of            //
+//         transistors                                                       //
 //                                                                           //
 //===========================================================================//
 
@@ -13,7 +14,6 @@ int offTargetALight = 2;   // Off Target A Light
 int offTargetBLight = 1;   // Off Target B Light
 int onTargetALight  = 3;   // On Target A Light
 int onTargetBLight  = 0;   // On Target B Light
-
 
 int B1_C1 = 12;   // Foil closed circuit 1
 int B2_C2 = 11;   // Foil closed circuit 2
@@ -26,7 +26,7 @@ int A2_C1 = 5;    // Epee guard touch 2
 
 int onA  = 0;
 int onB  = 0;
-int offA = 0;         
+int offA = 0;
 int offB = 0;
 
 char input = ' ';
@@ -34,15 +34,15 @@ char input = ' ';
 int voltageThresh = 500;         // the threshold that the scoring triggers on
 
 void setup() {
-   pinMode(A1_B1, OUTPUT);     
-   pinMode(A2_B2, OUTPUT);     
-   pinMode(A1_C2, OUTPUT);    
+   pinMode(A1_B1, OUTPUT);
+   pinMode(A2_B2, OUTPUT);
+   pinMode(A1_C2, OUTPUT);
    pinMode(A2_C1, OUTPUT);
-   pinMode(B1_C1, OUTPUT);     
-   pinMode(B2_C2, OUTPUT);     
-   pinMode(A2_B1, OUTPUT);    
+   pinMode(B1_C1, OUTPUT);
+   pinMode(B2_C2, OUTPUT);
+   pinMode(A2_B1, OUTPUT);
    pinMode(A1_B2, OUTPUT);
-   
+
    Serial.begin(9600);
 }
 
@@ -141,12 +141,12 @@ void menu() {
 
 void foilRunAllSenarios() {
    //foilTestHit();
-   foilHitA();  
+   foilHitA();
    foilHitB();
    foilOffTargetA();
    foilOffTargetB();
-   foilShortHitA();  
-   foilShortHitB();  
+   foilShortHitA();
+   foilShortHitB();
    foilFAPiste();
    foilFBPiste();
    foilHitAHitB();
@@ -206,7 +206,7 @@ void foilGetDepress(int depress) {
 }
 
 
-// hitA off and 
+// hitA off and
 void foilTestHit() {
    Serial.println("A on 10ms released 10ms B on 10ms released");
    digitalWrite(B2_C2, LOW);
@@ -524,8 +524,8 @@ void epeeRunAllSenarios() {
    epeeSetup();
    epeeHitA();
    epeeHitB();
-   epeeShortHitA();  
-   epeeShortHitB();  
+   epeeShortHitA();
+   epeeShortHitB();
    epeeFAPiste();
    epeeFBPiste();
    epeeHitAHitB();

@@ -92,7 +92,7 @@ void setup() {
    Serial.begin(9600);
    Serial.println("3 Weapon Scoring Box");
    Serial.println("====================");
-   
+
    resetValues();
 }
 

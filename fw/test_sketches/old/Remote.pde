@@ -30,7 +30,7 @@ void setup() {
 void loop() {
   digitalWrite(LED_PIN, HIGH);
   int key = get_ir_key();
-  
+
   digitalWrite(LED_PIN, LOW);  // turn LED off while processing response
   Serial.println("Key ");
   Serial.println(key);
@@ -39,14 +39,14 @@ void loop() {
 
 /*
   wait for a keypress from the IR remote, and return the
-  integer mapping of that key (e.g. power button on remote returns 
+  integer mapping of that key (e.g. power button on remote returns
   the integer 1429)
 */
 
-int get_ir_key() 
+int get_ir_key()
 {
   int pulse[IR_BIT_LENGTH];
-  int bits[IR_BIT_LENGTH];  
+  int bits[IR_BIT_LENGTH];
 
   do {} //Wait for a start bit
   while(pulseIn(IR_PIN, LOW) < BIT_START);
@@ -78,19 +78,19 @@ void read_pulse(int pulse[], int num_bits)
 void pulse_to_bits(int pulse[], int bits[], int num_bits)
 {
   if (DEBUG || runtime_debug) { Serial.println("-----"); }
-  
-  for(int i = 0; i < num_bits ; i++) 
+
+  for(int i = 0; i < num_bits ; i++)
   {
     if (DEBUG || runtime_debug) { Serial.println(pulse[i]); }
-    
+
     if(pulse[i] > BIT_1) //is it a 1?
     {
       bits[i] = 1;
-    }  
+    }
     else if(pulse[i] > BIT_0) //is it a 0?
     {
       bits[i] = 0;
-    } 
+    }
     else //data is invalid...
     {
       Serial.println("Error");
@@ -106,22 +106,22 @@ int bits_to_int(int bits[], int num_bits)
 {
   int result = 0;
   int seed = 1;
-  
+
   //Convert bits to integer
-  for(int i = 0 ; i < num_bits ; i++) 
-  {		  
-    if(bits[i] == 1) 
+  for(int i = 0 ; i < num_bits ; i++)
+  {
+    if(bits[i] == 1)
     {
 	result += seed;
     }
-    
+
     seed *= 2;
   }
-  
+
   return result;
 }
 
-/* 
+/*
   make LED blink rapidly
 */
 
