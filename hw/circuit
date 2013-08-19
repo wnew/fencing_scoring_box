@@ -1,16 +1,84 @@
+FOIL
+==================
+
+          --------o  Lame Pin 1       |            --------o  Lame Pin 2 
+ 5V___    R                           |   5V___    R                    
+    |     |                           |      |     |                    
+    R    GND                          |      R    GND                   
+    |                                 |      |                          
+    --------------o  Weapon Pin 1     |      --------------o  Weapon Pin 2
+                                      |                                 
+                                      |                                 
+                                      |                                 
+          --------o  Guard Pin 1      |            --------o  Guard Pin 2
+          R                           |            R                    
+          |                           |            |                    
+         GND                          |           GND                   
 
 
 
+               | Lame Pin 1 | Weapon Pin 1 | Guard Pin 1 | Lame Pin 2 | Weapon Pin 2 | Guard Pin 2 |
+----------------------------------------------------------------------------------------------------------
+At rest        |   0v       |    5v        |    0v       |    0v      |    5v        |    0v       |
+Hit on target  |   0v       |  2.5v        |    0v       |  2.5v      |    0v        |    0v       |
+Hit off target |   0v       |    0v        |    0v       |    0v      |    0v        |    0v       |
+Hit guard      |   0v       |  2.5v        |    0v       |    0v      |    5v        |  2.5v       |
+Hit ground     |   0v       |    0v        |    0v       |    0v      |    5v        |    0v       |
 
-          --------o  Lame Pin
- 5V___    R
-    |     |
-    R    GND
-    |
-    --------------o  Weapon Pin
+
+
+EPEE
+==================
+
+          --------o  Return Pin 1     |            --------o  Return Pin 2 
+ 5V___    R                           |   5V___    R                    
+    |     |                           |      |     |                    
+    R    GND                          |      R    GND                   
+    |                                 |      |                          
+    --------------o  Weapon Pin 1     |      --------------o  Weapon Pin 2
+                                      |                                 
+                                      |                                 
+                                      |                                 
+          --------o  Guard Pin 1      |            --------o  Guard Pin 2
+          R                           |            R                    
+          |                           |            |                    
+         GND                          |           GND                   
 
 
 
-          --------o  Guard Pin
-          |
-         GND
+               | Return Pin 1 | Weapon Pin 1 | Guard Pin 1 | Return Pin 2 | Weapon Pin 2 | Guard Pin 2 |
+----------------------------------------------------------------------------------------------------------
+At rest        | 2.5v         |  2.5v        |    0v       |  2.5v        |  2.5v        |    0v       |
+Hit on target  |   0v         |    5v        |    0v       |  2.5v        |  2.5v        |    0v       |
+Hit piste      |   0v         |    0v        |    0v       |  2.5v        |  2.5v        |    0v       |
+Hit guard      | 2.5v         |  2.5v        |    0v       |  2.5v        |  2.5v        |  2.5v       |
+Hit ground     |   0v       |    0v        |    0v       |    0v      |    5v        |    0v       |
+
+
+
+SABRE
+==================
+
+          --------o  Lame Pin 1       |            --------o  Lame Pin 2 
+ 5V___    R                           |   5V___    R                    
+    |     |                           |      |     |                    
+    R    GND                          |      R    GND                   
+    |                                 |      |                          
+    --------------o  Weapon Pin 1     |      --------------o  Weapon Pin 2
+                                      |                                 
+                                      |                                 
+                                      |                                 
+          --------o  Guard Pin 1      |            --------o  Guard Pin 2
+          R                           |            R                    
+          |                           |            |                    
+         GND                          |           GND                   
+
+
+
+               | Lame Pin 1 | Weapon Pin 1 | Guard Pin 1 | Lame Pin 2 | Weapon Pin 2 | Guard Pin 2 |
+----------------------------------------------------------------------------------------------------------
+At rest        |   0v       |    5v        |    0v       |    0v      |    5v        |    0v       |
+Hit on target  |   0v       |  2.5v        |    0v       |  2.5v      |    0v        |    0v       |
+Hit off target |   0v       |    0v        |    0v       |    0v      |    0v        |    0v       |
+Hit guard      |   0v       |  2.5v        |    0v       |    0v      |    5v        |  2.5v       |
+Hit ground     |   0v       |    0v        |    0v       |    0v      |    5v        |    0v       |
