@@ -10,33 +10,34 @@
 //============
 // Pin Setup
 //============
-const int freePin0     = 0;    // Open analog pin
-const int freePin1     = 1;    // Open analog pin
-const int lamePinA     = 2;    // Lame A pin   - Analog
-const int weaponPinA   = 3;    // Weapon A pin - Analog
-const int groundPinA   = 4;    // Ground A pin - Analog
-const int groundPinB   = 5;    // Ground B pin - Analog
-const int weaponPinB   = 6;    // Weapon B pin - Analog
-const int lamePinB     = 7;    // Lame B pin   - Analog
-
-const int modePin      = 0;    // Mode change button interrupt pin 0 (digital pin 2)
-const int buzzerPin    = 3;    // Pin to control the buzzer
+const int lamePinA     = 0;         // Lame A pin   - Analog
+const int weaponPinA   = 1;         // Weapon A pin - Analog
+const int groundPinA   = 2;         // Ground A pin - Analog
+const int groundPinB   = 3;         // Ground B pin - Analog
+const int weaponPinB   = 4;         // Weapon B pin - Analog
+const int lamePinB     = 5;         // Lame B pin   - Analog
+     
+const int modePin      = 0;         // Mode change button interrupt pin 0 (digital pin 2)
+const int buzzerPin    = 3;         // Pin to control the buzzer
 const int modeLeds[]   = {4, 5, 6}; // LED pins to indicate weapon mode selected
-const int irPin        = 13;    // IR receiver pin
+const int irPin        = 13;        // IR receiver pin
 
-const int onTargetA    = 7;    // On Target A Light
-const int offTargetA   = 8;    // Off Target A Light
-const int shortLEDA    = 9;    // Short Circuit A Light
-const int shortLEDB    = 10;   // Short Circuit A Light
-const int offTargetB   = 11;   // Off Target B Light
-const int onTargetB    = 12;   // On Target B Light
+const int onTargetA    = 7;         // On Target A Light
+const int offTargetA   = 8;         // Off Target A Light
+const int shortLEDA    = 9;         // Short Circuit A Light
+const int shortLEDB    = 10;        // Short Circuit A Light
+const int offTargetB   = 11;        // Off Target B Light
+const int onTargetB    = 12;        // On Target B Light
 
 int currentMode = 0;
 
+// values of analog reads
 int weaponA    = 0;
 int weaponB    = 0;
 int lameA      = 0;
 int lameB      = 0;
+int groundA    = 0;
+int groundB    = 0;
 
 long millisPastA     = 0;
 long millisPastB     = 0;
@@ -71,8 +72,12 @@ const int SABRE_MODE = 2;
 
 int modeJustChangedFlag = 0;
 
+
+//================
+// Configuration
+//================
 void setup() {
-   // Set the internal pullup resistor on modePin
+   // set the internal pullup resistor on modePin
    pinMode(modePin, INPUT_PULLUP);
    // add the interrupt to the mode pin
    attachInterrupt(modePin, changeMode, RISING);
@@ -82,10 +87,13 @@ void setup() {
    pinMode(modeLeds[1], OUTPUT);
    pinMode(modeLeds[2], OUTPUT);
 
+   // set the light pins to outputs
    pinMode(offTargetA, OUTPUT);
    pinMode(offTargetB, OUTPUT);
    pinMode(onTargetA,  OUTPUT);
    pinMode(onTargetB,  OUTPUT);
+   pinMode(shortLEDA,  OUTPUT);
+   pinMode(shortLEDB,  OUTPUT);
 
    digitalWrite(modeLeds[currentMode], HIGH);
 
@@ -96,20 +104,27 @@ void setup() {
    resetValues();
 }
 
+
+//============
+// Main Loop
+//============
 void loop() {
-   checkIfModeChanged();
-   //irReceive();  // this takes to long to run and slows the main loop down
-   weaponA = analogRead(weaponPinA);
-   weaponB = analogRead(weaponPinB);
-   lameA   = analogRead(lamePinA);
-   lameB   = analogRead(lamePinB);
-   signalHits();
-   if (currentMode == FOIL_MODE)
-      foil();
-   if (currentMode == EPEE_MODE)
-      epee();
-   if (currentMode == SABRE_MODE)
-      sabre();
+   // use a while as a main loop as the loop() has too much overhead for the analogReads
+   while(1) {
+      checkIfModeChanged();
+      //irReceive();  // this takes to long to run and slows the main loop down
+      weaponA = analogRead(weaponPinA);
+      weaponB = analogRead(weaponPinB);
+      lameA   = analogRead(lamePinA);
+      lameB   = analogRead(lamePinB);
+      signalHits();
+      if (currentMode == FOIL_MODE)
+         foil();
+      if (currentMode == EPEE_MODE)
+         epee();
+      if (currentMode == SABRE_MODE)
+         sabre();
+   }
 }
 
 //====================
