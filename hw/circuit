@@ -17,12 +17,13 @@ Circuit
 
 
 
+
 FOIL           | Lame Pin 1 | Weapon Pin 1 | Guard Pin 1 | Lame Pin 2 | Weapon Pin 2 | Guard Pin 2 |
 ----------------------------------------------------------------------------------------------------
 At rest        |      0v    |       5v     |      0v     |      0v    |       5v     |      0v     |
-Hit on target  |      0v    |     2.5v     |      0v     |    2.5v    |       0v     |      0v     |
-Hit off target |      0v    |       0v     |      0v     |      0v    |       0v     |      0v     |
-Hit guard      |      0v    |     2.5v     |      0v     |      0v    |       5v     |    2.5v     |
+Hit on target  |      0v    |     1.7v     |    1.7v     |    1.7v    |       5v     |      0v     |
+Hit off target |      0v    |     2.5v     |    2.5v     |      0v    |       5v     |      0v     |
+Hit guard      |      0v    |     1.7v     |    1.7v     |      0v    |       5v     |    1.7v     |
 Hit gnd/piste  |      0v    |       0v     |      0v     |      0v    |       5v     |      0v     |
 
 Normally open switch between weapon and lame pins
@@ -34,7 +35,7 @@ EPEE           | Rtrn Pin 1 | Weapon Pin 1 | Guard Pin 1 | Rtrn Pin 2 | Weapon P
 ----------------------------------------------------------------------------------------------------
 At rest        |    2.5v    |     2.5v     |      0v     |    2.5v    |     2.5v     |      0v     |
 Hit on target  |      0v    |       5v     |      0v     |    2.5v    |     2.5v     |      0v     |
-Hit guard      |    2.5v    |     2.5v     |      0v     |    2.5v    |     2.5v     |    2.5v     |
+Hit guard      |      0v    |     2.5v     |      0v     |    2.5v    |     2.5v     |    2.5v     |
 Hit gnd/piste  |      0v    |       0v     |      0v     |    2.5v    |     2.5v     |      0v     |
 
 Normally closed switch between weapon and return pins
