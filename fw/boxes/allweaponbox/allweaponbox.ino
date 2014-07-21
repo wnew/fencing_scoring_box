@@ -1,43 +1,63 @@
 //===========================================================================//
 //                                                                           //
-//  Desc: Arduino Code to implement a fencing scoring apparatus              //
-//  Dev:  Wnew                                                               //
-//  Date: Nov 2012                                                           //
-//  Notes: Basis of code from digitalwestie on github                        //
+//  Desc:    Arduino Code to implement a fencing scoring apparatus           //
+//  Dev:     Wnew                                                            //
+//  Date:    Nov 2012                                                        //
+//  Updated: July 2014                                                       //
+//  Notes:   1. Basis of algorithm from digitalwestie on github. Thanks Mate //
+//           2. Used uint8_t instead of int where possible to optimise       //
+//           3. Lots of ADC optimisations to get faster ADC reads            //
+//           4.                                                              //
+//                                                                           //
+//  To do:   1. Could use shift reg on lights and mode LEDs to save pins     //
+//           2. Use interrupts for buttons                                   //
+//           3. Implement short circuit LEDs                                 //
+//           4. Set up debug levels correctly                                //
 //                                                                           //
 //===========================================================================//
 
 //============
+// #defines
+//============
+//TODO: set up debug levels correctly
+#define DEBUG 0
+#define TEST_ADC_SPEED
+#define REPORT_TIMING
+
+#define ADC_PRECISION 256
+
+
+//============
 // Pin Setup
 //============
-const int lamePinA     = 0;         // Lame A pin   - Analog
-const int weaponPinA   = 1;         // Weapon A pin - Analog
-const int groundPinA   = 2;         // Ground A pin - Analog
-const int groundPinB   = 3;         // Ground B pin - Analog
-const int weaponPinB   = 4;         // Weapon B pin - Analog
-const int lamePinB     = 5;         // Lame B pin   - Analog
+const uint8_t lamePinA     = 0;         // Lame A pin   - Analog
+const uint8_t weaponPinA   = 1;         // Weapon A pin - Analog
+//const int groundPinA   = 2;         // Ground A pin - Analog
+//const int groundPinB   = 3;         // Ground B pin - Analog
+const uint8_t weaponPinB   = 4;         // Weapon B pin - Analog
+const uint8_t lamePinB     = 5;         // Lame B pin   - Analog
      
-const int modePin      = 0;         // Mode change button interrupt pin 0 (digital pin 2)
-const int buzzerPin    = 3;         // Pin to control the buzzer
-const int modeLeds[]   = {4, 5, 6}; // LED pins to indicate weapon mode selected
-const int irPin        = 13;        // IR receiver pin
+const uint8_t modePin      = 0;         // Mode change button interrupt pin 0 (digital pin 2)
+const uint8_t buzzerPin    = 3;         // Pin to control the buzzer
+const uint8_t modeLeds[]   = {4, 5, 6}; // LED pins to indicate weapon mode selected
+const uint8_t irPin        = 13;        // IR receiver pin
 
-const int onTargetA    = 7;         // On Target A Light
-const int offTargetA   = 8;         // Off Target A Light
-const int shortLEDA    = 9;         // Short Circuit A Light
-const int shortLEDB    = 10;        // Short Circuit A Light
-const int offTargetB   = 11;        // Off Target B Light
-const int onTargetB    = 12;        // On Target B Light
+const uint8_t onTargetA    = 7;         // On Target A Light
+const uint8_t offTargetA   = 8;         // Off Target A Light
+//const uint8_t shortLEDA    = 9;         // Short Circuit A Light
+//const uint8_t shortLEDB    = 10;        // Short Circuit A Light
+const uint8_t offTargetB   = 11;        // Off Target B Light
+const uint8_t onTargetB    = 12;        // On Target B Light
 
-int currentMode = 0;
+uint8_t currentMode = 0;
 
 // values of analog reads
 int weaponA    = 0;
 int weaponB    = 0;
 int lameA      = 0;
 int lameB      = 0;
-int groundA    = 0;
-int groundB    = 0;
+//uint8_t groundA    = 0;
+//uint8_t groundB    = 0;
 
 long millisPastA     = 0;
 long millisPastB     = 0;
@@ -55,22 +75,26 @@ long millisPastFirst = 0;
 const int lockout [] = {300, 45, 120};
 const int depress [] = { 14,  2,   1};
 
-boolean hitA = false;
-boolean hitB = false;
-
-boolean isFirstHit = true;
-
-int voltageThresh = 340;     // the threshold that the scoring triggers on (1024/3)
-
-unsigned long bit;
-int lastTimeIRChecked;
-
 // mode constants
-const int FOIL_MODE  = 0;
-const int EPEE_MODE  = 1;
-const int SABRE_MODE = 2;
+const uint8_t FOIL_MODE  = 0;
+const uint8_t EPEE_MODE  = 1;
+const uint8_t SABRE_MODE = 2;
 
-int modeJustChangedFlag = 0;
+bool hitA = false;
+bool hitB = false;
+
+bool isFirstHit = true;
+
+// the threshold that the scoring triggers on (ADC_PRECISION/3)
+int voltageThresh = ADC_PRECISION/3;
+
+bool modeJustChangedFlag = false;
+
+#ifdef TEST_ADC_SPEED
+long now;
+bool done = false;
+long loopCount = 0;
+#endif
 
 
 //================
@@ -92,16 +116,46 @@ void setup() {
    pinMode(offTargetB, OUTPUT);
    pinMode(onTargetA,  OUTPUT);
    pinMode(onTargetB,  OUTPUT);
-   pinMode(shortLEDA,  OUTPUT);
-   pinMode(shortLEDB,  OUTPUT);
+   //pinMode(shortLEDA,  OUTPUT);
+   //pinMode(shortLEDB,  OUTPUT);
 
    digitalWrite(modeLeds[currentMode], HIGH);
 
+   // this optimises the ADC for our needs, see declaration for details
+   adcOpt();
+
+#ifdef DEBUG < 0
    Serial.begin(9600);
    Serial.println("3 Weapon Scoring Box");
    Serial.println("====================");
+#endif
 
    resetValues();
+}
+
+//=============
+// ADC config
+//=============
+void adcOpt() {
+
+   // the ADC only needs a couple of bits, the atmega is an 8 bit micro
+   // so sampling only 8 bits makes the values easy/quicker to process
+   // unfortunately this method only works on the Due.
+   //analogReadResolution(8);
+
+   // Data Input Disable Register
+   // disconnects the digital inputs from which ever ADC channels you are using
+   // an analog input will be float and cause the digital input to constantly
+   // toggle high and low, this creates noise near the ADC, and uses extra 
+   // power Secondly, the digital input and associated DIDR switch have a
+   // capacitance associated with them which will slow down your input signal
+   // if you’re sampling a highly resistive load 
+   DIDR0 = 0x7F;
+
+   // set the prescaler for the ADCs to 16 this allowes the fastest sampling
+   bitClear(ADCSRA,ADPS0);
+   bitClear(ADCSRA,ADPS1);
+   bitSet  (ADCSRA,ADPS2);
 }
 
 
@@ -109,10 +163,10 @@ void setup() {
 // Main Loop
 //============
 void loop() {
-   // use a while as a main loop as the loop() has too much overhead for the analogReads
+   // use a while as a main loop as the loop() has too much overhead for fast analogReads
    while(1) {
       checkIfModeChanged();
-      //irReceive();  // this takes to long to run and slows the main loop down
+
       weaponA = analogRead(weaponPinA);
       weaponB = analogRead(weaponPinB);
       lameA   = analogRead(lamePinA);
@@ -124,21 +178,33 @@ void loop() {
          epee();
       if (currentMode == SABRE_MODE)
          sabre();
+
+#ifdef TEST_ADC_SPEED
+      if (loopCount == 0) {
+         now = micros();
+      }
+      loopCount++;
+      if ((micros()-now >= 1000000) && done == false) {
+         Serial.print(loopCount);
+         Serial.println(" readings in 1 sec");
+         done = true;
+      }
+#endif
    }
 }
 
-//====================
-// Mode pin interupt
-//====================
+//=====================
+// Mode pin interrupt
+//=====================
 void changeMode() {
-   modeJustChangedFlag = 1;
+   modeJustChangedFlag = true;
 }
 
 //============================
 // Sets the correct mode led
 //============================
 void setModeLeds() {
-   for (int i = 0; i < 3; i++) {
+   for (uint8_t i = 0; i < 3; i++) {
       digitalWrite(modeLeds[i], LOW);
    }
    digitalWrite(modeLeds[currentMode], HIGH);
@@ -147,6 +213,7 @@ void setModeLeds() {
 //========================
 // Run when mode changed
 //========================
+//TODO: Make this an interrupt
 void checkIfModeChanged() {
  if (modeJustChangedFlag) {
       if (digitalRead(modePin)) {
@@ -156,43 +223,15 @@ void checkIfModeChanged() {
             currentMode++;
       }
       setModeLeds();
+#ifdef DEBUG < 0
       Serial.print("Mode Changed to: ");
       Serial.println(currentMode);
+#endif
       //delay(200);
-      modeJustChangedFlag = 0;
+      modeJustChangedFlag = false;
    }
 }
 
-//=====================
-// Check if IR sensor
-//=====================
-void irReceive() {
-   //look for a header pulse from the IR Receiver
-   long lengthHeader = pulseIn(irPin, LOW);
-   if (lengthHeader > 5000 && (millis() - lastTimeIRChecked > 100)) {
-      //step through each of the 32 bits that streams from the remote
-      int byteValue = 0;
-      for (int i = 1; i <= 32; i++) {
-         bit = pulseIn(irPin, HIGH);
-
-         //read the 8 bits that are specifically the key code
-         //use bitwise operations to convert binary to decimal
-         if (i > 16 && i <= 24) {
-            if (bit > 1000)
-               byteValue = byteValue + (1 << (i - 17));
-         }
-      }
-
-      //send the key code to the processing.org program
-      Serial.println(byteValue);
-      Serial.flush();
-
-      if (byteValue == 5) {
-         changeMode();
-      }
-   }
-   lastTimeIRChecked = millis();
-}
 
 //===================
 // Main foil method
@@ -213,12 +252,16 @@ void foil() {
                if (lameB > voltageThresh) {
                   digitalWrite(onTargetA, HIGH);
                   digitalWrite(buzzerPin, HIGH);
-                  Serial.write("A");
+#ifdef DEBUG < 0
+                  Serial.println("A");
+#endif
                // otherwise we have an offTarget
                } else {
                   digitalWrite(offTargetA, HIGH);
                   digitalWrite(buzzerPin,  HIGH);
-                  Serial.write("C");
+#ifdef DEBUG < 0
+                  Serial.println("C");
+#endif
                }
             }
          }
@@ -243,12 +286,16 @@ void foil() {
                if (lameA > voltageThresh) {
                   digitalWrite(onTargetB, HIGH);
                   digitalWrite(buzzerPin, HIGH);
-                  Serial.write("B");
+#ifdef DEBUG < 0
+                  Serial.println("B");
+#endif
                // otherwise we have an offTarget
                } else {
                   digitalWrite(offTargetB, HIGH);
                   digitalWrite(buzzerPin,  HIGH);
-                  Serial.write("D");
+#ifdef DEBUG < 0
+                  Serial.println("D");
+#endif
                }
             }
          }
@@ -266,7 +313,7 @@ void epee() {
    // weapon A
    if (hitA == false) {
       // ignore if we've hit
-      if (weaponA < 1024 - voltageThresh) {
+      if (weaponA < ADC_PRECISION - voltageThresh) {
          if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[EPEE_MODE] > millis()))) {
             // if epee depress time has past we have a hit
             if (millis() <= (millisPastA + depress[EPEE_MODE])) {
@@ -279,14 +326,19 @@ void epee() {
                   digitalWrite(onTargetA, HIGH);
                   digitalWrite(buzzerPin, HIGH);
                   hitA = true;
+#ifdef DEBUG < 0
                   Serial.println("A");
+#endif
                // offTarget
                } else {
-                  Serial.write("D");
+#ifdef DEBUG < 0
+                  Serial.println("D");
+#endif
                }
             }
          }
-      } else { // Nothing happening
+      // Nothing happening
+      } else {
           millisPastA = millis();
       }
    }
@@ -294,7 +346,7 @@ void epee() {
    // weapon B
    if (hitB == false) {
       // ignore if we've hit
-      if (weaponB < 1024 - voltageThresh) {
+      if (weaponB < ADC_PRECISION - voltageThresh) {
          if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[EPEE_MODE] > millis()))) {
             // if epee depress time has past we have a hit
             if (millis() <= (millisPastB + depress[EPEE_MODE])) {
@@ -307,10 +359,14 @@ void epee() {
                   digitalWrite(onTargetB, HIGH);
                   digitalWrite(buzzerPin, HIGH);
                   hitB = true;
+#ifdef DEBUG < 0
                   Serial.println("B");
+#endif
                // offTarget
                } else {
-                  Serial.write("D");
+#ifdef DEBUG < 0
+                  Serial.println("D");
+#endif
                }
             }
          }
@@ -340,7 +396,9 @@ void sabre() {
                if (lameB > voltageThresh) {
                   digitalWrite(onTargetA, HIGH);
                   digitalWrite(buzzerPin, HIGH);
-                  Serial.write("A");
+#ifdef DEBUG < 0
+                  Serial.println("A");
+#endif
                }
             }
          }
@@ -365,7 +423,9 @@ void sabre() {
                if (lameA > voltageThresh) {
                   digitalWrite(onTargetB, HIGH);
                   digitalWrite(buzzerPin, HIGH);
-                  Serial.write("B");
+#ifdef DEBUG < 0
+                  Serial.println("B");
+#endif
                }
             }
          }
@@ -393,7 +453,9 @@ void signalHits() {
 // Resets after hit
 //===================
 void resetValues() {
-   Serial.print("R");
+#ifdef DEBUG < 0
+   Serial.println("R");
+#endif
    digitalWrite(buzzerPin,  LOW);
    digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetA, LOW);
