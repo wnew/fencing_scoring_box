@@ -31,20 +31,20 @@ hw - Hardware, the circuit designs around the arduino
 
  TODOs
 -------------
-1. Add support for the ground lights
-2. Possibly use shit reg for lights
-3. Add interrupts for buttons
+ - Add support for the ground lights
+ - Possibly use shit reg for lights
+ - Add interrupts for buttons
 
 
  Testing
 -------------
-1. Connect up to a couple of fencers and test
-2. Create a test arduino sketch to check that the timings (Lockout and depress)
+ - Connect up to a couple of fencers and test
+ - Create a test arduino sketch to check that the timings (Lockout and depress)
    are correct
 
  Extra features to add
 -------------
-- Add some kind of screen
-- Bluetooth for configuration
-- Connect to a network using the Ethernet shield (Not planning to do anytime soon)
-- USB interface to setup a laptop as the lights and scoring
+ - Add some kind of screen
+ - Bluetooth for configuration
+ - Connect to a network using the Ethernet shield (Not planning to do anytime soon)
+ - USB interface to setup a laptop as the lights and scoring
