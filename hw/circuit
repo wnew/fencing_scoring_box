@@ -1,19 +1,22 @@
  3 Pin Circuit
 ===============
 
-          --------o  Lame Pin 1       |            --------o  Lame Pin 2 
- 5V___    R                           |   5V___    R                    
-    |     |                           |      |     |                    
-    R    GND                          |      R    GND                   
-    |                                 |      |                          
-    --------------o  Weapon Pin 1     |      --------------o  Weapon Pin 2
+
+  o---------------o  Lame Pin 1       |  o---------------o  Lame Pin 2 
+  A2        |                         |  A3         |
+            R                         |             R
+  5V___     |                         |  5V___      |                  
+     |     GND                        |     |      GND                    
+     R                                |     R                       
+     |                                |     |                          
+  o---------------o  Weapon Pin 1     |  o---------------o  Weapon Pin 2
+  A0                                  |  A1                               
                                       |                                 
                                       |                                 
-                                      |                                 
-          --------o  Guard Pin 1      |            --------o  Guard Pin 2
-          R                           |            R                    
-          |                           |            |                    
-         GND                          |           GND                   
+  o---------------o  Guard Pin 1      |  o---------------o  Guard Pin 2
+  A4      R                           |  A4      R                    
+          |                           |          |                    
+         GND                          |         GND                   
 
 
 
