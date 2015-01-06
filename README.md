@@ -5,6 +5,7 @@ This project is an arduino based fencing scoring machine. It supports all 3
 weaspons, foil, epee and sabre. The 2 fencers connect to the arduino and the
 ground connected to the piste.
 
+email me if you have any questions: wesnew@gmail.com
 
  Directory Structure
 -------------
