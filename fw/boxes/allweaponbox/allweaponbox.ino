@@ -3,15 +3,14 @@
 //  Desc:    Arduino Code to implement a fencing scoring apparatus           //
 //  Dev:     Wnew                                                            //
 //  Date:    Nov 2012                                                        //
-//  Updated: July 2014                                                       //
+//  Updated: Aug 2014                                                        //
 //  Notes:   1. Basis of algorithm from digitalwestie on github. Thanks Mate //
 //           2. Used uint8_t instead of int where possible to optimise       //
-//           3. Lots of ADC optimisations to get faster ADC reads            //
-//           4.                                                              //
+//           3. Set ADC prescaler to 16 faster ADC reads                     //
 //                                                                           //
 //  To do:   1. Could use shift reg on lights and mode LEDs to save pins     //
 //           2. Use interrupts for buttons                                   //
-//           3. Implement short circuit LEDs                                 //
+//           3. Implement short circuit LEDs (already provision for it)      //
 //           4. Set up debug levels correctly                                //
 //                                                                           //
 //===========================================================================//
@@ -21,43 +20,43 @@
 //============
 //TODO: set up debug levels correctly
 #define DEBUG 0
+#define TEST_LIGHTS
+#define INT_PULL_UPS
+#define BUZZER
 #define TEST_ADC_SPEED
 #define REPORT_TIMING
-
-#define ADC_PRECISION 256
-
 
 //============
 // Pin Setup
 //============
-const uint8_t lamePinA     = 0;         // Lame A pin   - Analog
-const uint8_t weaponPinA   = 1;         // Weapon A pin - Analog
-//const int groundPinA   = 2;         // Ground A pin - Analog
-//const int groundPinB   = 3;         // Ground B pin - Analog
-const uint8_t weaponPinB   = 4;         // Weapon B pin - Analog
-const uint8_t lamePinB     = 5;         // Lame B pin   - Analog
+const uint8_t shortLEDA  = 8;         // Short Circuit A Light
+const uint8_t onTargetA  = 9;         // On Target A Light
+const uint8_t offTargetA = 10;        // Off Target A Light
+const uint8_t offTargetB = 11;        // Off Target B Light
+const uint8_t onTargetB  = 12;        // On Target B Light
+const uint8_t shortLEDB  = 13;        // Short Circuit A Light
+
+const uint8_t weaponPinA = 0;         // Weapon A pin
+const uint8_t weaponPinB = 1;         // Weapon B pin
+const uint8_t lamePinA   = 2;         // Lame A pin (Epee return path)
+const uint8_t lamePinB   = 3;         // Lame B pin (Epee return path)
+const uint8_t groundPinA = 4;         // Ground A pin - Analog
+const uint8_t groundPinB = 5;         // Ground B pin - Analog
      
-const uint8_t modePin      = 0;         // Mode change button interrupt pin 0 (digital pin 2)
-const uint8_t buzzerPin    = 3;         // Pin to control the buzzer
-const uint8_t modeLeds[]   = {4, 5, 6}; // LED pins to indicate weapon mode selected
-const uint8_t irPin        = 13;        // IR receiver pin
+const uint8_t modePin    = 0;         // Mode change button interrupt pin 0 (digital pin 2)
+const uint8_t buzzerPin  = 3;         // Pin to control the buzzer
+const uint8_t modeLeds[] = {4, 5, 6}; // LED pins to indicate weapon mode selected
+const uint8_t irPin      = 13;        // IR receiver pin
 
-const uint8_t onTargetA    = 7;         // On Target A Light
-const uint8_t offTargetA   = 8;         // Off Target A Light
-//const uint8_t shortLEDA    = 9;         // Short Circuit A Light
-//const uint8_t shortLEDB    = 10;        // Short Circuit A Light
-const uint8_t offTargetB   = 11;        // Off Target B Light
-const uint8_t onTargetB    = 12;        // On Target B Light
-
-uint8_t currentMode = 0;
-
+//=========================
 // values of analog reads
+//=========================
 int weaponA    = 0;
 int weaponB    = 0;
 int lameA      = 0;
 int lameB      = 0;
-//uint8_t groundA    = 0;
-//uint8_t groundB    = 0;
+//int groundA    = 0;
+//int groundB    = 0;
 
 long millisPastA     = 0;
 long millisPastB     = 0;
@@ -80,13 +79,14 @@ const uint8_t FOIL_MODE  = 0;
 const uint8_t EPEE_MODE  = 1;
 const uint8_t SABRE_MODE = 2;
 
-bool hitA = false;
-bool hitB = false;
+uint8_t currentMode = EPEE_MODE;
+
+boolean hitOnTargA  = false;
+boolean hitOffTargA = false;
+boolean hitOnTargB  = false;
+boolean hitOffTargB = false;
 
 bool isFirstHit = true;
-
-// the threshold that the scoring triggers on (ADC_PRECISION/3)
-int voltageThresh = ADC_PRECISION/3;
 
 bool modeJustChangedFlag = false;
 
@@ -103,6 +103,7 @@ long loopCount = 0;
 void setup() {
    // set the internal pullup resistor on modePin
    pinMode(modePin, INPUT_PULLUP);
+
    // add the interrupt to the mode pin
    attachInterrupt(modePin, changeMode, RISING);
    pinMode(irPin,       INPUT);
@@ -116,19 +117,31 @@ void setup() {
    pinMode(offTargetB, OUTPUT);
    pinMode(onTargetA,  OUTPUT);
    pinMode(onTargetB,  OUTPUT);
-   //pinMode(shortLEDA,  OUTPUT);
-   //pinMode(shortLEDB,  OUTPUT);
+   pinMode(shortLEDA,  OUTPUT);
+   pinMode(shortLEDB,  OUTPUT);
 
    digitalWrite(modeLeds[currentMode], HIGH);
 
-   // this optimises the ADC for our needs, see declaration for details
+#ifdef INT_PULL_UPS
+   // this turns on the internal pull up resistors for the weapon pins
+   // think they are 20k resistors but need to check this
+   // other pull ups in the circuit should be of the same value
+   digitalWrite(A0, HIGH);
+   digitalWrite(A1, HIGH);
+#endif
+
+#ifdef TEST_LIGHTS
+   testLights();
+#endif
+
+   // this optimises the ADC to make the sampling rate quicker
    adcOpt();
 
-#ifdef DEBUG < 0
-   Serial.begin(9600);
+   Serial.begin(57600);
    Serial.println("3 Weapon Scoring Box");
    Serial.println("====================");
-#endif
+   Serial.print("Mode : ");
+   Serial.println(currentMode);
 
    resetValues();
 }
@@ -164,8 +177,9 @@ void adcOpt() {
 //============
 void loop() {
    // use a while as a main loop as the loop() has too much overhead for fast analogReads
+   // we get a 3-4% speed up on the analog reads this way
    while(1) {
-      checkIfModeChanged();
+      //checkIfModeChanged();
 
       weaponA = analogRead(weaponPinA);
       weaponB = analogRead(weaponPinB);
@@ -174,9 +188,9 @@ void loop() {
       signalHits();
       if (currentMode == FOIL_MODE)
          foil();
-      if (currentMode == EPEE_MODE)
+      else if (currentMode == EPEE_MODE)
          epee();
-      if (currentMode == SABRE_MODE)
+      else if (currentMode == SABRE_MODE)
          sabre();
 
 #ifdef TEST_ADC_SPEED
@@ -207,6 +221,9 @@ void setModeLeds() {
    for (uint8_t i = 0; i < 3; i++) {
       digitalWrite(modeLeds[i], LOW);
    }
+   digitalWrite(modeLeds[0], LOW);
+   digitalWrite(modeLeds[1], LOW);
+   digitalWrite(modeLeds[2], LOW);
    digitalWrite(modeLeds[currentMode], HIGH);
 }
 
@@ -237,71 +254,62 @@ void checkIfModeChanged() {
 // Main foil method
 //===================
 void foil() {
+   // anything in this method is time critical, so no serial comms here
    // weapon A
-   if (hitA == false) {
-      // ignore if we've hit
-      if (weaponA > voltageThresh) {
-         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[FOIL_MODE] > millis()))) {
-            // if foil depress time has past we have a hit
-            if (millis() <= (millisPastA + depress[FOIL_MODE])) {
-               hitA = true;
-               if (isFirstHit) {
+   if (hitOnTargA == false && hitOffTargA == false) { // ignore if we've hit
+      if (410 < weaponA && weaponA < 570 && lameB < 100) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
+            if  (millis() <= (millisPastA + depress[currentMode])) { // if 14ms or more have past we have a hit
+               if(isFirstHit) {
                   millisPastFirst = millis();
                }
-               // if other lame hit we have an onTarget
-               if (lameB > voltageThresh) {
-                  digitalWrite(onTargetA, HIGH);
-                  digitalWrite(buzzerPin, HIGH);
-#ifdef DEBUG < 0
-                  Serial.println("A");
-#endif
-               // otherwise we have an offTarget
-               } else {
-                  digitalWrite(offTargetA, HIGH);
-                  digitalWrite(buzzerPin,  HIGH);
-#ifdef DEBUG < 0
-                  Serial.println("C");
-#endif
-               }
+               // offTarget
+               hitOffTargA = true;
             }
          }
-      // nothing happening
       } else {
-         millisPastA = millis();
+         if (100 < weaponA && weaponA < 410 && 100 < lameB && lameB < 410) {
+            if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
+               if  (millis() <= (millisPastA + depress[currentMode])) { // if 14ms or more have past we have a hit
+                  if(isFirstHit) {
+                     millisPastFirst = millis();
+                  }
+                  // onTarget
+                  hitOnTargA = true;
+               }
+            }
+         } else { // nothing happening
+            millisPastA = millis();
+         }
       }
    }
 
    // weapon B
-   if (hitB == false) {
-      // ignore if we've hit
-      if (weaponB > voltageThresh) {
-         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[FOIL_MODE] > millis()))) {
-            // if foil depress time has past we have a hit
-            if (millis() <= (millisPastB + depress[FOIL_MODE])) {
-               hitB = true;
-               if (isFirstHit) {
+   if (hitOnTargB == false && hitOffTargB == false) { // ignore if we've hit
+      if (410 < weaponB && weaponB < 570 && lameA < 100) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
+            if  (millis() <= (millisPastB + depress[currentMode])) { // if 14ms or more have past we have a hit
+               if(isFirstHit) {
                   millisPastFirst = millis();
                }
-               // if other lame hit we have an onTarget
-               if (lameA > voltageThresh) {
-                  digitalWrite(onTargetB, HIGH);
-                  digitalWrite(buzzerPin, HIGH);
-#ifdef DEBUG < 0
-                  Serial.println("B");
-#endif
-               // otherwise we have an offTarget
-               } else {
-                  digitalWrite(offTargetB, HIGH);
-                  digitalWrite(buzzerPin,  HIGH);
-#ifdef DEBUG < 0
-                  Serial.println("D");
-#endif
-               }
+               // offTarget
+               hitOffTargB = true;
             }
          }
-      // nothing happening
       } else {
-         millisPastB = millis();
+         if (100 < weaponB && weaponB < 410 && 100 < lameA && lameA < 410) {
+            if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
+               if  (millis() <= (millisPastB + depress[currentMode])) { // if 14ms or more have past we have a hit
+                  if(isFirstHit) {
+                     millisPastFirst = millis();
+                  }
+                  // onTarget
+                  hitOnTargB = true;
+               }
+            }
+         } else { // nothing happening
+            millisPastB = millis();
+         }
       }
    }
 }
@@ -310,68 +318,38 @@ void foil() {
 // Main epee method
 //===================
 void epee() {
+   // anything in this method is time critical, so no serial comms here
+   // also try keep all variables 8 bit
    // weapon A
-   if (hitA == false) {
-      // ignore if we've hit
-      if (weaponA < ADC_PRECISION - voltageThresh) {
-         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[EPEE_MODE] > millis()))) {
-            // if epee depress time has past we have a hit
-            if (millis() <= (millisPastA + depress[EPEE_MODE])) {
-               // onTarget
-               if (lameA > voltageThresh) {
-                  if (isFirstHit) {
-                     millisPastFirst = millisPastA;
-                     isFirstHit = false;
-                  }
-                  digitalWrite(onTargetA, HIGH);
-                  digitalWrite(buzzerPin, HIGH);
-                  hitA = true;
-#ifdef DEBUG < 0
-                  Serial.println("A");
-#endif
-               // offTarget
-               } else {
-#ifdef DEBUG < 0
-                  Serial.println("D");
-#endif
+   if (hitOnTargA == false) { // ignore if we've hit
+      if (400 < weaponA && weaponA < 600 && lameB < 100) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
+            if  (millis() <= (millisPastA + depress[currentMode])) { // if 14ms or more have past we have a hit
+               if(isFirstHit) {
+                  millisPastFirst = millis();
                }
+               // onTarget
+               hitOnTargA = true;
             }
          }
-      // Nothing happening
-      } else {
-          millisPastA = millis();
+      } else { // nothing happening
+         millisPastA = millis();
       }
    }
 
    // weapon B
-   if (hitB == false) {
-      // ignore if we've hit
-      if (weaponB < ADC_PRECISION - voltageThresh) {
-         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[EPEE_MODE] > millis()))) {
-            // if epee depress time has past we have a hit
-            if (millis() <= (millisPastB + depress[EPEE_MODE])) {
-               // onTarget
-               if (lameB > voltageThresh) {
-                  if (isFirstHit) {
-                     millisPastFirst = millisPastB;
-                     isFirstHit = false;
-                  }
-                  digitalWrite(onTargetB, HIGH);
-                  digitalWrite(buzzerPin, HIGH);
-                  hitB = true;
-#ifdef DEBUG < 0
-                  Serial.println("B");
-#endif
-               // offTarget
-               } else {
-#ifdef DEBUG < 0
-                  Serial.println("D");
-#endif
+   if (hitOnTargB == false) { // ignore if we've hit
+      if (400 < weaponB && weaponB < 600 && lameA < 100) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
+            if  (millis() <= (millisPastB + depress[currentMode])) { // if 14ms or more have past we have a hit
+               if(isFirstHit) {
+                  millisPastFirst = millis();
                }
+               // onTarget
+               hitOnTargB = true;
             }
          }
-      // nothing happening
-      } else {
+      } else { // nothing happening
          millisPastB = millis();
       }
    }
@@ -381,95 +359,108 @@ void epee() {
 // Main sabre method
 //====================
 void sabre() {
+   // anything in this method is time critical, so no serial comms here
    // weapon A
-   if (hitA == false) {
-      //ignore if we've hit
-      if (weaponA > voltageThresh) {
-         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[SABRE_MODE] > millis()))) {
-            // if sabre depress time has past we have a hit
-            if (millis() <= (millisPastA + depress[SABRE_MODE])) {
-               hitA = true;
-               if (isFirstHit) {
+   if (hitOnTargA == false && hitOffTargA == false) { // ignore if we've hit
+      if (410 < weaponA && weaponA < 570 && lameB < 100) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
+            if  (millis() <= (millisPastA + depress[currentMode])) { // if 14ms or more have past we have a hit
+               if(isFirstHit) {
                   millisPastFirst = millis();
                }
-               //onTarget
-               if (lameB > voltageThresh) {
-                  digitalWrite(onTargetA, HIGH);
-                  digitalWrite(buzzerPin, HIGH);
-#ifdef DEBUG < 0
-                  Serial.println("A");
-#endif
-               }
+               // onTarget
+               hitOnTargA = true;
             }
          }
-      // Nothing happening
-      } else {
+      } else { // nothing happening
          millisPastA = millis();
       }
    }
 
    // weapon B
-   if (hitB == false) {
-      // ignore if we've hit
-      if (weaponB > voltageThresh) {
-         if ((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[SABRE_MODE] > millis()))) {
-            // if sabre depress time has past we have a hit
-            if (millis() <= (millisPastB + depress[SABRE_MODE])) {
-               hitB = true;
-               if (isFirstHit) {
+   if (hitOnTargB == false && hitOffTargB == false) { // ignore if we've hit
+      if (410 < weaponB && weaponB < 570 && lameA < 100) {
+         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
+            if  (millis() <= (millisPastB + depress[currentMode])) { // if 14ms or more have past we have a hit
+               if(isFirstHit) {
                   millisPastFirst = millis();
                }
                // onTarget
-               if (lameA > voltageThresh) {
-                  digitalWrite(onTargetB, HIGH);
-                  digitalWrite(buzzerPin, HIGH);
-#ifdef DEBUG < 0
-                  Serial.println("B");
-#endif
-               }
+               hitOnTargB = true;
             }
          }
-      // nothing happening
-      } else {
+      } else { // nothing happening
          millisPastB = millis();
       }
    }
 }
 
-//===============
-// Sets signals
-//===============
+//==============
+// Signal Hits
+//==============
 void signalHits() {
-   if (hitA || hitB) {
+   // non time critical, this is run after a hit has been detected
+   if (hitOnTargA || hitOffTargA || hitOffTargB || hitOnTargB) {
       // if lockout time is up
       if (millis() >= (millisPastFirst + lockout[currentMode])) {
+         digitalWrite(onTargetA,  hitOnTargA);
+         digitalWrite(offTargetA, hitOffTargA);
+         digitalWrite(offTargetB, hitOffTargB);
+         digitalWrite(onTargetB,  hitOnTargB);
+         digitalWrite(buzzerPin,  HIGH);
+         Serial.print("hitOnTargA : ");
+         Serial.println(hitOnTargA);
+         Serial.print("hitOffTargA : ");
+         Serial.println(hitOffTargA);
+         Serial.print("hitOffTargB : ");
+         Serial.println(hitOffTargB);
+         Serial.print("hitOnTargB : ");
+         Serial.println(hitOnTargB);
          delay(1500);
          resetValues();
       }
    }
 }
 
-//===================
-// Resets after hit
-//===================
+//======================
+// Reset all variables
+//======================
 void resetValues() {
-#ifdef DEBUG < 0
-   Serial.println("R");
-#endif
    digitalWrite(buzzerPin,  LOW);
+   delay(2000);
    digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetA, LOW);
    digitalWrite(offTargetB, LOW);
    digitalWrite(onTargetB,  LOW);
+   digitalWrite(shortLEDA,  LOW);
+   digitalWrite(shortLEDB,  LOW);
 
-   millisPastA = millis();
-   millisPastB = millis();
+   //millisPastA = millis();
+   //millisPastB = millis();
+   millisPastA     = 0;
+   millisPastB     = 0;
    millisPastFirst = 0;
 
-   hitA = false;
-   hitB = false;
+   hitOnTargA  = false;
+   hitOffTargA = false;
+   hitOnTargB  = false;
+   hitOffTargB = false;
 
    isFirstHit = true;
 
    delay(100);
+}
+
+//==============
+// Test lights
+//==============
+void testLights() {
+   digitalWrite(offTargetA, HIGH);
+   digitalWrite(onTargetA,  HIGH);
+   digitalWrite(offTargetB, HIGH);
+   digitalWrite(onTargetB,  HIGH);
+   digitalWrite(shortLEDA,  HIGH);
+   digitalWrite(shortLEDB,  HIGH);
+   delay(1000);
+   resetValues();
 }
