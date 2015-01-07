@@ -29,19 +29,19 @@
 //============
 // Pin Setup
 //============
-const uint8_t shortLEDA  = 8;         // Short Circuit A Light
-const uint8_t onTargetA  = 9;         // On Target A Light
+const uint8_t shortLEDA  =  8;        // Short Circuit A Light
+const uint8_t onTargetA  =  9;        // On Target A Light
 const uint8_t offTargetA = 10;        // Off Target A Light
 const uint8_t offTargetB = 11;        // Off Target B Light
 const uint8_t onTargetB  = 12;        // On Target B Light
 const uint8_t shortLEDB  = 13;        // Short Circuit A Light
 
-const uint8_t weaponPinA = 0;         // Weapon A pin
-const uint8_t weaponPinB = 1;         // Weapon B pin
-const uint8_t lamePinA   = 2;         // Lame A pin (Epee return path)
-const uint8_t lamePinB   = 3;         // Lame B pin (Epee return path)
-const uint8_t groundPinA = 4;         // Ground A pin - Analog
-const uint8_t groundPinB = 5;         // Ground B pin - Analog
+const uint8_t weaponPinA = A0;        // Weapon A pin
+const uint8_t weaponPinB = A1;        // Weapon B pin
+const uint8_t lamePinA   = A2;        // Lame A pin (Epee return path)
+const uint8_t lamePinB   = A3;        // Lame B pin (Epee return path)
+const uint8_t groundPinA = A4;        // Ground A pin - Analog
+const uint8_t groundPinB = A5;        // Ground B pin - Analog
      
 const uint8_t modePin    = 0;         // Mode change button interrupt pin 0 (digital pin 2)
 const uint8_t buzzerPin  = 3;         // Pin to control the buzzer
@@ -166,9 +166,9 @@ void adcOpt() {
    DIDR0 = 0x7F;
 
    // set the prescaler for the ADCs to 16 this allowes the fastest sampling
-   bitClear(ADCSRA,ADPS0);
-   bitClear(ADCSRA,ADPS1);
-   bitSet  (ADCSRA,ADPS2);
+   bitClear(ADCSRA, ADPS0);
+   bitClear(ADCSRA, ADPS1);
+   bitSet  (ADCSRA, ADPS2);
 }
 
 

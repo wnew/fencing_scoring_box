@@ -28,21 +28,21 @@
 //============
 // Pin Setup
 //============
-const uint8_t shortLEDA   = 8;       // Short Circuit A Light
-const uint8_t onTargetA   = 9;       // On Target A Light
-const uint8_t offTargetA  = 10;      // Off Target A Light
-const uint8_t offTargetB  = 11;      // Off Target B Light
-const uint8_t onTargetB   = 12;      // On Target B Light
-const uint8_t shortLEDB   = 13;      // Short Circuit A Light
+const uint8_t shortLEDA  =  8;      // Short Circuit A Light
+const uint8_t onTargetA  =  9;      // On Target A Light
+const uint8_t offTargetA = 10;      // Off Target A Light
+const uint8_t offTargetB = 11;      // Off Target B Light
+const uint8_t onTargetB  = 12;      // On Target B Light
+const uint8_t shortLEDB  = 13;      // Short Circuit A Light
 
-const uint8_t weaponPinA  = 0;       // Weapon A pin
-const uint8_t weaponPinB  = 1;       // Weapon B pin
-const uint8_t lamePinA    = 2;       // Lame A pin (Epee return path)
-const uint8_t lamePinB    = 3;       // Lame B pin (Epee return path)
-const uint8_t groundPinA  = 2;       // Ground A pin - Analog
-const uint8_t groundPinB  = 3;       // Ground B pin - Analog
+const uint8_t weaponPinA = A0;      // Weapon A pin - Analog
+const uint8_t weaponPinB = A1;      // Weapon B pin - Analog
+const uint8_t lamePinA   = A2;      // Lame A pin (Epee return path) - Analog
+const uint8_t lamePinB   = A3;      // Lame B pin (Epee return path) - Analog
+//const uint8_t groundPinA  = A4;         // Ground A pin - Analog
+//const uint8_t groundPinB  = A5;         // Ground B pin - Analog
 
-const uint8_t buzzerPin   = 4;       // buzzer pin
+const uint8_t buzzerPin   = 4;      // buzzer pin
 
 //=========================
 // values of analog reads
@@ -93,8 +93,8 @@ void setup() {
    // this turns on the internal pull up resistors for the weapon pins
    // think they are 20k resistors but need to check this
    // other pull ups in the circuit should be of the same value
-   digitalWrite(A0, HIGH);
-   digitalWrite(A1, HIGH);
+   digitalWrite(weaponPinA, HIGH);
+   digitalWrite(weaponPinB, HIGH);
 #endif
 
 #ifdef TEST_LIGHTS
@@ -104,7 +104,7 @@ void setup() {
    // this optimises the ADC to make the sampling rate quicker
    adcOpt();
 
-   Serial.begin(9600);
+   Serial.begin(57600);
    Serial.print("Foil Scoring Box\n");
    Serial.print("================\n");
 
@@ -131,9 +131,9 @@ void adcOpt() {
    DIDR0 = 0x7F;
 
    // set the prescaler for the ADCs to 16 this allowes the fastest sampling
-   bitClear(ADCSRA,ADPS0);
-   bitClear(ADCSRA,ADPS1);
-   bitSet  (ADCSRA,ADPS2);
+   bitClear(ADCSRA, ADPS0);
+   bitClear(ADCSRA, ADPS1);
+   bitSet  (ADCSRA, ADPS2);
 }
 
 
