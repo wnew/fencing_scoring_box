@@ -417,16 +417,11 @@ void signalHits() {
          digitalWrite(offTargetB, hitOffTargB);
          digitalWrite(onTargetB,  hitOnTargB);
          digitalWrite(buzzerPin,  HIGH);
-         String serData = String("hitOnTargA : ") + hitOnTargA + "\n" + "hitOffTargA : " + hitOffTargA + "\n" + "hitOffTargB : " + hitOffTargB + "\n" + "hitOnTargB : " + hitOnTargB + "\n";
-         
-         Serial.print("hitOnTargA : ");
-         Serial.println(hitOnTargA);
-         Serial.print("hitOffTargA : ");
-         Serial.println(hitOffTargA);
-         Serial.print("hitOffTargB : ");
-         Serial.println(hitOffTargB);
-         Serial.print("hitOnTargB : ");
-         Serial.println(hitOnTargB);
+         String serData = String("hitOnTargA  : ") + hitOnTargA  + "\n"
+                               + "hitOffTargA : "  + hitOffTargA + "\n"
+                               + "hitOffTargB : "  + hitOffTargB + "\n"
+                               + "hitOnTargB  : "  + hitOnTargB  + "\n";
+         Serial.println(serData);
          delay(1500);
          resetValues();
       }
