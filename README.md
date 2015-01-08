@@ -23,14 +23,14 @@ lights and body wires
 
  Hardware Requirements
 -------------------------------------------------------------------------------
-1 Arduino Pro Micro/Pro Mini/Uno/Mega/Due
-10 Resistors, 4 220R for LEDs, 6 10K for pullups/pulldowns
-4 LEDs, 1 green, 1 red and 2 yellow/white
+ - 1 Arduino Pro Micro/Pro Mini/Uno/Mega/Due
+ - 10 Resistors, 4 220R for LEDs, 6 10K for pullups/pulldowns
+ - 4 LEDs, 1 green, 1 red and 2 yellow/white
 
 
  Percentage Complete
 -------------------------------------------------------------------------------
-        
+
         85 %
 
 
