@@ -20,11 +20,10 @@
 //============
 //TODO: set up debug levels correctly
 #define DEBUG 0
-#define TEST_LIGHTS
-#define INT_PULL_UPS
-#define BUZZER
-#define TEST_ADC_SPEED
-#define REPORT_TIMING
+#define TEST_LIGHTS       // turns on lights for a second on start up
+#define INT_PULL_UPS      // uses internal pullups for weapon pins
+//#define TEST_ADC_SPEED  // used to test sample rate of ADCs
+#define REPORT_TIMING     // prints timings over serial interface
 
 //============
 // Pin Setup
@@ -45,8 +44,7 @@ const uint8_t groundPinB = A5;        // Ground B pin - Analog
      
 const uint8_t modePin    = 0;         // Mode change button interrupt pin 0 (digital pin 2)
 const uint8_t buzzerPin  = 3;         // Pin to control the buzzer
-const uint8_t modeLeds[] = {4, 5, 6}; // LED pins to indicate weapon mode selected
-const uint8_t irPin      = 13;        // IR receiver pin
+const uint8_t modeLeds[] = {4, 5, 6}; // LED pins to indicate weapon mode selected {f e s}
 
 //=========================
 // values of analog reads
@@ -55,12 +53,17 @@ int weaponA    = 0;
 int weaponB    = 0;
 int lameA      = 0;
 int lameB      = 0;
-//int groundA    = 0;
-//int groundB    = 0;
+int groundA    = 0;
+int groundB    = 0;
 
+
+//======================
+// depress and timouts
+//======================
 long millisPastA     = 0;
 long millisPastB     = 0;
 long millisPastFirst = 0;
+bool isFirstHit      = true;
 
 //==========================
 // Lockout & Depress Times
@@ -71,24 +74,29 @@ long millisPastFirst = 0;
 // the minimum amount of time the tip needs to be depressed for epee
 // the lockout time between hits for sabre is 120ms +/-10ms
 // the minimum amount of time the tip needs to be depressed for sabre 0.1ms -> 1ms
+//                      foil epee sabre
 const int lockout [] = {300, 45, 120};
 const int depress [] = { 14,  2,   1};
 
+//=================
 // mode constants
+//=================
 const uint8_t FOIL_MODE  = 0;
 const uint8_t EPEE_MODE  = 1;
 const uint8_t SABRE_MODE = 2;
 
 uint8_t currentMode = EPEE_MODE;
 
+bool modeJustChangedFlag = false;
+
+//=========
+// states
+//=========
 boolean hitOnTargA  = false;
 boolean hitOffTargA = false;
 boolean hitOnTargB  = false;
 boolean hitOffTargB = false;
 
-bool isFirstHit = true;
-
-bool modeJustChangedFlag = false;
 
 #ifdef TEST_ADC_SPEED
 long now;
@@ -106,7 +114,6 @@ void setup() {
 
    // add the interrupt to the mode pin
    attachInterrupt(modePin, changeMode, RISING);
-   pinMode(irPin,       INPUT);
    pinMode(buzzerPin,   OUTPUT);
    pinMode(modeLeds[0], OUTPUT);
    pinMode(modeLeds[1], OUTPUT);
@@ -179,14 +186,14 @@ void loop() {
    // use a while as a main loop as the loop() has too much overhead for fast analogReads
    // we get a 3-4% speed up on the analog reads this way
    while(1) {
-      //checkIfModeChanged();
+      checkIfModeChanged();
 
       weaponA = analogRead(weaponPinA);
       weaponB = analogRead(weaponPinB);
       lameA   = analogRead(lamePinA);
       lameB   = analogRead(lamePinB);
       signalHits();
-      if (currentMode == FOIL_MODE)
+      if      (currentMode == FOIL_MODE)
          foil();
       else if (currentMode == EPEE_MODE)
          epee();
@@ -254,7 +261,8 @@ void checkIfModeChanged() {
 // Main foil method
 //===================
 void foil() {
-   // anything in this method is time critical, so no serial comms here
+   // this method is time critical, no serial comms or delay() here
+   // also try keep all variables 8 bit
    // weapon A
    if (hitOnTargA == false && hitOffTargA == false) { // ignore if we've hit
       if (410 < weaponA && weaponA < 570 && lameB < 100) {
@@ -318,7 +326,7 @@ void foil() {
 // Main epee method
 //===================
 void epee() {
-   // anything in this method is time critical, so no serial comms here
+   // this method is time critical, no serial comms or delay() here
    // also try keep all variables 8 bit
    // weapon A
    if (hitOnTargA == false) { // ignore if we've hit
@@ -359,7 +367,8 @@ void epee() {
 // Main sabre method
 //====================
 void sabre() {
-   // anything in this method is time critical, so no serial comms here
+   // anything in this method is time critical, no serial comms or delay() here
+   // also try keep all variables 8 bit
    // weapon A
    if (hitOnTargA == false && hitOffTargA == false) { // ignore if we've hit
       if (410 < weaponA && weaponA < 570 && lameB < 100) {
@@ -408,6 +417,8 @@ void signalHits() {
          digitalWrite(offTargetB, hitOffTargB);
          digitalWrite(onTargetB,  hitOnTargB);
          digitalWrite(buzzerPin,  HIGH);
+         String serData = String("hitOnTargA : ") + hitOnTargA + "\n" + "hitOffTargA : " + hitOffTargA + "\n" + "hitOffTargB : " + hitOffTargB + "\n" + "hitOnTargB : " + hitOnTargB + "\n";
+         
          Serial.print("hitOnTargA : ");
          Serial.println(hitOnTargA);
          Serial.print("hitOffTargA : ");
