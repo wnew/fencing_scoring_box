@@ -42,7 +42,8 @@ Gaurd Pin 1  o----------------| A4     A5 |----------------o Guard Pin 2
 
 
 Notes:
-1. The resistor values should be 20K
+1. Pullup and Pulldown resistor values should be 20K
+2. Resistor values should be 220R but any value that limits the current enough for the LEDs will work
 
 
 FOIL           | Lame Pin 1 | Weapon Pin 1 | Guard Pin 1 | Lame Pin 2 | Weapon Pin 2 | Guard Pin 2 |
