@@ -1,4 +1,4 @@
- 3 Pin Circuit
+3 Pin Circuit
 ===============
 
                               _____//______
@@ -10,33 +10,33 @@
                  GND     |    |           |     |    GND                 
                          R    |           |     R                       
                          |    |           |     |                          
-Weapon Pin 1 o----------------| A0     A1 |----------------o Weapon Pin 2 
+Weapon Pin 1 o----------------| A0     A1 |----------------o Weapon Pin 2
                               |           |                             
                               |           |                                 
 Gaurd Pin 1  o----------------| A4     A5 |----------------o Guard Pin 2
                       |       |           |       |                         
                       R       |           |       R                    
-                      |       |____//_____|       |                    
-                     GND                          GND                   
+                      |       |           |       |                    
+                     GND      |           |      GND
                               |           |
                               |           |
+             --------Red LED--|  9     12 |--Red LED--------
+             |                |           |                |
+             R     --Yel LED--| 10     11 |--Yel LED--     R
+             |     |          |           |          |     |
+            GND    R          |           |          R    GND
+                   |          |           |          |
+                  GND         |           |         GND
                               |           |
                               |           |
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                 5V__         |           |
+                    |         |           |
+                    --Button--| 0       3 |--Buzzer--
+                              |           |         |
+                              |           |        GND
+                              |           |
+                              |           |
+                              |____//_____|
 
 
 
