@@ -164,8 +164,7 @@ void foilRunAllSenarios() {
 
 void foilGetLockout(int lockout) {
    Serial.println("finding foil lockout time");
-   for (int i = 295; i < 305; i++)
-   {
+   for (int i = 295; i < 305; i++) {
       Serial.print(i);
       Serial.println("ms");
       digitalWrite(B2_C2, LOW);
@@ -205,7 +204,6 @@ void foilGetDepress(int depress) {
    }
 }
 
-
 // hitA off and
 void foilTestHit() {
    Serial.println("A on 10ms released 10ms B on 10ms released");
@@ -228,8 +226,6 @@ void foilTestHit() {
       Serial.println("Fail");
    delay(2000);
 }
-
-
 
 // fencer A ontarget for more then the depressed time
 void foilHitA() {
