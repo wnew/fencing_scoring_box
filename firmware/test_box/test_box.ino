@@ -6,7 +6,7 @@
 //  Notes: Version 2                                                         //
 //         This version is implemented in a more generic way that allows     //
 //         for the testing of any scoring box, by the toggling of            //
-//         transistors                                                       //
+//         fets                                                              //
 //                                                                           //
 //===========================================================================//
 
