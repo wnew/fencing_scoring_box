@@ -1,0 +1,16 @@
+The test box just plugs into a scorring box with the standard 6 wires. It
+connects them up according to the weapon being used. It then shorts out or
+connects the pins according to on target and off target hits. The user needs
+to watch the lights and ensure that the correct lights are triggered.
+
+W = Weapon Pin
+L = Lame Pin
+G = Ground
+
+Wa - Lb
+Wb - La
+Wa - Gb
+Wb - Ga
+La - Gb
+Lb - Ga
+

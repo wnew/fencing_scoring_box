@@ -56,13 +56,12 @@ int lameB      = 0;
 int groundA    = 0;
 int groundB    = 0;
 
-
 //======================
 // depress and timouts
 //======================
-long millisPastA     = 0;
-long millisPastB     = 0;
-long millisPastFirst = 0;
+long microsPastA     = 0;
+long microsPastB     = 0;
+long microsPastFirst = 0;
 bool isFirstHit      = true;
 
 //==========================
@@ -70,13 +69,14 @@ bool isFirstHit      = true;
 //==========================
 // the lockout time between hits for foil is 300ms +/-25ms
 // the minimum amount of time the tip needs to be depressed for foil 14ms +/-1ms
-// the lockout time between hits for epee is 45ms +/-5ms (40ms -> 50ms)
-// the minimum amount of time the tip needs to be depressed for epee
+// the lockout time between hits for epee is 45ms +/-5ms
+// the minimum amount of time the tip needs to be depressed for epee 2ms
 // the lockout time between hits for sabre is 120ms +/-10ms
-// the minimum amount of time the tip needs to be depressed for sabre 0.1ms -> 1ms
-//                      foil epee sabre
-const int lockout [] = {300, 45, 120};
-const int depress [] = { 14,  2,   1};
+// the minimum amount of time the tip needs to be depressed (in contact) for sabre 0.1ms -> 1ms
+// These values are stored as micro seconds for more accuracy
+//                         foil   epee   sabre
+const long lockout [] = {300000, 45000, 120000};
+const long depress [] = { 14000,  2000,    100};
 
 //=================
 // mode constants
@@ -92,16 +92,20 @@ bool modeJustChangedFlag = false;
 //=========
 // states
 //=========
-boolean hitOnTargA  = false;
-boolean hitOffTargA = false;
-boolean hitOnTargB  = false;
-boolean hitOffTargB = false;
+boolean depressOnTargA  = false;
+boolean depressOffTargA = false;
+boolean depressOnTargB  = false;
+boolean depressOffTargB = false;
+boolean hitOnTargA      = false;
+boolean hitOffTargA     = false;
+boolean hitOnTargB      = false;
+boolean hitOffTargB     = false;
 
 
 #ifdef TEST_ADC_SPEED
 long now;
-bool done = false;
 long loopCount = 0;
+bool done = false;
 #endif
 
 
@@ -147,7 +151,7 @@ void setup() {
    Serial.begin(57600);
    Serial.println("3 Weapon Scoring Box");
    Serial.println("====================");
-   Serial.print("Mode : ");
+   Serial.print  ("Mode : ");
    Serial.println(currentMode);
 
    resetValues();
@@ -184,10 +188,10 @@ void adcOpt() {
 //============
 void loop() {
    // use a while as a main loop as the loop() has too much overhead for fast analogReads
-   // we get a 3-4% speed up on the analog reads this way
+   // we get a 3-4% speed up on the loop this way
    while(1) {
       checkIfModeChanged();
-
+      // read analog pins
       weaponA = analogRead(weaponPinA);
       weaponB = analogRead(weaponPinB);
       lameA   = analogRead(lamePinA);
@@ -218,6 +222,7 @@ void loop() {
 // Mode pin interrupt
 //=====================
 void changeMode() {
+   // set a flag to keep the time in the ISR to a min
    modeJustChangedFlag = true;
 }
 
@@ -228,16 +233,16 @@ void setModeLeds() {
    for (uint8_t i = 0; i < 3; i++) {
       digitalWrite(modeLeds[i], LOW);
    }
-   digitalWrite(modeLeds[0], LOW);
+   // which is better?
+   /*digitalWrite(modeLeds[0], LOW);
    digitalWrite(modeLeds[1], LOW);
-   digitalWrite(modeLeds[2], LOW);
+   digitalWrite(modeLeds[2], LOW);*/
    digitalWrite(modeLeds[currentMode], HIGH);
 }
 
 //========================
 // Run when mode changed
 //========================
-//TODO: Make this an interrupt
 void checkIfModeChanged() {
  if (modeJustChangedFlag) {
       if (digitalRead(modePin)) {
@@ -248,7 +253,7 @@ void checkIfModeChanged() {
       }
       setModeLeds();
 #ifdef DEBUG < 0
-      Serial.print("Mode Changed to: ");
+      Serial.print("Mode changed to: ");
       Serial.println(currentMode);
 #endif
       //delay(200);
@@ -266,10 +271,10 @@ void foil() {
    // weapon A
    if (hitOnTargA == false && hitOffTargA == false) { // ignore if we've hit
       if (410 < weaponA && weaponA < 570 && lameB < 100) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
-            if  (millis() <= (millisPastA + depress[currentMode])) { // if 14ms or more have past we have a hit
+         if((isFirstHit == true) || ((isFirstHit == false) && (microsPastFirst + lockout[currentMode] > micros()))) {
+            if  (micros() <= (microsPastA + depress[currentMode])) { // if 14ms or more have past we have a hit
                if(isFirstHit) {
-                  millisPastFirst = millis();
+                  microsPastFirst = micros();
                }
                // offTarget
                hitOffTargA = true;
@@ -277,17 +282,17 @@ void foil() {
          }
       } else {
          if (100 < weaponA && weaponA < 410 && 100 < lameB && lameB < 410) {
-            if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
-               if  (millis() <= (millisPastA + depress[currentMode])) { // if 14ms or more have past we have a hit
+            if((isFirstHit == true) || ((isFirstHit == false) && (microsPastFirst + lockout[currentMode] > micros()))) {
+               if  (micros() <= (microsPastA + depress[currentMode])) { // if 14ms or more have past we have a hit
                   if(isFirstHit) {
-                     millisPastFirst = millis();
+                     microsPastFirst = micros();
                   }
                   // onTarget
                   hitOnTargA = true;
                }
             }
          } else { // nothing happening
-            millisPastA = millis();
+            microsPastA = micros();
          }
       }
    }
@@ -295,10 +300,10 @@ void foil() {
    // weapon B
    if (hitOnTargB == false && hitOffTargB == false) { // ignore if we've hit
       if (410 < weaponB && weaponB < 570 && lameA < 100) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
-            if  (millis() <= (millisPastB + depress[currentMode])) { // if 14ms or more have past we have a hit
+         if((isFirstHit == true) || ((isFirstHit == false) && (microsPastFirst + lockout[currentMode] > micros()))) {
+            if  (micros() <= (microsPastB + depress[currentMode])) { // if 14ms or more have past we have a hit
                if(isFirstHit) {
-                  millisPastFirst = millis();
+                  microsPastFirst = micros();
                }
                // offTarget
                hitOffTargB = true;
@@ -306,17 +311,17 @@ void foil() {
          }
       } else {
          if (100 < weaponB && weaponB < 410 && 100 < lameA && lameA < 410) {
-            if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
-               if  (millis() <= (millisPastB + depress[currentMode])) { // if 14ms or more have past we have a hit
+            if((isFirstHit == true) || ((isFirstHit == false) && (microsPastFirst + lockout[currentMode] > micros()))) {
+               if  (micros() <= (microsPastB + depress[currentMode])) { // if 14ms or more have past we have a hit
                   if(isFirstHit) {
-                     millisPastFirst = millis();
+                     microsPastFirst = micros();
                   }
                   // onTarget
                   hitOnTargB = true;
                }
             }
          } else { // nothing happening
-            millisPastB = millis();
+            microsPastB = micros();
          }
       }
    }
@@ -331,34 +336,34 @@ void epee() {
    // weapon A
    if (hitOnTargA == false) { // ignore if we've hit
       if (400 < weaponA && weaponA < 600 && lameB < 100) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
-            if  (millis() <= (millisPastA + depress[currentMode])) { // if 14ms or more have past we have a hit
+         if((isFirstHit == true) || ((isFirstHit == false) && (microsPastFirst + lockout[currentMode] > micros()))) {
+            if  (micros() <= (microsPastA + depress[currentMode])) { // if 2ms or more have past we have a hit
                if(isFirstHit) {
-                  millisPastFirst = millis();
+                  microsPastFirst = micros();
                }
                // onTarget
                hitOnTargA = true;
             }
          }
       } else { // nothing happening
-         millisPastA = millis();
+         microsPastA = micros();
       }
    }
 
    // weapon B
    if (hitOnTargB == false) { // ignore if we've hit
       if (400 < weaponB && weaponB < 600 && lameA < 100) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
-            if  (millis() <= (millisPastB + depress[currentMode])) { // if 14ms or more have past we have a hit
+         if((isFirstHit == true) || ((isFirstHit == false) && (microsPastFirst + lockout[currentMode] > micros()))) {
+            if  (micros() <= (microsPastB + depress[currentMode])) { // if 2ms or more have past we have a hit
                if(isFirstHit) {
-                  millisPastFirst = millis();
+                  microsPastFirst = micros();
                }
                // onTarget
                hitOnTargB = true;
             }
          }
       } else { // nothing happening
-         millisPastB = millis();
+         microsPastB = micros();
       }
    }
 }
@@ -367,39 +372,39 @@ void epee() {
 // Main sabre method
 //====================
 void sabre() {
-   // anything in this method is time critical, no serial comms or delay() here
+   // this method is time critical, no serial comms or delay() here
    // also try keep all variables 8 bit
    // weapon A
    if (hitOnTargA == false && hitOffTargA == false) { // ignore if we've hit
       if (410 < weaponA && weaponA < 570 && lameB < 100) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
-            if  (millis() <= (millisPastA + depress[currentMode])) { // if 14ms or more have past we have a hit
+         if((isFirstHit == true) || ((isFirstHit == false) && ((microsPastFirst + lockout[currentMode]) > micros()))) {
+            if  (micros() <= (microsPastA + depress[currentMode])) { // if 1ms or more have past we have a hit
                if(isFirstHit) {
-                  millisPastFirst = millis();
+                  microsPastFirst = micros();
                }
                // onTarget
                hitOnTargA = true;
             }
          }
       } else { // nothing happening
-         millisPastA = millis();
+         microsPastA = micros();
       }
    }
 
    // weapon B
    if (hitOnTargB == false && hitOffTargB == false) { // ignore if we've hit
       if (410 < weaponB && weaponB < 570 && lameA < 100) {
-         if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockout[currentMode] > millis()))) {
-            if  (millis() <= (millisPastB + depress[currentMode])) { // if 14ms or more have past we have a hit
+         if((isFirstHit == true) || ((isFirstHit == false) && ((microsPastFirst + lockout[currentMode]) > micros()))) {
+            if  (micros() <= (microsPastB + depress[currentMode])) { // if 1ms or more have past we have a hit
                if(isFirstHit) {
-                  millisPastFirst = millis();
+                  microsPastFirst = micros();
                }
                // onTarget
                hitOnTargB = true;
             }
          }
       } else { // nothing happening
-         millisPastB = millis();
+         microsPastB = micros();
       }
    }
 }
@@ -411,7 +416,7 @@ void signalHits() {
    // non time critical, this is run after a hit has been detected
    if (hitOnTargA || hitOffTargA || hitOffTargB || hitOnTargB) {
       // if lockout time is up
-      if (millis() >= (millisPastFirst + lockout[currentMode])) {
+      if (micros() >= (microsPastFirst + lockout[currentMode])) {
          digitalWrite(onTargetA,  hitOnTargA);
          digitalWrite(offTargetA, hitOffTargA);
          digitalWrite(offTargetB, hitOffTargB);
@@ -441,11 +446,11 @@ void resetValues() {
    digitalWrite(shortLEDA,  LOW);
    digitalWrite(shortLEDB,  LOW);
 
-   //millisPastA = millis();
-   //millisPastB = millis();
-   millisPastA     = 0;
-   millisPastB     = 0;
-   millisPastFirst = 0;
+   //microsPastA = micros();
+   //microsPastB = micros();
+   microsPastA     = 0;
+   microsPastB     = 0;
+   microsPastFirst = 0;
 
    hitOnTargA  = false;
    hitOffTargA = false;
