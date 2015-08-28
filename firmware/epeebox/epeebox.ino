@@ -111,7 +111,6 @@ void setup() {
    // other pull ups in the circuit should be of the same value
    digitalWrite(weaponPinA, HIGH);
    digitalWrite(weaponPinB, HIGH);
-   //digitalWrite(lamePinA, HIGH);
 #endif
 
 #ifdef BUZZER
@@ -213,6 +212,7 @@ void epee() {
             }
          }
       } else {
+         // reset these values if the depress time is short.
          if (depressedA == true) {
             depressedA   = false;
             depressAtime = 0;
@@ -233,6 +233,7 @@ void epee() {
             }
          }
       } else {
+         // reset these values if the depress time is short.
          if (depressedB == true) {
             depressedB   = false;
             depressBtime = 0;

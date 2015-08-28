@@ -7,11 +7,10 @@
 //  Notes:   1. Basis of algorithm from digitalwestie on github. Thanks Mate //
 //           2. Used uint8_t instead of int where possible to optimise       //
 //           3. Set ADC prescaler to 16 faster ADC reads                     //
-//           4.                                                              //
 //                                                                           //
 //  To do:   1. Could use shift reg on lights and mode LEDs to save pins     //
 //           2. Use interrupts for buttons                                   //
-//           3. Implement short circuit LEDs                                 //
+//           3. Implement short circuit LEDs (already provision for it)      //
 //           4. Set up debug levels correctly                                //
 //                                                                           //
 //===========================================================================//
@@ -64,10 +63,6 @@ long depressAtime    = 0;
 long depressBtime    = 0;
 bool lockedOut       = false;
 
-long microsPastA     = 0;
-long microsPastB     = 0;
-long microsPastFirst = 0;
-
 //==========================
 // Lockout & Depress Times
 //==========================
@@ -91,20 +86,24 @@ boolean hitOffTargA = false;
 boolean hitOnTargB  = false;
 boolean hitOffTargB = false;
 
-boolean isFirstHit = true;
+#ifdef TEST_ADC_SPEED
+long now;
+long loopCount = 0;
+bool done = false;
+#endif
 
 //================
 // Configuration
 //================
 void setup() {
+
+   // set the light pins to outputs
    pinMode(offTargetA, OUTPUT);
    pinMode(offTargetB, OUTPUT);
    pinMode(onTargetA,  OUTPUT);
    pinMode(onTargetB,  OUTPUT);
-   //pinMode(shortLEDA,  OUTPUT);
-   //pinMode(shortLEDB,  OUTPUT);
-
-   pinMode(buzzerPin,  OUTPUT);
+   pinMode(shortLEDA,  OUTPUT);
+   pinMode(shortLEDB,  OUTPUT);
 
 #ifdef INT_PULL_UPS
    // this turns on the internal pull up resistors for the weapon pins
@@ -114,6 +113,10 @@ void setup() {
    digitalWrite(weaponPinB, HIGH);
 #endif
 
+#ifdef BUZZER
+   pinMode(buzzerPin,  OUTPUT);
+#endif
+
 #ifdef TEST_LIGHTS
    testLights();
 #endif
@@ -121,12 +124,13 @@ void setup() {
    // this optimises the ADC to make the sampling rate quicker
    adcOpt();
 
-   Serial.begin(57600);
-   Serial.print("Foil Scoring Box\n");
-   Serial.print("================\n");
+   Serial.begin(BAUDRATE);
+   Serial.println("Foil Scoring Box");
+   Serial.println("================");
 
    resetValues();
 }
+
 
 //=============
 // ADC config
@@ -158,16 +162,32 @@ void adcOpt() {
 // Main Loop
 //============
 void loop() {
-   weaponA = analogRead(weaponPinA);
-   weaponB = analogRead(weaponPinB);
-   lameA   = analogRead(lamePinA);
-   lameB   = analogRead(lamePinB);
+   // use a while as a main loop as the loop() has too much overhead for fast analogReads
+   // we get a 3-4% speed up on the loop this way
+   while(1) {
+      // read analog pins
+      weaponA = analogRead(weaponPinA);
+      weaponB = analogRead(weaponPinB);
+      lameA   = analogRead(lamePinA);
+      lameB   = analogRead(lamePinB);
 
-   signalHits();
-   foil();
+      signalHits();
+      foil();
+
+#ifdef TEST_ADC_SPEED
+      if (loopCount == 0) {
+         now = micros();
+      }
+      loopCount++;
+      if ((micros()-now >= 1000000) && done == false) {
+         Serial.print(loopCount);
+         Serial.println(" readings in 1 sec");
+         done = true;
+      }
+#endif
+   }
 }
 
-long now2 = 0;
 
 //===================
 // Main foil method
@@ -244,7 +264,6 @@ void foil() {
 }
 
 
-
 //==============
 // Signal Hits
 //==============
@@ -269,12 +288,13 @@ void signalHits() {
    }
 }
 
+
 //======================
 // Reset all variables
 //======================
 void resetValues() {
-   //digitalWrite(buzzerPin,  LOW);
-   delay(100);
+   digitalWrite(buzzerPin,  LOW);
+   delay(2000);
    digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetA, LOW);
    digitalWrite(offTargetB, LOW);
@@ -296,6 +316,7 @@ void resetValues() {
    delay(100);
 }
 
+
 //==============
 // Test lights
 //==============
@@ -304,6 +325,8 @@ void testLights() {
    digitalWrite(onTargetA,  HIGH);
    digitalWrite(offTargetB, HIGH);
    digitalWrite(onTargetB,  HIGH);
+   digitalWrite(shortLEDA,  HIGH);
+   digitalWrite(shortLEDB,  HIGH);
    delay(1000);
    resetValues();
 }
