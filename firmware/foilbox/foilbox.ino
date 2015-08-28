@@ -3,7 +3,7 @@
 //  Desc:    Arduino Code to implement a foil fencing scoring apparatus      //
 //  Dev:     Wnew                                                            //
 //  Date:    Nov 2012                                                        //
-//  Updated: Aug 2014                                                        //
+//  Updated: Aug 2015                                                        //
 //  Notes:   1. Basis of algorithm from digitalwestie on github. Thanks Mate //
 //           2. Used uint8_t instead of int where possible to optimise       //
 //           3. Set ADC prescaler to 16 faster ADC reads                     //
@@ -21,28 +21,31 @@
 //============
 //TODO: set up debug levels correctly
 #define DEBUG 0
-#define TEST_LIGHTS
-#define INT_PULL_UPS
-#define BUZZER
+//#define TEST_LIGHTS       // turns on lights for a second on start up
+//#define INT_PULL_UPS      // uses internal pullups for weapon pins
+//#define TEST_ADC_SPEED    // used to test sample rate of ADCs
+//#define REPORT_TIMING     // prints timings over serial interface
+#define BUZZER            // make use of the buzzer
+#define BAUDRATE 57600    // baudrate of the serial debug interface
 
 //============
 // Pin Setup
 //============
-const uint8_t shortLEDA  =  8;      // Short Circuit A Light
-const uint8_t onTargetA  =  9;      // On Target A Light
-const uint8_t offTargetA = 10;      // Off Target A Light
-const uint8_t offTargetB = 11;      // Off Target B Light
-const uint8_t onTargetB  = 12;      // On Target B Light
-const uint8_t shortLEDB  = 13;      // Short Circuit A Light
+const uint8_t shortLEDA  =  8;    // Short Circuit A Light
+const uint8_t onTargetA  =  9;    // On Target A Light
+const uint8_t offTargetA = 10;    // Off Target A Light
+const uint8_t offTargetB = 11;    // Off Target B Light
+const uint8_t onTargetB  = 12;    // On Target B Light
+const uint8_t shortLEDB  = 13;    // Short Circuit A Light
 
-const uint8_t weaponPinA = A0;      // Weapon A pin - Analog
-const uint8_t weaponPinB = A1;      // Weapon B pin - Analog
-const uint8_t lamePinA   = A2;      // Lame A pin (Epee return path) - Analog
-const uint8_t lamePinB   = A3;      // Lame B pin (Epee return path) - Analog
-//const uint8_t groundPinA  = A4;         // Ground A pin - Analog
-//const uint8_t groundPinB  = A5;         // Ground B pin - Analog
+const uint8_t weaponPinA = A0;    // Weapon A pin - Analog
+const uint8_t weaponPinB = A1;    // Weapon B pin - Analog
+const uint8_t lamePinA   = A2;    // Lame   A pin - Analog (Epee return path)
+const uint8_t lamePinB   = A3;    // Lame   B pin - Analog (Epee return path)
+const uint8_t groundPinA = A4;    // Ground A pin - Analog
+const uint8_t groundPinB = A5;    // Ground B pin - Analog
 
-const uint8_t buzzerPin   = 4;      // buzzer pin
+const uint8_t buzzerPin  =  3;    // buzzer pin
 
 //=========================
 // values of analog reads
@@ -51,30 +54,44 @@ int weaponA    = 0;
 int weaponB    = 0;
 int lameA      = 0;
 int lameB      = 0;
-//int groundA    = 0;
-//int groundB    = 0;
+int groundA    = 0;
+int groundB    = 0;
 
-long millisPastA     = 0;
-long millisPastB     = 0;
-long millisPastFirst = 0;
+//=======================
+// depress and timeouts
+//=======================
+long depressAtime    = 0;
+long depressBtime    = 0;
+bool lockedOut       = false;
+
+long microsPastA     = 0;
+long microsPastB     = 0;
+long microsPastFirst = 0;
 
 //==========================
 // Lockout & Depress Times
 //==========================
-int lockOut        = 300;    // the lockout time between hits for epee is 300ms
-int minHitDuration = 14;     // the minimum amount of time the tip needs to be depressed
+// the lockout time between hits for foil is 300ms +/-25ms
+// the minimum amount of time the tip needs to be depressed for foil 14ms +/-1ms
+// the lockout time between hits for epee is 45ms +/-5ms (40ms -> 50ms)
+// the minimum amount of time the tip needs to be depressed for epee 2ms
+// the lockout time between hits for sabre is 120ms +/-10ms
+// the minimum amount of time the tip needs to be depressed for sabre 0.1ms -> 1ms
+//                         foil    epee   sabre
+const long lockout [] = {300000,  45000, 120000};  // the lockout time between hits
+const long depress [] = { 14000,   2000,   1000};  // the minimum amount of time the tip needs to be depressed
 
+//=========
+// states
+//=========
+boolean depressedA  = false;
+boolean depressedB  = false;
 boolean hitOnTargA  = false;
 boolean hitOffTargA = false;
 boolean hitOnTargB  = false;
 boolean hitOffTargB = false;
 
 boolean isFirstHit = true;
-
-int lowerThresh = 250;     // the threshold that the scoring triggers on (1024/4)
-int midThresh   = 500;     // the threshold that the scoring triggers on (1024/4*2)
-int upperThresh = 750;     // the threshold that the scoring triggers on (1024/4*3)
-
 
 //================
 // Configuration
@@ -145,95 +162,110 @@ void loop() {
    weaponB = analogRead(weaponPinB);
    lameA   = analogRead(lamePinA);
    lameB   = analogRead(lamePinB);
-   //delay(1000);
-   //Serial.println(weaponA);
-   //Serial.println(weaponB);
-   //Serial.println(lameA);
-   //Serial.println(lameB);
 
    signalHits();
+   foil();
+}
+
+long now2 = 0;
+
+//===================
+// Main foil method
+//===================
+void foil() {
+
+   long now = micros();
+   if (((hitOnTargA || hitOffTargA) && (depressAtime + lockout[0] < now)) || 
+       ((hitOnTargB || hitOffTargB) && (depressBtime + lockout[0] < now))) {
+      lockedOut = true;
+   }
 
    // weapon A
-   if (hitOnTargA == false && hitOffTargA == false) { // ignore if we've hit
+   if (hitOnTargA == false && hitOffTargA == false) { // ignore if A has already hit
+      // off target
       if (410 < weaponA && weaponA < 570 && lameB < 100) {
-   	  	if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis()))) {
-            if  (millis() <= (millisPastA + minHitDuration)) { // if 14ms or more have past we have a hit
-               if(isFirstHit) {
-                  millisPastFirst = millis();
-               }
-               // offTarget
+         if (!depressedA) {
+            depressAtime = micros();
+            depressedA   = true;
+         } else {
+            if (depressAtime + depress[0] <= micros()) {
                hitOffTargA = true;
-               digitalWrite(offTargetA, HIGH);
-               digitalWrite(buzzerPin, HIGH);
             }
          }
       } else {
-      	if (100 < weaponA && weaponA < 410 && 100 < lameB && lameB < 410) {
-      		if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis()))) {
-               if  (millis() <= (millisPastA + minHitDuration)) { // if 14ms or more have past we have a hit
-                  if(isFirstHit) {
-                     millisPastFirst = millis();
-                  }
-                  // onTarget
+      // on target
+         if (100 < weaponA && weaponA < 410 && 100 < lameB && lameB < 410) {
+            if (!depressedA) {
+               depressAtime = micros();
+               depressedA   = true;
+            } else {
+               if (depressAtime + depress[0] <= micros()) {
                   hitOnTargA = true;
-                  digitalWrite(onTargetA, HIGH);
-                  digitalWrite(buzzerPin, HIGH);
                }
             }
-      	} else { // nothing happening
-            millisPastA = millis();
+         } else {
+            // reset these values if the depress time is short.
+            depressAtime = 0;
+            depressedA   = 0;
          }
       }
    }
 
    // weapon B
-   if (hitOnTargB == false && hitOffTargB == false) { // ignore if we've hit
+   if (hitOnTargB == false && hitOffTargB == false) { // ignore if B has already hit
+      // off target
       if (410 < weaponB && weaponB < 570 && lameA < 100) {
-   	  	if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis()))) {
-            if  (millis() <= (millisPastB + minHitDuration)) { // if 14ms or more have past we have a hit
-               if(isFirstHit) {
-                  millisPastFirst = millis();
-               }
-               // offTarget
+         if (!depressedB) {
+            depressBtime = micros();
+            depressedB   = true;
+         } else {
+            if (depressBtime + depress[0] <= micros()) {
                hitOffTargB = true;
-               digitalWrite(offTargetB, HIGH);
-               digitalWrite(buzzerPin, HIGH);
             }
          }
       } else {
-      	if (100 < weaponB && weaponB < 410 && 100 < lameA && lameA < 410) {
-      		if((isFirstHit == true) || ((isFirstHit == false) && (millisPastFirst + lockOut > millis()))) {
-               if  (millis() <= (millisPastB + minHitDuration)) { // if 14ms or more have past we have a hit
-                  if(isFirstHit) {
-                     millisPastFirst = millis();
-                  }
-                  // onTarget
+      // on target
+         if (100 < weaponB && weaponB < 410 && 100 < lameA && lameA < 410) {
+            if (!depressedB) {
+               depressBtime = micros();
+               depressedB   = true;
+            } else {
+               if (depressBtime + depress[0] <= micros()) {
                   hitOnTargB = true;
-                  digitalWrite(onTargetB, HIGH);
-                  digitalWrite(buzzerPin, HIGH);
                }
             }
-      	} else { // nothing happening
-            millisPastB = millis();
+         } else {
+            // reset these values if the depress time is short.
+            depressBtime = 0;
+            depressedB   = 0;
          }
       }
    }
 }
 
-//=================
-// Turn on buzzer
-//=================
+
+
+//==============
+// Signal Hits
+//==============
 void signalHits() {
-   if (hitOnTargA || hitOffTargA || hitOnTargB || hitOffTargB) {
-      if (millis() >= (millisPastFirst + lockOut)) {
-         // time for next action is up!
-         delay(1000);
-#ifdef BUZZER
-         digitalWrite(buzzerPin, LOW);
+   // non time critical, this is run after a hit has been detected
+   if (lockedOut) {
+      digitalWrite(onTargetA,  hitOnTargA);
+      digitalWrite(offTargetA, hitOffTargA);
+      digitalWrite(offTargetB, hitOffTargB);
+      digitalWrite(onTargetB,  hitOnTargB);
+      digitalWrite(buzzerPin,  HIGH);
+#ifdef DEBUG
+      String serData = String("hitOnTargA  : ") + hitOnTargA  + "\n"
+                            + "hitOffTargA : "  + hitOffTargA + "\n"
+                            + "hitOffTargB : "  + hitOffTargB + "\n"
+                            + "hitOnTargB  : "  + hitOnTargB  + "\n"
+                            + "Locked Out  : "  + lockedOut   + "\n";
+      Serial.println(serData);
 #endif
-         delay(2500);
-         resetValues();
-      }
+      delay(500);
+      resetValues();
    }
 }
 
@@ -241,29 +273,25 @@ void signalHits() {
 // Reset all variables
 //======================
 void resetValues() {
-   Serial.println(hitOnTargA);
-   Serial.println(hitOffTargA);
-   Serial.println(hitOffTargB);
-   Serial.println(hitOnTargB);
-
-   digitalWrite(buzzerPin,  LOW);
+   //digitalWrite(buzzerPin,  LOW);
+   delay(100);
    digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetA, LOW);
    digitalWrite(offTargetB, LOW);
    digitalWrite(onTargetB,  LOW);
+   digitalWrite(shortLEDA,  LOW);
+   digitalWrite(shortLEDB,  LOW);
 
-   //millisPastA = millis();
-   //millisPastB = millis();
-   millisPastA     = 0;
-   millisPastB     = 0;
-   millisPastFirst = 0;
+   lockedOut    = false;
+   depressAtime = 0;
+   depressedA   = false;
+   depressBtime = 0;
+   depressedB   = false;
 
    hitOnTargA  = false;
    hitOffTargA = false;
    hitOnTargB  = false;
    hitOffTargB = false;
-
-   isFirstHit = true;
 
    delay(100);
 }

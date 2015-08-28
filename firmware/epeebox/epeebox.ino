@@ -30,22 +30,21 @@
 //============
 // Pin Setup
 //============
-const uint8_t shortLEDA  =  8;        // Short Circuit A Light
-const uint8_t onTargetA  =  9;        // On Target A Light
-const uint8_t offTargetA = 10;        // Off Target A Light
-const uint8_t offTargetB = 11;        // Off Target B Light
-const uint8_t onTargetB  = 12;        // On Target B Light
-const uint8_t shortLEDB  = 13;        // Short Circuit A Light
+const uint8_t shortLEDA  =  8;    // Short Circuit A Light
+const uint8_t onTargetA  =  9;    // On Target A Light
+const uint8_t offTargetA = 10;    // Off Target A Light
+const uint8_t offTargetB = 11;    // Off Target B Light
+const uint8_t onTargetB  = 12;    // On Target B Light
+const uint8_t shortLEDB  = 13;    // Short Circuit A Light
 
-const uint8_t weaponPinA = A0;        // Weapon A pin
-const uint8_t weaponPinB = A1;        // Weapon B pin
-const uint8_t lamePinA   = A2;        // Lame   A pin (Epee return path)
-const uint8_t lamePinB   = A3;        // Lame   B pin (Epee return path)
-const uint8_t groundPinA = A4;        // Ground A pin - Analog
-const uint8_t groundPinB = A5;        // Ground B pin - Analog
+const uint8_t weaponPinA = A0;    // Weapon A pin - Analog
+const uint8_t weaponPinB = A1;    // Weapon B pin - Analog
+const uint8_t lamePinA   = A2;    // Lame   A pin - Analog (Epee return path)
+const uint8_t lamePinB   = A3;    // Lame   B pin - Analog (Epee return path)
+const uint8_t groundPinA = A4;    // Ground A pin - Analog
+const uint8_t groundPinB = A5;    // Ground B pin - Analog
 
-const uint8_t buzzerPin  = 3;         // Pin to control the buzzer
-const uint8_t modeLeds[] = {4, 5, 6}; // LED pins to indicate weapon mode selected {f e s}
+const uint8_t buzzerPin  =  3;    // buzzer pin
 
 //=========================
 // values of analog reads
@@ -57,9 +56,9 @@ int lameB      = 0;
 int groundA    = 0;
 int groundB    = 0;
 
-//======================
-// depress and timouts
-//======================
+//=======================
+// depress and timeouts
+//=======================
 long depressAtime    = 0;
 long depressBtime    = 0;
 bool lockedOut       = false;
@@ -73,9 +72,9 @@ bool lockedOut       = false;
 // the minimum amount of time the tip needs to be depressed for epee 2ms
 // the lockout time between hits for sabre is 120ms +/-10ms
 // the minimum amount of time the tip needs to be depressed for sabre 0.1ms -> 1ms
-//                      foil epee sabre
-const long lockout [] = {300000,  45000, 120000};
-const long depress [] = { 14000,   2000,   1000};
+//                         foil    epee   sabre
+const long lockout [] = {300000,  45000, 120000};  // the lockout time between hits
+const long depress [] = { 14000,   2000,   1000};  // the minimum amount of time the tip needs to be depressed
 
 //=========
 // states
@@ -195,8 +194,6 @@ void loop() {
 //===================
 // Main epee method
 //===================
-int once = 0;
-long count = 0;
 void epee() {
    long now = micros();
    if ((hitOnTargA && (depressAtime + lockout[1] < now)) || (hitOnTargB && (depressBtime + lockout[1] < now))) {
