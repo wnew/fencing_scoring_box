@@ -3,20 +3,20 @@
 
                               _____//______
                               |           |
-  Lame Pin 1 o----------------| A2     A3 |----------------o Lame Pin 2 
+  Lame Pin 1 o----------------| A2     A3 |----------------o Lame Pin 2
                   |           |           |           |
                   R           |           |           R
-                  |   5V___   |  Arduino  |  5V___    |                     
-                 GND     |    |           |     |    GND                 
-                         R    |           |     R                       
-                         |    |           |     |                          
-Weapon Pin 1 o----------------| A0     A1 |----------------o Weapon Pin 2
-                              |           |                             
-                              |           |                                 
-Gaurd Pin 1  o----------------| A4     A5 |----------------o Guard Pin 2
-                      |       |           |       |                         
-                      R       |           |       R                    
-                      |       |           |       |                    
+                  |   5V___   |  Arduino  |  5V___    |
+                 GND     |    |           |     |    GND
+                         R    |           |     R
+                         |    |           |     |
+Weapon Pin 1 o----------------| A1     A4 |----------------o Weapon Pin 2
+                              |           |
+                              |           |
+Gaurd Pin 1  o----------------| A0     A5 |----------------o Guard Pin 2 (Gnd)
+                      |       |           |       |
+                      R       |           |       R
+                      |       |           |       |
                      GND      |           |      GND
                               |           |
                               |           |
@@ -42,7 +42,7 @@ Gaurd Pin 1  o----------------| A4     A5 |----------------o Guard Pin 2
 
 
 Notes:
-1. Pullup and Pulldown resistor values should be 20K
+1. Pullup and Pulldown resistor values should be between 10K and 22K
 2. LED resistor values should be 220R but any value that limits the current enough for the LEDs will work
 
 
@@ -55,14 +55,14 @@ Dont worry about anything below here this is just my debugging infomation
 
 FOIL           | Lame Pin 1 | Weapon Pin 1 | Guard Pin 1 | Lame Pin 2 | Weapon Pin 2 | Guard Pin 2 |
 ----------------------------------------------------------------------------------------------------
-At rest        |      0v    |       5v     |      0v     |      0v    |       5v     |      0v     |
-Hit on target  |      0v    |     1.7v     |    1.7v     |    1.7v    |       5v     |      0v     |
-Hit off target |      0v    |     2.5v     |    2.5v     |      0v    |       5v     |      0v     |
-Hit guard      |      0v    |     1.7v     |    1.7v     |      0v    |       5v     |    1.7v     |
-Hit gnd/piste  |      0v    |       0v     |      0v     |      0v    |       5v     |      0v     |
+At rest        |      0v    |     2.5v     |    2.5v     |      0v    |       5v     |      0v     |
+Hit on target  |      0v    |     2.5v     |      0v     |    2.5v    |       5v     |      0v     |
+Hit off target |      0v    |       5v     |      0v     |      0v    |       5v     |      0v     |
+Hit guard      |      0v    |     2.5v     |      0v     |      0v    |       5v     |    2.5v     | No lights
+Hit gnd/piste  |      0v    |     2.5v     |      0v     |      0v    |       5v     |    2.5v     | No lights
 Hit on target  |      0v    |    1.25v     |   1.25v     |   1.25v    |       5v     |   1.25v     |
 
-Normally open switch between weapon and guard (return) pins
+Normally close switch between weapon and guard (return) pins
 
 There is a strange case where FA hits FB ontarget but FB has his guard against his lame, this still
 needs to register a hit
@@ -71,24 +71,23 @@ needs to register a hit
 
 EPEE           | Rtrn Pin 1 | Weapon Pin 1 | Guard Pin 1 | Rtrn Pin 2 | Weapon Pin 2 | Guard Pin 2 |
 ----------------------------------------------------------------------------------------------------
-At rest        |    2.5v    |     2.5v     |      0v     |    2.5v    |     2.5v     |      0v     |
-Hit on target  |      0v    |       5v     |      0v     |    2.5v    |     2.5v     |      0v     |
-Hit guard      |      0v    |     2.5v     |      0v     |    2.5v    |     2.5v     |    2.5v     |
-Hit gnd/piste  |      0v    |       0v     |      0v     |    2.5v    |     2.5v     |      0v     |
+At rest        |      5v    |       0v     |      0v     |      5v    |       0v     |      0v     |
+Hit on target  |    2.5v    |     2.5v     |      0v     |      5v    |       0v     |      0v     |
+Hit guard      |    1.7v    |     1.7v     |      0v     |      5v    |       0v     |    1.7v     | No lights
+Hit gnd/piste  |      0v    |       0v     |      0v     |      5v    |       0v     |      0v     | No lights
 
-Normally closed switch between weapon and lame pins
-
-
+Normally open switch between weapon and lame pins
 
 
-SABRE          | Lame Pin 1 | Weapon Pin 1 | Guard Pin 1 | Lame Pin 2 | Weapon Pin 2 | Guard Pin 2 |
+
+
+FOIL           | Lame Pin 1 | Weapon Pin 1 | Guard Pin 1 | Lame Pin 2 | Weapon Pin 2 | Guard Pin 2 |
 ----------------------------------------------------------------------------------------------------
-At rest        |      0v    |       5v     |      0v     |      0v    |       5v     |      0v     |
-Hit on target  |      0v    |     1.7v     |    1.7v     |    1.7v    |       5v     |      0v     |
-Hit off target |      0v    |     2.5v     |    2.5v     |      0v    |       5v     |      0v     | No lights
-Hit guard      |      0v    |     1.7v     |    1.7v     |      0v    |       5v     |    1.7v     |
-Hit gnd/piste  |      0v    |       0v     |      0v     |      0v    |       5v     |      0v     |
-Hit on target  |      0v    |    1.25v     |   1.25v     |   1.25v    |       5v     |   1.25v     |
+At rest        |      0v    |     2.5v     |    2.5v     |      0v    |       5v     |      0v     |
+Hit on target  |      0v    |     2.5v     |      0v     |    2.5v    |       5v     |      0v     |
+Hit off target |      0v    |       5v     |      0v     |      0v    |       5v     |      0v     | No lights
+Hit guard      |      0v    |     2.5v     |      0v     |      0v    |       5v     |    2.5v     | No lights
+Hit gnd/piste  |      0v    |     2.5v     |      0v     |      0v    |       5v     |    2.5v     | No lights
    
 
 

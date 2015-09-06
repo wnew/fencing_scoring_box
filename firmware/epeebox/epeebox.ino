@@ -1,9 +1,9 @@
-   //===========================================================================//
+//===========================================================================//
 //                                                                           //
-//  Desc:    Arduino Code to implement a fencing scoring apparatus           //
+//  Desc:    Arduino Code to implement an epee fencing scoring apparatus     //
 //  Dev:     Wnew                                                            //
-//  Date:    Nov 2012                                                        //
-//  Updated: Aug 2014                                                        //
+//  Date:    Nov  2012                                                       //
+//  Updated: Sept 2015                                                       //
 //  Notes:   1. Basis of algorithm from digitalwestie on github. Thanks Mate //
 //           2. Used uint8_t instead of int where possible to optimise       //
 //           3. Set ADC prescaler to 16 faster ADC reads                     //
@@ -24,8 +24,9 @@
 //#define INT_PULL_UPS      // uses internal pullups for weapon pins
 //#define TEST_ADC_SPEED    // used to test sample rate of ADCs
 //#define REPORT_TIMING     // prints timings over serial interface
-#define BUZZER            // make use of the buzzer
-#define BAUDRATE 57600    // baudrate of the serial debug interface
+#define BUZZERTIME  1000  // length of time the buzzer is kept on after a hit (ms)
+#define LIGHTTIME   3000  // length of time the lights are kept on after a hit (ms)
+#define BAUDRATE   57600  // baudrate of the serial debug interface
 
 //============
 // Pin Setup
@@ -37,11 +38,11 @@ const uint8_t offTargetB = 11;    // Off Target B Light
 const uint8_t onTargetB  = 12;    // On Target B Light
 const uint8_t shortLEDB  = 13;    // Short Circuit A Light
 
-const uint8_t weaponPinA = A0;    // Weapon A pin - Analog
-const uint8_t weaponPinB = A1;    // Weapon B pin - Analog
-const uint8_t lamePinA   = A2;    // Lame   A pin - Analog (Epee return path)
-const uint8_t lamePinB   = A3;    // Lame   B pin - Analog (Epee return path)
-const uint8_t groundPinA = A4;    // Ground A pin - Analog
+const uint8_t groundPinA = A0;    // Ground A pin - Analog
+const uint8_t lamePinA   = A1;    // Lame   A pin - Analog (Epee return path)
+const uint8_t weaponPinA = A2;    // Weapon A pin - Analog
+const uint8_t weaponPinB = A3;    // Weapon B pin - Analog
+const uint8_t lamePinB   = A4;    // Lame   B pin - Analog (Epee return path)
 const uint8_t groundPinB = A5;    // Ground B pin - Analog
 
 const uint8_t buzzerPin  =  3;    // buzzer pin
@@ -49,19 +50,19 @@ const uint8_t buzzerPin  =  3;    // buzzer pin
 //=========================
 // values of analog reads
 //=========================
-int weaponA    = 0;
-int weaponB    = 0;
-int lameA      = 0;
-int lameB      = 0;
-int groundA    = 0;
-int groundB    = 0;
+int weaponA = 0;
+int weaponB = 0;
+int lameA   = 0;
+int lameB   = 0;
+int groundA = 0;
+int groundB = 0;
 
 //=======================
 // depress and timeouts
 //=======================
-long depressAtime    = 0;
-long depressBtime    = 0;
-bool lockedOut       = false;
+long depressAtime = 0;
+long depressBtime = 0;
+bool lockedOut    = false;
 
 //==========================
 // Lockout & Depress Times
@@ -92,6 +93,7 @@ long loopCount = 0;
 bool done = false;
 #endif
 
+
 //================
 // Configuration
 //================
@@ -104,6 +106,7 @@ void setup() {
    pinMode(onTargetB,  OUTPUT);
    pinMode(shortLEDA,  OUTPUT);
    pinMode(shortLEDB,  OUTPUT);
+   pinMode(buzzerPin,  OUTPUT);
 
 #ifdef INT_PULL_UPS
    // this turns on the internal pull up resistors for the weapon pins
@@ -113,16 +116,12 @@ void setup() {
    digitalWrite(weaponPinB, HIGH);
 #endif
 
-#ifdef BUZZER
-   pinMode(buzzerPin,  OUTPUT);
-#endif
-
 #ifdef TEST_LIGHTS
    testLights();
 #endif
 
    // this optimises the ADC to make the sampling rate quicker
-   adcOpt();
+   //adcOpt();
 
    Serial.begin(BAUDRATE);
    Serial.println("Epee Scoring Box");
@@ -174,7 +173,6 @@ void loop() {
       signalHits();
       epee();
 
-
 #ifdef TEST_ADC_SPEED
       if (loopCount == 0) {
          now = micros();
@@ -214,8 +212,8 @@ void epee() {
       } else {
          // reset these values if the depress time is short.
          if (depressedA == true) {
-            depressedA   = false;
             depressAtime = 0;
+            depressedA   = 0;
          }
       }
    }
@@ -235,8 +233,8 @@ void epee() {
       } else {
          // reset these values if the depress time is short.
          if (depressedB == true) {
-            depressedB   = false;
             depressBtime = 0;
+            depressedB   = 0;
          }
       }
    }
@@ -248,7 +246,6 @@ void epee() {
 //==============
 void signalHits() {
    // non time critical, this is run after a hit has been detected
-   //if ((hitOnTargA || hitOffTargA || hitOffTargB || hitOnTargB) && lockedOut) {
    if (lockedOut) {
       digitalWrite(onTargetA,  hitOnTargA);
       digitalWrite(offTargetA, hitOffTargA);
@@ -273,8 +270,9 @@ void signalHits() {
 // Reset all variables
 //======================
 void resetValues() {
+   delay(BUZZERTIME);             // wait before turning off the buzzer
    digitalWrite(buzzerPin,  LOW);
-   delay(3000);
+   delay(LIGHTTIME-BUZZERTIME);   // wait before turning off the lights
    digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetA, LOW);
    digitalWrite(offTargetB, LOW);
