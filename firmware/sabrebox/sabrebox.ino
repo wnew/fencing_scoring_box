@@ -73,6 +73,7 @@ bool lockedOut    = false;
 // the minimum amount of time the tip needs to be depressed for epee 2ms
 // the lockout time between hits for sabre is 120ms +/-10ms
 // the minimum amount of time the tip needs to be depressed for sabre 0.1ms -> 1ms
+// These values are stored as micro seconds for more accuracy
 //                         foil    epee   sabre
 const long lockout [] = {300000,  45000, 120000};  // the lockout time between hits
 const long depress [] = { 14000,   2000,   1000};  // the minimum amount of time the tip needs to be depressed
@@ -258,7 +259,6 @@ void signalHits() {
                             + "Locked Out  : "  + lockedOut   + "\n";
       Serial.println(serData);
 #endif
-      delay(500);
       resetValues();
    }
 }
@@ -270,7 +270,7 @@ void signalHits() {
 void resetValues() {
    delay(BUZZERTIME);             // wait before turning off the buzzer
    digitalWrite(buzzerPin,  LOW);
-   delay(LIGHTTIME-BUZZERTIME);   // wait before turning off the slights
+   delay(LIGHTTIME-BUZZERTIME);   // wait before turning off the lights
    digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetA, LOW);
    digitalWrite(offTargetB, LOW);

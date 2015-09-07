@@ -2,8 +2,8 @@
 //                                                                           //
 //  Desc:    Arduino Code to implement a fencing scoring apparatus           //
 //  Dev:     Wnew                                                            //
-//  Date:    Nov 2012                                                        //
-//  Updated: Aug 2014                                                        //
+//  Date:    Nov  2012                                                       //
+//  Updated: Sept 2015                                                       //
 //  Notes:   1. Basis of algorithm from digitalwestie on github. Thanks Mate //
 //           2. Used uint8_t instead of int where possible to optimise       //
 //           3. Set ADC prescaler to 16 faster ADC reads                     //
@@ -24,24 +24,26 @@
 //#define INT_PULL_UPS      // uses internal pullups for weapon pins
 //#define TEST_ADC_SPEED    // used to test sample rate of ADCs
 //#define REPORT_TIMING     // prints timings over serial interface
-#define BAUDRATE 57600    // baudrate of the serial debug interface
+#define BUZZERTIME  1000  // length of time the buzzer is kept on after a hit (ms)
+#define LIGHTTIME   3000  // length of time the lights are kept on after a hit (ms)
+#define BAUDRATE   57600  // baudrate of the serial debug interface
 
 //============
 // Pin Setup
 //============
-const uint8_t shortLEDA  =  8;        // Short Circuit A Light
-const uint8_t onTargetA  =  9;        // On Target A Light
-const uint8_t offTargetA = 10;        // Off Target A Light
-const uint8_t offTargetB = 11;        // Off Target B Light
-const uint8_t onTargetB  = 12;        // On Target B Light
-const uint8_t shortLEDB  = 13;        // Short Circuit A Light
+const uint8_t shortLEDA  =  8;    // Short Circuit A Light
+const uint8_t onTargetA  =  9;    // On Target A Light
+const uint8_t offTargetA = 10;    // Off Target A Light
+const uint8_t offTargetB = 11;    // Off Target B Light
+const uint8_t onTargetB  = 12;    // On Target B Light
+const uint8_t shortLEDB  = 13;    // Short Circuit A Light
 
-const uint8_t weaponPinA = A0;        // Weapon A pin
-const uint8_t weaponPinB = A1;        // Weapon B pin
-const uint8_t lamePinA   = A2;        // Lame A pin (Epee return path)
-const uint8_t lamePinB   = A3;        // Lame B pin (Epee return path)
-const uint8_t groundPinA = A4;        // Ground A pin - Analog
-const uint8_t groundPinB = A5;        // Ground B pin - Analog
+const uint8_t groundPinA = A0;    // Ground A pin - Analog
+const uint8_t lamePinA   = A1;    // Lame   A pin - Analog (Epee return path)
+const uint8_t weaponPinA = A2;    // Weapon A pin - Analog
+const uint8_t weaponPinB = A3;    // Weapon B pin - Analog
+const uint8_t lamePinB   = A4;    // Lame   B pin - Analog (Epee return path)
+const uint8_t groundPinB = A5;    // Ground B pin - Analog
      
 const uint8_t modePin    =  0;        // Mode change button interrupt pin 0 (digital pin 2)
 const uint8_t buzzerPin  =  3;        // buzzer pin
@@ -69,14 +71,15 @@ bool lockedOut    = false;
 //==========================
 // the lockout time between hits for foil is 300ms +/-25ms
 // the minimum amount of time the tip needs to be depressed for foil 14ms +/-1ms
-// the lockout time between hits for epee is 45ms +/-5ms
+// the lockout time between hits for epee is 45ms +/-5ms (40ms -> 50ms)
 // the minimum amount of time the tip needs to be depressed for epee 2ms
 // the lockout time between hits for sabre is 120ms +/-10ms
 // the minimum amount of time the tip needs to be depressed (in contact) for sabre 0.1ms -> 1ms
 // These values are stored as micro seconds for more accuracy
 //                         foil   epee   sabre
-const long lockout [] = {300000, 45000, 120000};
-const long depress [] = { 14000,  2000,    100};
+const long lockout [] = {300000,  45000, 120000};  // the lockout time between hits
+const long depress [] = { 14000,   2000,   1000};  // the minimum amount of time the tip needs to be depressed
+
 
 
 
@@ -136,8 +139,8 @@ void setup() {
    // this turns on the internal pull up resistors for the weapon pins
    // think they are 20k resistors but need to check this
    // other pull ups in the circuit should be of the same value
-   digitalWrite(A0, HIGH);
-   digitalWrite(A1, HIGH);
+   digitalWrite(weaponPinA, HIGH);
+   digitalWrite(weaponPinB, HIGH);
 #endif
 
 #ifdef TEST_LIGHTS
@@ -147,7 +150,7 @@ void setup() {
    // this optimises the ADC to make the sampling rate quicker
    //adcOpt();
 
-   Serial.begin(57600);
+   Serial.begin(BAUDRATE);
    Serial.println("3 Weapon Scoring Box");
    Serial.println("====================");
    Serial.print  ("Mode : ");
@@ -155,6 +158,7 @@ void setup() {
 
    resetValues();
 }
+
 
 //=============
 // ADC config
@@ -461,7 +465,6 @@ void signalHits() {
                             + "Locked Out  : "  + lockedOut   + "\n";
       Serial.println(serData);
 #endif
-      delay(500);
       resetValues();
    }
 }
@@ -471,8 +474,9 @@ void signalHits() {
 // Reset all variables
 //======================
 void resetValues() {
+   delay(BUZZERTIME);             // wait before turning off the buzzer
    digitalWrite(buzzerPin,  LOW);
-   delay(2000);
+   delay(LIGHTTIME-BUZZERTIME);   // wait before turning off the lights
    digitalWrite(onTargetA,  LOW);
    digitalWrite(offTargetA, LOW);
    digitalWrite(offTargetB, LOW);
@@ -505,7 +509,6 @@ void testLights() {
    digitalWrite(onTargetB,  HIGH);
    digitalWrite(shortLEDA,  HIGH);
    digitalWrite(shortLEDB,  HIGH);
-   digitalWrite(buzzerPin,  HIGH);
    delay(1000);
    resetValues();
 }
