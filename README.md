@@ -1,5 +1,7 @@
- Description
--------------------------------------------------------------------------------
+# Arduino Fencing Scoring Apparatus
+
+##Description
+
 Fencing Scoring Machine/Box/Apparatus code for the arduino platform.
 This project is an arduino based fencing scoring machine. It supports all 3
 weaspons, foil, epee and sabre. There are also individual sketched for each
@@ -7,8 +9,8 @@ weapon if you would like only one weapon.
 
 Email me if you have any questions: wesnew(at)gmail(dot)com
 
- Directory Structure
--------------------------------------------------------------------------------
+##Directory Structure
+
 Software: python code which communicates over the serial interface with the
 arduino to allow displaying of lights on a laptop or PC screen.
 
@@ -20,28 +22,27 @@ lights and body wires.
 
 
 
- Hardware Requirements
--------------------------------------------------------------------------------
+##Hardware Requirements
+
  - 1 Arduino Uno/Mega or Pro Mini (5v/16MHz)
  - 10 Resistors, 4 220R for LEDs, 6 10K for pullups/pulldowns
  - 4 LEDs, 1 green, 1 red and 2 yellow/white
 
 
- Percentage Complete
--------------------------------------------------------------------------------
+##Percentage Complete
 
         90 %
 
 
 
- TODOs
--------------------------------------------------------------------------------
+##TODOs
+
  - Add support for the ground lights
  - Possibly use shift reg for lights, Blah, too much soldering.
 
 
- Testing
--------------------------------------------------------------------------------
+##Testing
+
  - Tested with an oscilloscope and all timings look great.
  - Now to connect it up to a couple of real life fencers and make them duel
  - Create a test arduino sketch to check that the timings (Lockout and depress)
@@ -49,8 +50,8 @@ lights and body wires.
 
 
 
- Extra features to add
--------------------------------------------------------------------------------
+##Extra features to add
+
  - Add some kind of screen
  - Serial to USB interface to use a laptop as the lights, timing and scoring,
    similar to the VSM. This is already implemented on the device, just write
