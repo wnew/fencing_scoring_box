@@ -11,6 +11,8 @@ Email me if you have any questions: wesnew(at)gmail(dot)com
 
 ##Directory Structure
 
+Design: Notes and research. 
+
 Software: python code which communicates over the serial interface with the
 arduino to allow displaying of lights on a laptop or PC screen.
 
