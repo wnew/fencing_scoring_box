@@ -1,5 +1,0 @@
-The idea is to run the scoring box off an arduino nano with minimal circuitry
-the ADCs have been shown to be fast enough and can sample at over 12ksps with
-4 channels with an ADC prescaler tweak.
-
-

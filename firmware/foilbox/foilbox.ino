@@ -21,7 +21,6 @@
 //TODO: set up debug levels correctly
 #define DEBUG 0
 //#define TEST_LIGHTS       // turns on lights for a second on start up
-//#define INT_PULL_UPS      // uses internal pullups for weapon pins
 //#define TEST_ADC_SPEED    // used to test sample rate of ADCs
 //#define REPORT_TIMING     // prints timings over serial interface
 #define BUZZERTIME  1000  // length of time the buzzer is kept on after a hit (ms)
@@ -108,14 +107,6 @@ void setup() {
    pinMode(shortLEDA,  OUTPUT);
    pinMode(shortLEDB,  OUTPUT);
    pinMode(buzzerPin,  OUTPUT);
-
-#ifdef INT_PULL_UPS
-   // this turns on the internal pull up resistors for the weapon pins
-   // think they are 20k resistors but need to check this
-   // other pull ups in the circuit should be of the same value
-   digitalWrite(weaponPinA, HIGH);
-   digitalWrite(weaponPinB, HIGH);
-#endif
 
 #ifdef TEST_LIGHTS
    testLights();
