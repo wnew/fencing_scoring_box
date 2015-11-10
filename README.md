@@ -13,13 +13,13 @@ Email me if you have any questions: wesnew(at)gmail(dot)com
 
 Design: Notes and research. 
 
-Software: python code which communicates over the serial interface with the
+**Software**: python code which communicates over the serial interface with the
 arduino to allow displaying of lights on a laptop or PC screen.
 
-Firmware, the code that runs on the arduino including scoring boxes and test
+**Firmware**: the code that runs on the arduino including scoring boxes and test
 sketches.
 
-Hardware, the circuit designs around the arduino showing how to connect up the
+**Hardware**: the circuit designs around the arduino showing how to connect up the
 lights and body wires.
 
 
@@ -40,7 +40,9 @@ lights and body wires.
 ##TODOs
 
  - Add support for the ground lights
- - Possibly use shift reg for lights, Blah, too much soldering.
+ - Test sabre
+ - Implement whipover for sabre
+ - Possibly use shift reg for lights, Blah, too much soldering
 
 
 ##Testing
