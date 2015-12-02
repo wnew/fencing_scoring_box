@@ -1,5 +1,6 @@
 # Arduino Fencing Scoring Apparatus
 
+
 ##Description
 
 Fencing Scoring Machine/Box/Apparatus code for the arduino platform.
@@ -8,6 +9,7 @@ weaspons, foil, epee and sabre. There are also individual sketched for each
 weapon if you would like only one weapon.
 
 Email me if you have any questions: wesnew(at)gmail(dot)com
+
 
 ##Directory Structure
 
@@ -23,7 +25,6 @@ sketches.
 lights and body wires.
 
 
-
 ##Hardware Requirements
 
  - 1 Arduino Uno/Mega or Pro Mini (5v/16MHz)
@@ -33,16 +34,16 @@ lights and body wires.
 
 ##Percentage Complete
 
-        90 %
-
+Foil        90 %
+Epee       100 %
+Sabre       50 %
 
 
 ##TODOs
 
  - Add support for the ground lights
- - Test sabre
+ - Test sabre (quite a bit of work here)
  - Implement whipover for sabre
- - Possibly use shift reg for lights, Blah, too much soldering
 
 
 ##Testing
@@ -51,7 +52,6 @@ lights and body wires.
  - Now to connect it up to a couple of real life fencers and make them duel
  - Create a test arduino sketch to check that the timings (Lockout and depress)
    are correct
-
 
 
 ##Extra features to add
