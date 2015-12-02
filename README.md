@@ -35,7 +35,9 @@ lights and body wires.
 ##Percentage Complete
 
 Foil        90 %
+
 Epee       100 %
+
 Sabre       50 %
 
 
