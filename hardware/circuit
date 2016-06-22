@@ -81,7 +81,7 @@ Normally open switch between weapon and lame pins
 
 
 
-FOIL           | Lame Pin 1 | Weapon Pin 1 | Guard Pin 1 | Lame Pin 2 | Weapon Pin 2 | Guard Pin 2 |
+SBARE          | Lame Pin 1 | Weapon Pin 1 | Guard Pin 1 | Lame Pin 2 | Weapon Pin 2 | Guard Pin 2 |
 ----------------------------------------------------------------------------------------------------
 At rest        |      0v    |     2.5v     |    2.5v     |      0v    |       5v     |      0v     |
 Hit on target  |      0v    |     2.5v     |      0v     |    2.5v    |       5v     |      0v     |
