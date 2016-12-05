@@ -9,9 +9,8 @@
 //           3. Set ADC prescaler to 16 faster ADC reads                     //
 //                                                                           //
 //  To do:   1. Could use shift reg on lights and mode LEDs to save pins     //
-//           2. Use interrupts for buttons                                   //
-//           3. Implement short circuit LEDs (already provision for it)      //
-//           4. Set up debug levels correctly                                //
+//           2. Implement short circuit LEDs (already provision for it)      //
+//           3. Set up debug levels correctly                                //
 //                                                                           //
 //===========================================================================//
 
@@ -38,10 +37,10 @@ const uint8_t onTargetB  = 12;    // On Target B Light
 const uint8_t shortLEDB  = 13;    // Short Circuit A Light
 
 const uint8_t groundPinA = A0;    // Ground A pin - Analog
-const uint8_t lamePinA   = A1;    // Lame   A pin - Analog (Epee return path)
-const uint8_t weaponPinA = A2;    // Weapon A pin - Analog
-const uint8_t weaponPinB = A3;    // Weapon B pin - Analog
-const uint8_t lamePinB   = A4;    // Lame   B pin - Analog (Epee return path)
+const uint8_t weaponPinA = A1;    // Weapon A pin - Analog
+const uint8_t lamePinA   = A2;    // Lame   A pin - Analog (Epee return path)
+const uint8_t lamePinB   = A3;    // Lame   B pin - Analog (Epee return path)
+const uint8_t weaponPinB = A4;    // Weapon B pin - Analog
 const uint8_t groundPinB = A5;    // Ground B pin - Analog
      
 const uint8_t modePin    =  0;        // Mode change button interrupt pin 0 (digital pin 2)
@@ -81,7 +80,6 @@ const long depress [] = { 14000,   2000,   1000};  // the minimum amount of time
 
 
 
-
 //=================
 // mode constants
 //=================
@@ -115,10 +113,10 @@ bool done = false;
 //================
 void setup() {
    // set the internal pullup resistor on modePin
-   pinMode(modePin, INPUT_PULLUP);
+   pinMode(modePin+2, INPUT_PULLUP);
 
    // add the interrupt to the mode pin
-   attachInterrupt(modePin, changeMode, RISING);
+   attachInterrupt(modePin, changeMode, FALLING);
    pinMode(modeLeds[0], OUTPUT);
    pinMode(modeLeds[1], OUTPUT);
    pinMode(modeLeds[2], OUTPUT);
@@ -212,6 +210,7 @@ void loop() {
    }
 }
 
+
 //=====================
 // Mode pin interrupt
 //=====================
@@ -225,14 +224,21 @@ void changeMode() {
 // Sets the correct mode led
 //============================
 void setModeLeds() {
-   for (uint8_t i = 0; i < 3; i++) {
-      digitalWrite(modeLeds[i], LOW);
+   if (currentMode == FOIL_MODE) {
+      digitalWrite(onTargetA, HIGH);
+   } else {
+      if (currentMode == EPEE_MODE) {
+        digitalWrite(onTargetB, HIGH);
+      } else {
+         if (currentMode == SABRE_MODE){
+            digitalWrite(onTargetA, HIGH);
+            digitalWrite(onTargetB, HIGH);
+         }
+      }
    }
-   // which is better?
-   /*digitalWrite(modeLeds[0], LOW);
-   digitalWrite(modeLeds[1], LOW);
-   digitalWrite(modeLeds[2], LOW);*/
-   digitalWrite(modeLeds[currentMode], HIGH);
+   delay(500);
+   digitalWrite(onTargetA, LOW);
+   digitalWrite(onTargetB, LOW);
 }
 
 
@@ -248,11 +254,10 @@ void checkIfModeChanged() {
             currentMode++;
       }
       setModeLeds();
-#ifdef DEBUG < 0
+#ifdef DEBUG
       Serial.print("Mode changed to: ");
       Serial.println(currentMode);
 #endif
-      //delay(200);
       modeJustChangedFlag = false;
    }
 }

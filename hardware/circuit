@@ -20,20 +20,20 @@ Gaurd Pin 1  o----------------| A0     A5 |----------------o Guard Pin 2 (Gnd)
                      GND      |           |      GND
                               |           |
                               |           |
-             --------Red LED--|  9     12 |--Red LED--------
-             |                |           |                |
-             R     --Yel LED--| 10     11 |--Yel LED--     R
-             |     |          |           |          |     |
-            GND    R          |           |          R    GND
-                   |          |           |          |
-                  GND         |           |         GND
+            ---------Red LED--|  9     12 |--Red LED---------
+            |                 |           |                 |
+            R    --White LED--| 10     11 |--White LED--    R
+            |    |            |           |            |    |
+           GND   R            |           |            R   GND
+                 |            |           |            |
+                GND           |           |           GND
                               |           |
                               |           |
-                 5V__         |           |
-                    |         |           |
+                              |           |
+                              |           |
                     --Button--| 0       3 |--Buzzer--
-                              |           |         |
-                              |           |        GND
+                    |         |           |         |
+                   GND        |           |        GND
                               |           |
                               |           |
                               |____//_____|
@@ -42,7 +42,7 @@ Gaurd Pin 1  o----------------| A0     A5 |----------------o Guard Pin 2 (Gnd)
 
 
 Notes:
-1. Pullup and Pulldown resistor values should be between 10K and 22K
+1. Pullup and Pulldown resistor values should be 1K much higher then this and the line lines and high resistors act as an RC filter
 2. LED resistor values should be 220R but any value that limits the current enough for the LEDs will work
 
 
