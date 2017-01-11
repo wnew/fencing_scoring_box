@@ -42,8 +42,8 @@ const uint8_t lamePinA   = A2;    // Lame   A pin - Analog (Epee return path)
 const uint8_t lamePinB   = A3;    // Lame   B pin - Analog (Epee return path)
 const uint8_t weaponPinB = A4;    // Weapon B pin - Analog
 const uint8_t groundPinB = A5;    // Ground B pin - Analog
-     
-const uint8_t modePin    =  0;        // Mode change button interrupt pin 0 (digital pin 2)
+
+const uint8_t modePin    =  2;        // Mode change button interrupt pin 0 (digital pin 2)
 const uint8_t buzzerPin  =  3;        // buzzer pin
 const uint8_t modeLeds[] = {4, 5, 6}; // LED pins to indicate weapon mode selected {f e s}
 
@@ -113,10 +113,10 @@ bool done = false;
 //================
 void setup() {
    // set the internal pullup resistor on modePin
-   pinMode(modePin+2, INPUT_PULLUP);
+   pinMode(modePin, INPUT_PULLUP);
 
-   // add the interrupt to the mode pin
-   attachInterrupt(modePin, changeMode, FALLING);
+   // add the interrupt to the mode pin (interrupt is pin 0)
+   attachInterrupt(modePin-2, changeMode, FALLING);
    pinMode(modeLeds[0], OUTPUT);
    pinMode(modeLeds[1], OUTPUT);
    pinMode(modeLeds[2], OUTPUT);
