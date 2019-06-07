@@ -8,6 +8,9 @@ This project is an arduino based fencing scoring machine. It supports all 3
 weaspons, foil, epee and sabre. There are also individual sketched for each
 weapon if you would like only one weapon.
 
+Detailed assembly instructions are on instructables: 
+https://www.instructables.com/id/Arduino-Fencing-Scoring-Apparatus/
+
 Email me if you have any questions: wesnew(at)gmail(dot)com
 
 
