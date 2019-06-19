@@ -71,11 +71,11 @@ bool lockedOut    = false;
 // the minimum amount of time the tip needs to be depressed for foil 14ms +/-1ms
 // the lockout time between hits for epee is 45ms +/-5ms (40ms -> 50ms)
 // the minimum amount of time the tip needs to be depressed for epee 2ms
-// the lockout time between hits for sabre is 120ms +/-10ms
+// the lockout time between hits for sabre is 170ms +/-10ms
 // the minimum amount of time the tip needs to be depressed (in contact) for sabre 0.1ms -> 1ms
 // These values are stored as micro seconds for more accuracy
 //                         foil   epee   sabre
-const long lockout [] = {300000,  45000, 120000};  // the lockout time between hits
+const long lockout [] = {300000,  45000, 170000};  // the lockout time between hits
 const long depress [] = { 14000,   2000,   1000};  // the minimum amount of time the tip needs to be depressed
 
 
