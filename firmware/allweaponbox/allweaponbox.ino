@@ -224,6 +224,10 @@ void changeMode() {
 // Sets the correct mode led
 //============================
 void setModeLeds() {
+   digitalWrite(modeLeds[FOIL_MODE],  LOW);
+   digitalWrite(modeLeds[EPEE_MODE],  LOW);
+   digitalWrite(modeLeds[SABRE_MODE], LOW);
+   digitalWrite(modeLeds[currentMode], HIGH);
    if (currentMode == FOIL_MODE) {
       digitalWrite(onTargetA, HIGH);
    } else {
