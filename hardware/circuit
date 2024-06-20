@@ -13,7 +13,7 @@
 Grn Weapon Pin (B) o----------------| A1     A4 |----------------o Red Weapon Pin (B)
                                     |           |
                                     |           |
-Grn Gaurd Pin (C)  o----------------| A0     A5 |----------------o Red Guard Pin (C) (Gnd)
+ Grn Gaurd Pin (C) o----------------| A0     A5 |----------------o Red Guard Pin (C) (Gnd)
                             |       |           |       |
                             R       |           |       R
                             |       |           |       |
@@ -48,19 +48,18 @@ Notes:
 
 
 
+Below here this is just debugging infomation
+==============================================
 
-Dont worry about anything below here this is just my debugging infomation
-===========================================================================
-
-
-Foil           | Grn Lame Pin A | Grn Weapon Pin B | Grn Guard Pin C | Red Lame Pin A | Red Weapon Pin B | Red Guard Pin C |
-----------------------------------------------------------------------------------------------------------------------------
-At rest        |       0v       |       2.5v       |      2.5v       |        0v      |       2.5v       |      2.5v       |
-Hit on target  |       0v       |       2.5v       |        0v       |      2.5v      |         5v       |        0v       |
-Hit off target |       0v       |         5v       |        0v       |        0v      |         5v       |        0v       |
-Hit guard      |       0v       |       2.5v       |        0v       |        0v      |         5v       |      2.5v       | No lights
-Hit gnd/piste  |       0v       |       2.5v       |        0v       |        0v      |         5v       |      2.5v       | No lights
-Hit on target  |       0v       |      1.25v       |     1.25v       |     1.25v      |         5v       |     1.25v       |
+Foil           | Grn Lame | Grn Weapon | Grn Guard | Red Lame | Red Weapon | Red Guard |
+               |   Pin A  |   Pin B    |   Pin C   |   Pin A  |   Pin B    |   Pin C   |
+----------------------------------------------------------------------------------------
+At rest        |    0v    |    2.5v    |   2.5v    |     0v   |   2.5v     |   2.5v    | No lights
+Hit on target  |    0v    |    2.5v    |     0v    |   2.5v   |     5v     |     0v    | on target light
+Hit off target |    0v    |      5v    |     0v    |     0v   |     5v     |     0v    | off target light
+Hit guard      |    0v    |    2.5v    |     0v    |     0v   |     5v     |   2.5v    | No lights
+Hit gnd/piste  |    0v    |    2.5v    |     0v    |     0v   |     5v     |   2.5v    | No lights
+Hit on target  |    0v    |   1.25v    |  1.25v    |  1.25v   |     5v     |  1.25v    | both on target lights
 
 Normally close switch between weapon and guard (return) pins
 
@@ -69,25 +68,26 @@ needs to register a hit
 
 
 
-Epee           | Grn Lame Pin A | Grn Weapon Pin B | Grn Guard Pin C | Red Lame Pin A | Red Weapon Pin B | Red Guard Pin C |
-----------------------------------------------------------------------------------------------------------------------------
-At rest        |        5v      |         0v       |        0v       |        5v      |        0v        |        0v       |
-Hit on target  |      2.5v      |       2.5v       |        0v       |        5v      |        0v        |        0v       |
-Hit guard      |      1.7v      |       1.7v       |        0v       |        5v      |        0v        |      1.7v       | No lights
-Hit gnd/piste  |        0v      |         0v       |        0v       |        5v      |        0v        |        0v       | No lights
+Epee           | Grn Lame | Grn Weapon | Grn Guard | Red Lame | Red Weapon | Red Guard |
+               |   Pin A  |   Pin B    |   Pin C   |   Pin A  |   Pin B    |   Pin C   |
+----------------------------------------------------------------------------------------
+At rest        |     5v   |      0v    |     0v    |     5v   |     0v     |     0v    | 
+Hit on target  |   2.5v   |    2.5v    |     0v    |     5v   |     0v     |     0v    | 
+Hit guard      |   1.7v   |    1.7v    |     0v    |     5v   |     0v     |   1.7v    | No lights
+Hit gnd/piste  |     0v   |      0v    |     0v    |     5v   |     0v     |     0v    | No lights
 
 Normally open switch between weapon and lame pins
 
 
 
-Sabre          | Grn Lame Pin A | Grn Weapon Pin B | Grn Guard Pin C | Red Lame Pin A | Red Weapon Pin B | Red Guard Pin C |
-----------------------------------------------------------------------------------------------------------------------------
-At rest        |        0v      |         5v       |        0v       |        0v      |        5v        |        0v       |
-Hit on target  |        0v      |       2.5v       |        0v       |      2.5v      |        5v        |        0v       |
-Hit off target |        0v      |         5v       |        0v       |        0v      |        5v        |        0v       | No lights
-Hit guard      |        0v      |       2.5v       |        0v       |        0v      |        5v        |      2.5v       | No lights
-Hit gnd/piste  |        0v      |       2.5v       |        0v       |        0v      |        5v        |      2.5v       | No lights
-
+Sabre          | Grn Lame | Grn Weapon | Grn Guard | Red Lame | Red Weapon | Red Guard |
+               |   Pin A  |   Pin B    |   Pin C   |   Pin A  |   Pin B    |   Pin C   |
+----------------------------------------------------------------------------------------
+At rest        |     0v   |      5v    |     0v    |     0v   |     5v     |     0v    | 
+Hit on target  |     0v   |    2.5v    |     0v    |   2.5v   |     5v     |     0v    | 
+Hit off target |     0v   |      5v    |     0v    |     0v   |     5v     |     0v    | No lights
+Hit guard      |     0v   |    2.5v    |     0v    |     0v   |     5v     |   2.5v    | No lights
+Hit gnd/piste  |     0v   |    2.5v    |     0v    |     0v   |     5v     |   2.5v    | No lights
 
 
 
