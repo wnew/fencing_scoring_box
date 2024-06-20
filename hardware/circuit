@@ -87,8 +87,8 @@ At rest        |      0v    |       5v     |      0v     |      0v    |       5v
 Hit on target  |      0v    |     2.5v     |      0v     |    2.5v    |       5v     |      0v     |
 Hit off target |      0v    |       5v     |      0v     |      0v    |       5v     |      0v     | No lights
 Hit guard      |      0v    |     2.5v     |      0v     |      0v    |       5v     |    2.5v     | No lights
-Hit gnd/piste  |      0v    |     2.5v     |      0v     |      0v    |       5v     |      0v     | No lights
-   
+Hit gnd/piste  |      0v    |     2.5v     |      0v     |      0v    |       5v     |    2.5v     | No lights
+
 
 
 
