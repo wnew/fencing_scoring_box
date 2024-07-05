@@ -3,11 +3,11 @@
 //  Desc:    Arduino Code to implement a fencing scoring apparatus           //
 //  Dev:     Wnew                                                            //
 //  Date:    Nov  2012                                                       //
-//  Updated: Dec  2017                                                       //
-//  Notes:   1. Used uint8_t instead of int where possible to optimise       //
+//  Updated: Dec  2024                                                       //
+//  Notes:   1.                                                              //
 //                                                                           //
 //  To do:   1. Implement short circuit LEDs (already provision for it)      //
-//           2. Test Sabre code                                              //
+//           2. Test Sabre with real fencers (these are hard to find here)   //
 //           3. Implement whip-over for sabre                                //
 //                                                                           //
 //===========================================================================//
@@ -15,9 +15,9 @@
 // Fencers are referred to as Green and Red. Green on the left and red on the right.
 // The pins of the connectors are referred to as A-B--C
 // Where A is: the return path for Epee, the Lame for Foil and Sabre
-// Where B is: live for all three weapons, it connects to the blade (there is debate whether A or B is used in Sabre) 
-// Where C is: ground for both Epee, Foil and Sabre. Connected to the guard of all 3 weapons.
-// The order of the weapons is in alphabetical order, epee, foil sabre.
+// Where B is: live for all three weapons, it connects to the blade
+// Where C is: connected to the guard of all 3 weapons and is grounded 
+// In this code the order of the weapons alphabetical, epee, foil sabre.
 
 //============
 // #includes
@@ -27,59 +27,64 @@
 //============
 // #defines
 //============
-#define DEBUG
-//#define TEST_LIGHTS       // turns on lights for a second on start up
-//#define TEST_ADC_SPEED    // used to test sample rate of ADCs
-//#define REPORT_TIMING     // prints timings over serial interface
-#define NEOPIXELS         // if this is set then sketch uses the neopixel display, if not then individual leds per pin are assumed.
-#define BUZZERTIME  1000  // length of time the buzzer is kept on after a hit (ms)
-#define LIGHTTIME   3000  // length of time the lights are kept on after a hit (ms)
-#define BAUDRATE   57600  // baudrate of the serial debug interface
+#define DEBUG                // prints debug info to the serial terminal
+#define TEST_LIGHTS          // turns on lights for a second on start up
+//#define TEST_ADC_SPEED       // used to test sample rate of ADCs
+//#define REPORT_TIMING        // prints timings over serial interface
+//#define NEOPIXELS            // if this is set then sketch uses the neopixel display, if not then individual leds per pin are assumed.
+//#define BUZZERSOUNDON        // buzzer will only sound if this is defined
+#define BUZZERTIME   500     // length of time the buzzer is kept on after a hit (ms)
+#define LIGHTTIME   3000     // length of time the lights are kept on after a hit (ms)
+#define BAUDRATE   57600     // baudrate of the serial debug interface
 
-#define LED_PIN       15  // neopixels data pin
-#define NUMPIXELS     40  // number of NeoPixels on display
+#define GRN_LED_PIN        7 // neopixels data pin
+#define RED_LED_PIN       15 // neopixels data pin
+#define NUMPIXELS         40 // number of NeoPixels on display
+#define MATRIX_BRIGHTNESS  1 // 1-5, 1 being the dimmest and 5 the brightest, anything above 1 please ensure you have
+                             // a good power supply otherwise the board can brown out and hang.
+#define INITIAL_MODE       0 // define the weapon which is active on startup, 0 - epee, 1 - foil, 2 - sabre
 
-
-// initialise the neopixel class
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+// initialise the 2 neopixel classes, one for each matrix
+Adafruit_NeoPixel grn_matrix = Adafruit_NeoPixel(NUMPIXELS, GRN_LED_PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel red_matrix = Adafruit_NeoPixel(NUMPIXELS, RED_LED_PIN, NEO_GRB + NEO_KHZ800);
 
 //============
 // Pin Setup
 //============
-const uint8_t shortLEDRed  = 10;    // Short Circuit Red Light
+// LED pins
+const uint8_t onTargetGrn  =  5;    // On Target Grn Light
+const uint8_t offTargetGrn =  4;    // Off Target Grn Light
+const uint8_t shortLEDGrn  =  3;    // Short Circuit Grn Light
+const uint8_t shortLEDRed  = 15;    // Short Circuit Red Light
 const uint8_t offTargetRed = 16;    // Off Target Red Light
-const uint8_t onTargetRed  = 14;    // On Target Red Light
-const uint8_t onTargetGrn  = 3;    // On Target Grn Light
-const uint8_t offTargetGrn = 4;    // Off Target Grn Light
-const uint8_t shortLEDGrn  = 5;    // Short Circuit Grn Light
+const uint8_t onTargetRed  = 10;    // On Target Red Light
 
-// PCB rev1
-//const uint8_t groundPinGrn = A0;    // Ground A pin - Analog
-//const uint8_t weaponPinGrn = A2;    // Weapon A pin - Analog
-//const uint8_t lamePinGrn   = A3;    // Lame   A pin - Analog (Epee return path)
-//const uint8_t lamePinRed   = A0;    // Lame   B pin - Analog (Epee return path)
-//const uint8_t weaponPinRed = A1;    // Weapon B pin - Analog
-//const uint8_t groundPinRed = A5;    // Ground B pin - Analog
+// PCB rev1, fencer pins
+//const uint8_t groundPinGrn = A0;  // Grn Ground pin (C) - Analog
+//const uint8_t weaponPinGrn = A2;  // Grn Weapon pin (B) - Analog
+//const uint8_t lamePinGrn   = A3;  // Grn Lame   pin (A) - Analog (Epee return path)
+//const uint8_t lamePinRed   = A0;  // Red Lame   pin (A) - Analog (Epee return path)
+//const uint8_t weaponPinRed = A1;  // Red Weapon pin (B) - Analog
+//const uint8_t groundPinRed = A5;  // Red Ground pin (C) - Analog
 
-// PCB rev2 and rev3
-const uint8_t groundPinGrn = 6;    // Ground A pin - Analog
-const uint8_t weaponPinGrn = 8;    // Weapon A pin - Analog
-const uint8_t lamePinGrn   = 9;    // Lame   A pin - Analog (Epee return path)
-const uint8_t lamePinRed   = A0;    // Lame   B pin - Analog (Epee return path)
-const uint8_t weaponPinRed = A1;    // Weapon B pin - Analog
-const uint8_t groundPinRed = A2;    // Ground B pin - Analog
+// PCB rev2, rev3, rev4, fencer pins
+const uint8_t groundPinGrn = 6;     // Grn Ground pin (C) - Analog
+const uint8_t weaponPinGrn = 8;     // Grn Weapon pin (B) - Analog
+const uint8_t lamePinGrn   = 9;     // Grn Lame   pin (A) - Analog (Epee return path)
+const uint8_t lamePinRed   = A0;    // Red Lame   pin (A) - Analog (Epee return path)
+const uint8_t weaponPinRed = A1;    // Red Weapon pin (B) - Analog
+const uint8_t groundPinRed = A2;    // Red Ground pin (C) - Analog
 
-
-const uint8_t modePin    =  2;        // Mode change button interrupt pin 0 (digital pin 2)
-const uint8_t buzzerPin  =  A3;       // buzzer pin
+const uint8_t modePin    =  2;      // Mode change button interrupt pin 0 (digital pin 2)
+const uint8_t buzzerPin  =  A3;     // buzzer pin
 
 // there are not enough pins on the pro micro to have 3 pins dedicated to the mode LEDs
 // if you are using another arduino with enough pins, you can set this to pins that 
 // arent used for other things.
 // the mode is currently signaled by setting:
-// red on target LED for Foil
-// grn on target LED for Epee
-// both Red and Grn on target LEDs for Sabre
+// red on target LED for Epee
+// grn on target LED for Foil
+// both red and grn on target LEDs for Sabre
 //const uint8_t modeLeds[] = {7, 8, 9}; // LED pins to indicate weapon mode selected {e f s}
 
 //=================================
@@ -120,10 +125,8 @@ const uint8_t EPEE_MODE  = 0;
 const uint8_t FOIL_MODE  = 1;
 const uint8_t SABRE_MODE = 2;
 
-// set the initial mode to Epee
-uint8_t currentMode = EPEE_MODE;
-
-bool modeJustChangedFlag = false;
+// set the initial mode
+uint8_t currentMode = INITIAL_MODE;
 
 //=========
 // states
@@ -179,7 +182,8 @@ void setup() {
 
 
    // initialise the LED display
-   pixels.begin();
+   grn_matrix.begin();
+   red_matrix.begin();
 
 #ifdef TEST_LIGHTS
    testLights();
@@ -227,12 +231,11 @@ void loop() {
    // use a while as a main loop as the loop() has too much overhead for fast analogReads
    // we get a 3-4% speed up on the loop this way
    while(1) {
-      checkIfModeChanged();
       // read analog pins
-      grnA = analogRead(weaponPinGrn);
-      redA = analogRead(weaponPinRed);
-      grnB = analogRead(lamePinGrn);
-      redB = analogRead(lamePinRed);
+      grnA = analogRead(lamePinGrn);
+      redA = analogRead(lamePinRed);
+      grnB = analogRead(weaponPinGrn);
+      redB = analogRead(weaponPinRed);
       signalHits();
       // decide which weapon is currently selected
       if      (currentMode == EPEE_MODE)
@@ -260,39 +263,26 @@ void loop() {
 // the following variables are unsigned long's because the time, measured in milliseconds,
 // will quickly overflow an int.
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
-unsigned long debounceDelay = 100;   // the debounce time; increase if the receiving multiple interrupts per button press
+unsigned long debounceDelay = 250;   // the debounce time; increase if the receiving multiple interrupts per button press
 
 //==============================
 // Mode pin interrupt function
 //==============================
 void changeMode() {
-   if ((millis() - lastDebounceTime) > debounceDelay && digitalRead(modePin) == LOW) {
-      modeJustChangedFlag = true;
-   }
-   lastDebounceTime = millis();
-}
-
-
-//========================
-// Run when mode changed
-//========================
-void checkIfModeChanged() {
-   //delay(100);
-   if (modeJustChangedFlag && digitalRead(modePin) == LOW) {
-      modeJustChangedFlag = false;
+   noInterrupts();
+   if ((millis() - lastDebounceTime) > debounceDelay && digitalRead(modePin) == LOW) { // 
+      lastDebounceTime = millis();
       if (currentMode == 2)
          currentMode = 0;
       else
          currentMode++;
-
-      setModeLeds();
-#ifdef DEBUG
+//#ifdef DEBUG
       Serial.print("Mode changed to: ");
       Serial.println(currentMode);
-#endif
-   } else {
-      modeJustChangedFlag = false;
+      setModeLeds();
+//#endif
    }
+   interrupts();
 }
 
 
@@ -302,26 +292,23 @@ void checkIfModeChanged() {
 void setModeLeds() {
    if (currentMode == EPEE_MODE) {
       ledEpee();
-      digitalWrite(onTargetGrn, HIGH);
+      digitalWrite(onTargetRed, HIGH);
    } else {
       if (currentMode == FOIL_MODE) {
          ledFoil();
-         digitalWrite(onTargetRed, HIGH);
+         digitalWrite(onTargetGrn, HIGH);
       } else {
          if (currentMode == SABRE_MODE){
             ledSabre();
-            digitalWrite(onTargetGrn, HIGH);
             digitalWrite(onTargetRed, HIGH);
+            digitalWrite(onTargetGrn, HIGH);
          }
       }
    }
    long now = millis();
    while (millis() < now + 1000) { // delay to keep the leds on for 1 second
-      if (modeJustChangedFlag == true) {
-         break;
-      }
+
    }
-   //delay(500);
    digitalWrite(onTargetGrn, LOW);
    digitalWrite(onTargetRed, LOW);
    clearLEDs();
@@ -342,7 +329,7 @@ void foil() {
    // weapon Grn
    if (hitOnTargGrn == false && hitOffTargGrn == false) { // ignore if Grn has already hit
       // off target
-      if (900 < grnA && redB < 100) {
+      if (900 < grnB && redA < 100) {
          if (!depressedGrn) {
             depressGrnTime = micros();
             depressedGrn   = true;
@@ -353,7 +340,7 @@ void foil() {
          }
       } else {
          // on target
-         if (400 < grnA && grnA < 600 && 400 < redB && redB < 600) {
+         if (400 < grnB && grnB < 600 && 400 < redA && redA < 600) {
             if (!depressedGrn) {
                depressGrnTime = micros();
                depressedGrn   = true;
@@ -373,7 +360,7 @@ void foil() {
    // weapon Red
    if (hitOnTargRed == false && hitOffTargRed == false) { // ignore if Red has already hit
       // off target
-      if (900 < redA && grnB < 100) {
+      if (900 < redB && grnA < 100) {
          if (!depressedRed) {
             depressRedTime = micros();
             depressedRed   = true;
@@ -384,7 +371,7 @@ void foil() {
          }
       } else {
          // on target
-         if (400 < redA && redA < 600 && 400 < grnB && grnB < 600) {
+         if (400 < redB && redB < 600 && 400 < grnA && grnA < 600) {
             if (!depressedRed) {
                depressRedTime = micros();
                depressedRed   = true;
@@ -416,7 +403,7 @@ void epee() {
    // weapon Grn
    //  no hit for Grn yet    && weapon depress    && opponent lame touched
    if (hitOnTargGrn == false) {
-      if (400 < grnA && grnA < 600 && 400 < grnB && grnB < 600) {
+      if (400 < grnB && grnB < 600 && 400 < grnA && grnA < 600) {
          if (!depressedGrn) {
             depressGrnTime = micros();
             depressedGrn   = true;
@@ -437,7 +424,7 @@ void epee() {
    // weapon Red
    //  no hit for Red yet    && weapon depress    && opponent lame touched
    if (hitOnTargRed == false) {
-      if (400 < redA && redA < 600 && 400 < redB && redB < 600) {
+      if (400 < redB && redB < 600 && 400 < redA && redA < 600) {
          if (!depressedRed) {
             depressRedTime = micros();
             depressedRed   = true;
@@ -471,7 +458,7 @@ void sabre() {
    // weapon Grn
    if (hitOnTargGrn == false && hitOffTargGrn == false) { // ignore if Grn has already hit
       // on target
-      if (400 < grnA && grnA < 600 && 400 < redB && redB < 600) {
+      if (400 < grnB && grnB < 600 && 400 < redA && redA < 600) {
          if (!depressedGrn) {
             depressGrnTime = micros();
             depressedGrn   = true;
@@ -490,7 +477,7 @@ void sabre() {
    // weapon Red
    if (hitOnTargRed == false && hitOffTargRed == false) { // ignore if Red has already hit
       // on target
-      if (400 < redA && redA < 600 && 400 < grnB && grnB < 600) {
+      if (400 < redB && redB < 600 && 400 < grnA && grnA < 600) {
          if (!depressedRed) {
             depressRedTime = micros();
             depressedRed   = true;
@@ -512,42 +499,45 @@ void sabre() {
 // Signal Hits
 //==============
 void signalHits() {
-   // non time critical, this is run after a hit has been detected
-   //if (lockedOut) {
-      if (hitOnTargGrn) {
-         ledOnTargGrn();
-      }
-      if (hitOffTargGrn) {
-         ledOffTargGrn();
-      }
-      if (hitOffTargRed) {
-         ledOffTargRed();
-      }
-      if (hitOnTargRed) {
-         ledOnTargRed();
-      }
-      if (hitOnTargGrn || hitOnTargRed || hitOffTargGrn || hitOffTargRed) {
-         tone(buzzerPin, 4000, BUZZERTIME);
-      }
-      if (lockedOut) {
-         resetValues();
+   // this is run after a hit has been detected
+   // turn on the buzzer if a hit has been registered
+   if (hitOnTargGrn || hitOnTargRed || hitOffTargGrn || hitOffTargRed) {
+   #ifdef BUZZERSOUNDON
+      tone(buzzerPin, 4000, BUZZERTIME);
+   #endif
 
-#ifdef DEBUG
-         String serData = String("grnA : ") + grnA + "\n"
-                               + "grnB : "  + grnB + "\n"
-                               + "redB : "  + redB + "\n"
-                               + "redA : "  + redA + "\n";
-         Serial.println(serData);
-         serData = String("hitOnTargGrn  : ") + hitOnTargGrn  + "\n"
-                               + "hitOffTargGrn : "  + hitOffTargGrn + "\n"
-                               + "hitOffTargRed : "  + hitOffTargRed + "\n"
-                               + "hitOnTargRed  : "  + hitOnTargRed  + "\n"
-                               + "Locked Out    : "  + lockedOut   + "\n";
-         Serial.println(serData);
-#endif
-      }
-      //resetValues();
-   //}
+   }
+   if (hitOnTargGrn) {
+      ledOnTargGrn();
+   }
+   if (hitOffTargGrn) {
+      ledOffTargGrn();
+   }
+   if (hitOffTargRed) {
+      ledOffTargRed();
+   }
+   if (hitOnTargRed) {
+      ledOnTargRed();
+   }
+   if (lockedOut) {
+   #ifdef DEBUG
+      String serData = String("grnA : ") + grnA + "\n"
+                            + "grnB : "  + grnB + "\n"
+                            + "redB : "  + redB + "\n"
+                            + "redA : "  + redA + "\n";
+      Serial.println(serData);
+      serData = String("hitOnTargGrn  : ") + hitOnTargGrn  + "\n"
+                     + "hitOffTargGrn : "  + hitOffTargGrn + "\n"
+                     + "hitOffTargRed : "  + hitOffTargRed + "\n"
+                     + "hitOnTargRed  : "  + hitOnTargRed  + "\n"
+                     + "Locked Out    : "  + lockedOut   + "\n";
+      Serial.println(serData);
+      serData = String("Red depressed time  : ") + depressRedTime  + "\n"
+                     + "Grn depressed time : "  + depressGrnTime + "\n";
+      Serial.println(serData);
+   #endif
+      resetValues();
+   }
 }
 
 //=======================
@@ -563,10 +553,12 @@ void clearLEDs() {
 
    for(int i=0;i<8;i++) {
       for(int j=0;j<9;j++) {
-         pixels.setPixelColor(j*8+i, pixels.Color(0,0,0));
+         grn_matrix.setPixelColor(j*8+i, grn_matrix.Color(0,0,0));
+         red_matrix.setPixelColor(j*8+i, red_matrix.Color(0,0,0));
       }
    }
-   pixels.show();
+   grn_matrix.show();
+   red_matrix.show();
 }
 
 
@@ -579,19 +571,10 @@ void clearLEDs() {
 void resetValues() {
    long now = millis();
    // wait before turning off the buzzer
-   while (millis() < now + BUZZERTIME) {
-      if (modeJustChangedFlag == true) {
-         break;
-      }
-   }
+   while (millis() < now + BUZZERTIME) {}
    digitalWrite(buzzerPin,  LOW);
    // wait before turning off the leds
-   while (millis() < now + LIGHTTIME-BUZZERTIME) {
-      if (modeJustChangedFlag == true) {
-         break;
-      }
-   }
-   //delay(LIGHTTIME-BUZZERTIME);
+   while (millis() < now + LIGHTTIME-BUZZERTIME) {}
    clearLEDs();
 
    depressGrnTime = 0;
@@ -612,6 +595,7 @@ void resetValues() {
 // This function can be run on start up to show that all the lights are working
 void testLights() {
    // turn on grn on target
+   delay(500);
    ledOnTargGrn();
    delay(500);
    // turn on red on target
@@ -646,17 +630,27 @@ void testLights() {
 // mode has been changed to Epee.
 void ledEpee() {
    clearLEDs();
-   pixels.setPixelColor( 2, pixels.Color(23,33,178));
-   pixels.setPixelColor( 3, pixels.Color(23,33,178));
-   pixels.setPixelColor( 4, pixels.Color(23,33,178));
-   pixels.setPixelColor(10, pixels.Color(23,33,178));
-   pixels.setPixelColor(18, pixels.Color(23,33,178));
-   pixels.setPixelColor(19, pixels.Color(23,33,178));
-   pixels.setPixelColor(26, pixels.Color(23,33,178));
-   pixels.setPixelColor(34, pixels.Color(23,33,178));
-   pixels.setPixelColor(35, pixels.Color(23,33,178));
-   pixels.setPixelColor(36, pixels.Color(23,33,178));
-   pixels.show();
+   grn_matrix.setPixelColor( 9, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(13, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(17, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(19, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(21, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(25, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(26, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(27, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(28, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(29, grn_matrix.Color(5,6,42));
+   grn_matrix.show();
+
+   red_matrix.setPixelColor(17, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(18, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(19, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(20, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(21, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(22, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(10, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(26, red_matrix.Color(5,6,42));
+   red_matrix.show();
 }
 
 
@@ -667,15 +661,25 @@ void ledEpee() {
 // mode has been changed to Foil.
 void ledFoil() {
    clearLEDs();
-   pixels.setPixelColor( 2, pixels.Color(23,33,178));
-   pixels.setPixelColor( 3, pixels.Color(23,33,178));
-   pixels.setPixelColor( 4, pixels.Color(23,33,178));
-   pixels.setPixelColor(10, pixels.Color(23,33,178));
-   pixels.setPixelColor(18, pixels.Color(23,33,178));
-   pixels.setPixelColor(19, pixels.Color(23,33,178));
-   pixels.setPixelColor(26, pixels.Color(23,33,178));
-   pixels.setPixelColor(34, pixels.Color(23,33,178));
-   pixels.show();
+   grn_matrix.setPixelColor( 9, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(17, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(19, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(25, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(26, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(27, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(28, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(29, grn_matrix.Color(5,6,42));
+   grn_matrix.show();
+
+   red_matrix.setPixelColor(17, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(18, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(19, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(20, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(21, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(22, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(10, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(26, red_matrix.Color(5,6,42));
+   red_matrix.show();
 }
 
 
@@ -686,52 +690,62 @@ void ledFoil() {
 // mode has been changed to Sabre.
 void ledSabre() {
    clearLEDs();
-   pixels.setPixelColor( 2, pixels.Color(23,33,178));
-   pixels.setPixelColor( 3, pixels.Color(23,33,178));
-   pixels.setPixelColor( 4, pixels.Color(23,33,178));
-   pixels.setPixelColor(10, pixels.Color(23,33,178));
-   pixels.setPixelColor(18, pixels.Color(23,33,178));
-   pixels.setPixelColor(19, pixels.Color(23,33,178));
-   pixels.setPixelColor(20, pixels.Color(23,33,178));
-   pixels.setPixelColor(28, pixels.Color(23,33,178));
-   pixels.setPixelColor(34, pixels.Color(23,33,178));
-   pixels.setPixelColor(35, pixels.Color(23,33,178));
-   pixels.setPixelColor(36, pixels.Color(23,33,178));
-   pixels.show();
+   grn_matrix.setPixelColor( 9, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(11, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(12, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(13, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(17, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(19, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(21, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(25, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(26, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(27, grn_matrix.Color(5,6,42));
+   grn_matrix.setPixelColor(29, grn_matrix.Color(5,6,42));
+   grn_matrix.show();
+
+   red_matrix.setPixelColor(17, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(18, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(19, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(20, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(21, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(22, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(10, red_matrix.Color(5,6,42));
+   red_matrix.setPixelColor(26, red_matrix.Color(5,6,42));
+   red_matrix.show();
 }
 
 
 //==================
-// Show green LEDs
+// Show red LEDs
 //==================
 // Print a red rectangle to show an on target hit
 void ledOnTargRed() {
    // turn on single led output
    digitalWrite(onTargetRed, HIGH);
    // setup led matrix to signal hit
-   for(int i=4;i<8;i++){
+   for(int i=0;i<9;i++){
       for(int j=0;j<9;j++){
-         pixels.setPixelColor(j*8+i, pixels.Color(0,50,0));
+         red_matrix.setPixelColor(j*8+i, red_matrix.Color(0,25*MATRIX_BRIGHTNESS,0));
       }
    }
-   pixels.show();
+  red_matrix.show();
 }
 
 
 //============================================
-// Show red LEDs
+// Show green LEDs
 //============================================
 // Print a green rectangle to show an on target hit
 void ledOnTargGrn() {
    // turn on single led output
    digitalWrite(onTargetGrn, HIGH);
    // setup led matrix to signal hit
-   for(int i=0;i<4;i++){
+   for(int i=0;i<9;i++){
       for(int j=0;j<9;j++){
-         pixels.setPixelColor(j*8+i, pixels.Color(50,0,0));
+         grn_matrix.setPixelColor(j*8+i, grn_matrix.Color(25*MATRIX_BRIGHTNESS,0,0));
       }
    }
-   pixels.show();
+   grn_matrix.show();
 }
 
 
@@ -743,16 +757,12 @@ void ledOffTargRed() {
    // turn on single led output
    digitalWrite(offTargetRed, HIGH);
    // setup led matrix to signal hit
-   for(int i=5;i<6;i++){
-      for(int j=0;j<9;j++){
-        pixels.setPixelColor(j*8+i, pixels.Color(50,50,50));
+   for(int i=1;i<4;i++){
+      for(int j=2;j<6;j++){
+         red_matrix.setPixelColor(j+8*i, red_matrix.Color(25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS));
       }
    }
-   pixels.setPixelColor(14, pixels.Color(50,50,50));
-   pixels.setPixelColor(22, pixels.Color(50,50,50));
-   pixels.setPixelColor(23, pixels.Color(50,50,50));
-   pixels.setPixelColor(30, pixels.Color(50,50,50));
-   pixels.show();
+   red_matrix.show();
 }
 
 
@@ -764,16 +774,12 @@ void ledOffTargGrn() {
    // turn on single led output
    digitalWrite(offTargetGrn, HIGH);
    // setup led matrix to signal hit
-   for(int i=2;i<3;i++){
-      for(int j=0;j<9;j++){
-         pixels.setPixelColor(j*8+i, pixels.Color(50,50,50));
+   for(int i=1;i<4;i++){
+      for(int j=2;j<6;j++){
+         grn_matrix.setPixelColor(j+8*i, grn_matrix.Color(25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS));
       }
    }
-   pixels.setPixelColor( 9, pixels.Color(50,50,50));
-   pixels.setPixelColor(16, pixels.Color(50,50,50));
-   pixels.setPixelColor(17, pixels.Color(50,50,50));
-   pixels.setPixelColor(25, pixels.Color(50,50,50));
-   pixels.show();
+   grn_matrix.show();
 }
 
 
@@ -784,10 +790,10 @@ void ledOffTargGrn() {
 void ledShortRed() {
    for(int i=6;i<8;i++){
       for(int j=3;j<5;j++){
-         pixels.setPixelColor(j*8+i, pixels.Color(100,50,0));
+         red_matrix.setPixelColor(j*8+i, red_matrix.Color(50*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,0));
       }
    }
-   pixels.show();
+   red_matrix.show();
 }
 
 
@@ -798,8 +804,8 @@ void ledShortRed() {
 void ledShortGrn() {
    for(int i=0;i<2;i++){
       for(int j=3;j<5;j++){
-         pixels.setPixelColor(j*8+i, pixels.Color(100,50,0));
+         grn_matrix.setPixelColor(j*8+i, grn_matrix.Color(50*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,0));
      }
    }
-   pixels.show();
+   grn_matrix.show();
 }
