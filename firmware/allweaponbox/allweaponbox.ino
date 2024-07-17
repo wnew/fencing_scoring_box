@@ -3,7 +3,7 @@
 //  Desc:    Arduino Code to implement a fencing scoring apparatus           //
 //  Dev:     Wnew                                                            //
 //  Date:    Nov  2012                                                       //
-//  Updated: Dec  2024                                                       //
+//  Updated: Jul  2024                                                       //
 //  Notes:   1.                                                              //
 //                                                                           //
 //  To do:   1. Implement short circuit LEDs (already provision for it)      //
@@ -29,10 +29,8 @@
 //============
 #define DEBUG                // prints debug info to the serial terminal
 #define TEST_LIGHTS          // turns on lights for a second on start up
-//#define TEST_ADC_SPEED       // used to test sample rate of ADCs
-//#define REPORT_TIMING        // prints timings over serial interface
-//#define NEOPIXELS            // if this is set then sketch uses the neopixel display, if not then individual leds per pin are assumed.
-//#define BUZZERSOUNDON        // buzzer will only sound if this is defined
+#define NEOPIXELS            // if this is set then sketch uses the neopixel display, if not then individual leds per pin are assumed.
+#define BUZZERSOUNDON        // buzzer will only sound if this is defined
 #define BUZZERTIME   500     // length of time the buzzer is kept on after a hit (ms)
 #define LIGHTTIME   3000     // length of time the lights are kept on after a hit (ms)
 #define BAUDRATE   57600     // baudrate of the serial debug interface
@@ -42,7 +40,7 @@
 #define NUMPIXELS         40 // number of NeoPixels on display
 #define MATRIX_BRIGHTNESS  1 // 1-5, 1 being the dimmest and 5 the brightest, anything above 1 please ensure you have
                              // a good power supply otherwise the board can brown out and hang.
-#define INITIAL_MODE       0 // define the weapon which is active on startup, 0 - epee, 1 - foil, 2 - sabre
+#define INITIAL_WEAPON     0 // define the weapon which is active on startup, 0 - epee, 1 - foil, 2 - sabre
 
 // initialise the 2 neopixel classes, one for each matrix
 Adafruit_NeoPixel grn_matrix = Adafruit_NeoPixel(NUMPIXELS, GRN_LED_PIN, NEO_GRB + NEO_KHZ800);
@@ -67,25 +65,25 @@ const uint8_t onTargetRed  = 10;    // On Target Red Light
 //const uint8_t weaponPinRed = A1;  // Red Weapon pin (B) - Analog
 //const uint8_t groundPinRed = A5;  // Red Ground pin (C) - Analog
 
-// PCB rev2, rev3, rev4, fencer pins
-const uint8_t groundPinGrn = 6;     // Grn Ground pin (C) - Analog
-const uint8_t weaponPinGrn = 8;     // Grn Weapon pin (B) - Analog
-const uint8_t lamePinGrn   = 9;     // Grn Lame   pin (A) - Analog (Epee return path)
-const uint8_t lamePinRed   = A0;    // Red Lame   pin (A) - Analog (Epee return path)
+// PCB ver4, fencer pins
+//const uint8_t groundPinGrn = 6;     // Grn Ground pin (C) - Analog
+const uint8_t weaponPinGrn = A0;    // Grn Weapon pin (B) - Analog
+const uint8_t lamePinGrn   = A3;    // Grn Lame   pin (A) - Analog (Epee return path)
+const uint8_t lamePinRed   = A2;    // Red Lame   pin (A) - Analog (Epee return path)
 const uint8_t weaponPinRed = A1;    // Red Weapon pin (B) - Analog
-const uint8_t groundPinRed = A2;    // Red Ground pin (C) - Analog
+//const uint8_t groundPinRed = A2;    // Red Ground pin (C) - Analog
 
-const uint8_t modePin    =  2;      // Mode change button interrupt pin 0 (digital pin 2)
-const uint8_t buzzerPin  =  A3;     // buzzer pin
+const uint8_t weaponSelectPin =  2; // Weapon select button interrupt pin 0 (digital pin 2)
+const uint8_t buzzerPin       =  6; // buzzer pin
 
-// there are not enough pins on the pro micro to have 3 pins dedicated to the mode LEDs
+// there are not enough pins on the pro micro to have 3 pins dedicated to the weapon select LEDs
 // if you are using another arduino with enough pins, you can set this to pins that 
 // arent used for other things.
-// the mode is currently signaled by setting:
+// the weapon is currently signaled by setting:
 // red on target LED for Epee
 // grn on target LED for Foil
 // both red and grn on target LEDs for Sabre
-//const uint8_t modeLeds[] = {7, 8, 9}; // LED pins to indicate weapon mode selected {e f s}
+const uint8_t weaponSelectLeds[] = {7, 8, 9}; // LED pins to indicate weapon is selected {e f s}
 
 //=================================
 // initial values of analog reads
@@ -114,19 +112,19 @@ bool lockedOut      = false;
 // the lockout time between hits for sabre is 120ms +/-10ms
 // the minimum amount of time the tip needs to be depressed (in contact) for sabre 0.1ms -> 1ms
 // These values are stored as micro seconds for more accuracy
-//                         foil   epee   sabre
-const long lockout [] = {300000,  45000, 120000};  // the lockout time between hits
-const long depress [] = { 14000,   2000,   1000};  // the minimum amount of time the tip needs to be depressed
+//                         epee   foil   sabre
+const long lockout [] = {45000, 300000, 120000};  // the lockout time between hits
+const long depress [] = { 2000,  14000,   1000};  // the minimum amount of time the tip needs to be depressed
 
-//=================
-// mode constants
-//=================
+//=======================
+// weapon mode constants
+//=======================
 const uint8_t EPEE_MODE  = 0;
 const uint8_t FOIL_MODE  = 1;
 const uint8_t SABRE_MODE = 2;
 
 // set the initial mode
-uint8_t currentMode = INITIAL_MODE;
+uint8_t currentWeapon = INITIAL_WEAPON;
 
 //=========
 // states
@@ -138,12 +136,6 @@ boolean hitOffTargGrn = false;
 boolean hitOnTargRed  = false;
 boolean hitOffTargRed = false;
 
-#ifdef TEST_ADC_SPEED
-long now;
-long loopCount = 0;
-bool done = false;
-#endif
-
 
 //================
 // Configuration
@@ -154,22 +146,22 @@ void setup() {
    delay(200);              // wait a short time to ensure the serial is up before writing to it
    Serial.println("3 Weapon Scoring Box");
    Serial.println("====================");
-   Serial.print  ("Mode : ");
-   Serial.println(currentMode);
+   Serial.print  ("Weapon : ");
+   Serial.println(currentWeapon);
 #endif
 
-   // set the internal pullup resistor on modePin
-   pinMode(modePin, INPUT_PULLUP);
+   // set the internal pullup resistor on weaponSelectPin
+   pinMode(weaponSelectPin, INPUT_PULLUP);
 
    // add the interrupt to the mode pin (pin 2 is interrupt0 on the Uno and interrupt1 on the Micro)
-   // change to modePin-2 for the Uno
-   attachInterrupt(digitalPinToInterrupt(modePin), changeMode, FALLING);
+   // change to weaponSelectPin-2 for the Uno
+   attachInterrupt(digitalPinToInterrupt(weaponSelectPin), changeMode, FALLING);
 
    // set the mode leds to outputs and turn the correct one on
-   //pinMode(modeLeds[0], OUTPUT);
-   //pinMode(modeLeds[1], OUTPUT);
-   //pinMode(modeLeds[2], OUTPUT);
-   //digitalWrite(modeLeds[currentMode], HIGH);
+   pinMode(weaponSelectLeds[EPEE_MODE],  OUTPUT);
+   pinMode(weaponSelectLeds[FOIL_MODE],  OUTPUT);
+   pinMode(weaponSelectLeds[SABRE_MODE], OUTPUT);
+   digitalWrite(weaponSelectLeds[currentWeapon], HIGH);
 
    // set the light pins to outputs
    pinMode(offTargetGrn, OUTPUT);
@@ -180,7 +172,6 @@ void setup() {
    //pinMode(shortLEDRed,  OUTPUT);
    pinMode(buzzerPin,  OUTPUT);
 
-
    // initialise the LED display
    grn_matrix.begin();
    red_matrix.begin();
@@ -189,38 +180,7 @@ void setup() {
    testLights();
 #endif
 
-   // this optimises the ADC to make the sampling rate quicker
-   // it is not advisable to use this unless you know what you are doing
-   // it can become unstable and give strange ADC readings. Be warned.
-   //adcOpt();
-
-   setModeLeds();
-}
-
-
-//=============
-// ADC config
-//=============
-void adcOpt() {
-
-   // the ADC only needs a couple of bits, the atmega is an 8 bit micro
-   // so sampling only 8 bits makes the values easy/quicker to process
-   // unfortunately this method only works on the Due.
-   //analogReadResolution(8);
-
-   // Data Input Disable Register
-   // disconnects the digital inputs from which ever ADC channels you are using
-   // an analog input will be float and cause the digital input to constantly
-   // toggle high and low, this creates noise near the ADC, and uses extra 
-   // power. Secondly, the digital input and associated DIDR switch have a
-   // capacitance associated with them which will slow down your input signal
-   // if you’re sampling a highly resistive load 
-   DIDR0 = 0x7F;
-
-   // set the prescaler for the ADCs to 16 this allowes the fastest sampling
-   bitClear(ADCSRA, ADPS0);
-   bitClear(ADCSRA, ADPS1);
-   bitSet  (ADCSRA, ADPS2);
+   setweaponSelectLeds();
 }
 
 
@@ -238,11 +198,11 @@ void loop() {
       redB = analogRead(weaponPinRed);
       signalHits();
       // decide which weapon is currently selected
-      if      (currentMode == EPEE_MODE)
+      if      (currentWeapon == EPEE_MODE)
          epee();
-      else if (currentMode == FOIL_MODE)
+      else if (currentWeapon == FOIL_MODE)
          foil();
-      else if (currentMode == SABRE_MODE)
+      else if (currentWeapon == SABRE_MODE)
          sabre();
 
 #ifdef TEST_ADC_SPEED
@@ -265,40 +225,40 @@ void loop() {
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
 unsigned long debounceDelay = 250;   // the debounce time; increase if the receiving multiple interrupts per button press
 
-//==============================
-// Mode pin interrupt function
-//==============================
+//======================================
+// Weapon select pin interrupt function
+//======================================
 void changeMode() {
    noInterrupts();
-   if ((millis() - lastDebounceTime) > debounceDelay && digitalRead(modePin) == LOW) { // 
+   if ((millis() - lastDebounceTime) > debounceDelay && digitalRead(weaponSelectPin) == LOW) { // 
       lastDebounceTime = millis();
-      if (currentMode == 2)
-         currentMode = 0;
+      if (currentWeapon == 2)
+         currentWeapon = 0;
       else
-         currentMode++;
+         currentWeapon++;
 //#ifdef DEBUG
-      Serial.print("Mode changed to: ");
-      Serial.println(currentMode);
-      setModeLeds();
+      Serial.print("Weapon changed to: ");
+      Serial.println(currentWeapon);
+      setweaponSelectLeds();
 //#endif
    }
    interrupts();
 }
 
 
-//============================
-// Sets the correct mode led
-//============================
-void setModeLeds() {
-   if (currentMode == EPEE_MODE) {
+//=============================
+// Sets the correct weapon led
+//=============================
+void setweaponSelectLeds() {
+   if (currentWeapon == EPEE_MODE) {
       ledEpee();
       digitalWrite(onTargetRed, HIGH);
    } else {
-      if (currentMode == FOIL_MODE) {
+      if (currentWeapon == FOIL_MODE) {
          ledFoil();
          digitalWrite(onTargetGrn, HIGH);
       } else {
-         if (currentMode == SABRE_MODE){
+         if (currentWeapon == SABRE_MODE){
             ledSabre();
             digitalWrite(onTargetRed, HIGH);
             digitalWrite(onTargetGrn, HIGH);
@@ -306,87 +266,17 @@ void setModeLeds() {
       }
    }
    long now = millis();
-   while (millis() < now + 1000) { // delay to keep the leds on for 1 second
 
-   }
+   #ifdef BUZZERSOUNDON
+      digitalWrite(buzzerPin, HIGH);
+      while (millis() < now + 100) {} // delay to keep the buzzer on
+      digitalWrite(buzzerPin, LOW);
+   #endif
+
+   while (millis() < now + 1000) {} // delay to keep the leds on for 1 second
    digitalWrite(onTargetGrn, LOW);
    digitalWrite(onTargetRed, LOW);
    clearLEDs();
-}
-
-
-//===================
-// Main foil method
-//===================
-void foil() {
-
-   long now = micros();
-   if (((hitOnTargGrn || hitOffTargGrn) && (depressGrnTime + lockout[0] < now)) || 
-       ((hitOnTargRed || hitOffTargRed) && (depressRedTime + lockout[0] < now))) {
-      lockedOut = true;
-   }
-
-   // weapon Grn
-   if (hitOnTargGrn == false && hitOffTargGrn == false) { // ignore if Grn has already hit
-      // off target
-      if (900 < grnB && redA < 100) {
-         if (!depressedGrn) {
-            depressGrnTime = micros();
-            depressedGrn   = true;
-         } else {
-            if (depressGrnTime + depress[0] <= micros()) {
-               hitOffTargGrn = true;
-            }
-         }
-      } else {
-         // on target
-         if (400 < grnB && grnB < 600 && 400 < redA && redA < 600) {
-            if (!depressedGrn) {
-               depressGrnTime = micros();
-               depressedGrn   = true;
-            } else {
-               if (depressGrnTime + depress[0] <= micros()) {
-                  hitOnTargGrn = true;
-               }
-            }
-         } else {
-            // reset these values if the depress time is short.
-            depressGrnTime = 0;
-            depressedGrn   = 0;
-         }
-      }
-   }
-
-   // weapon Red
-   if (hitOnTargRed == false && hitOffTargRed == false) { // ignore if Red has already hit
-      // off target
-      if (900 < redB && grnA < 100) {
-         if (!depressedRed) {
-            depressRedTime = micros();
-            depressedRed   = true;
-         } else {
-            if (depressRedTime + depress[0] <= micros()) {
-               hitOffTargRed = true;
-            }
-         }
-      } else {
-         // on target
-         if (400 < redB && redB < 600 && 400 < grnA && grnA < 600) {
-            if (!depressedRed) {
-               depressRedTime = micros();
-               depressedRed   = true;
-            } else {
-               if (depressRedTime + depress[0] <= micros()) {
-                  hitOnTargRed = true;
-               }
-            }
-         } else {
-            // reset these values if the depress time is short.
-            depressRedTime = 0;
-            depressedRed   = 0;
-         }
-      }
-   }
 }
 
 
@@ -395,8 +285,8 @@ void foil() {
 //===================
 void epee() {
    long now = micros();
-   if ((hitOnTargGrn && (depressGrnTime + lockout[1] < now)) ||
-       (hitOnTargRed && (depressRedTime + lockout[1] < now))) {
+   if ((hitOnTargGrn && (depressGrnTime + lockout[EPEE_MODE] < now)) ||
+       (hitOnTargRed && (depressRedTime + lockout[EPEE_MODE] < now))) {
       lockedOut = true;
    }
 
@@ -408,7 +298,7 @@ void epee() {
             depressGrnTime = micros();
             depressedGrn   = true;
          } else {
-            if (depressGrnTime + depress[1] <= micros()) {
+            if (depressGrnTime + depress[EPEE_MODE] <= micros()) {
                hitOnTargGrn = true;
             }
          }
@@ -429,7 +319,7 @@ void epee() {
             depressRedTime = micros();
             depressedRed   = true;
          } else {
-            if (depressRedTime + depress[1] <= micros()) {
+            if (depressRedTime + depress[EPEE_MODE] <= micros()) {
                hitOnTargRed = true;
             }
          }
@@ -445,13 +335,88 @@ void epee() {
 
 
 //===================
+// Main foil method
+//===================
+void foil() {
+
+   long now = micros();
+   if (((hitOnTargGrn || hitOffTargGrn) && (depressGrnTime + lockout[FOIL_MODE] < now)) || 
+       ((hitOnTargRed || hitOffTargRed) && (depressRedTime + lockout[FOIL_MODE] < now))) {
+      lockedOut = true;
+   }
+
+   // weapon Grn
+   if (hitOnTargGrn == false && hitOffTargGrn == false) { // ignore if Grn has already hit
+      // off target
+      if (900 < grnB && redA < 100) {
+         if (!depressedGrn) {
+            depressGrnTime = micros();
+            depressedGrn   = true;
+         } else {
+            if (depressGrnTime + depress[FOIL_MODE] <= micros()) {
+               hitOffTargGrn = true;
+            }
+         }
+      } else {
+         // on target
+         if (400 < grnB && grnB < 600 && 400 < redA && redA < 600) {
+            if (!depressedGrn) {
+               depressGrnTime = micros();
+               depressedGrn   = true;
+            } else {
+               if (depressGrnTime + depress[FOIL_MODE] <= micros()) {
+                  hitOnTargGrn = true;
+               }
+            }
+         } else {
+            // reset these values if the depress time is short.
+            depressGrnTime = 0;
+            depressedGrn   = 0;
+         }
+      }
+   }
+
+   // weapon Red
+   if (hitOnTargRed == false && hitOffTargRed == false) { // ignore if Red has already hit
+      // off target
+      if (900 < redB && grnA < 100) {
+         if (!depressedRed) {
+            depressRedTime = micros();
+            depressedRed   = true;
+         } else {
+            if (depressRedTime + depress[FOIL_MODE] <= micros()) {
+               hitOffTargRed = true;
+            }
+         }
+      } else {
+         // on target
+         if (400 < redB && redB < 600 && 400 < grnA && grnA < 600) {
+            if (!depressedRed) {
+               depressRedTime = micros();
+               depressedRed   = true;
+            } else {
+               if (depressRedTime + depress[FOIL_MODE] <= micros()) {
+                  hitOnTargRed = true;
+               }
+            }
+         } else {
+            // reset these values if the depress time is short.
+            depressRedTime = 0;
+            depressedRed   = 0;
+         }
+      }
+   }
+}
+
+
+//===================
 // Main sabre method
 //===================
 void sabre() {
 
    long now = micros();
-   if (((hitOnTargGrn || hitOffTargGrn) && (depressGrnTime + lockout[2] < now)) || 
-       ((hitOnTargRed || hitOffTargRed) && (depressRedTime + lockout[2] < now))) {
+   if (((hitOnTargGrn || hitOffTargGrn) && (depressGrnTime + lockout[SABRE_MODE] < now)) || 
+       ((hitOnTargRed || hitOffTargRed) && (depressRedTime + lockout[SABRE_MODE] < now))) {
       lockedOut = true;
    }
 
@@ -463,7 +428,7 @@ void sabre() {
             depressGrnTime = micros();
             depressedGrn   = true;
          } else {
-            if (depressGrnTime + depress[2] <= micros()) {
+            if (depressGrnTime + depress[SABRE_MODE] <= micros()) {
                hitOnTargGrn = true;
             }
          }
@@ -482,7 +447,7 @@ void sabre() {
             depressRedTime = micros();
             depressedRed   = true;
          } else {
-            if (depressRedTime + depress[2] <= micros()) {
+            if (depressRedTime + depress[SABRE_MODE] <= micros()) {
                hitOnTargRed = true;
             }
          }
@@ -495,6 +460,11 @@ void sabre() {
 }
 
 
+bool hitOnTargGrnSignaled  = false;
+bool hitOffTargGrnSignaled = false;
+bool hitOffTargRedSignaled = false;
+bool hitOnTargRedSignaled  = false;
+
 //==============
 // Signal Hits
 //==============
@@ -503,20 +473,24 @@ void signalHits() {
    // turn on the buzzer if a hit has been registered
    if (hitOnTargGrn || hitOnTargRed || hitOffTargGrn || hitOffTargRed) {
    #ifdef BUZZERSOUNDON
-      tone(buzzerPin, 4000, BUZZERTIME);
+      digitalWrite(buzzerPin, HIGH);
    #endif
 
    }
-   if (hitOnTargGrn) {
+   if (hitOnTargGrn && !hitOnTargGrnSignaled) {
+      hitOnTargGrnSignaled = true;
       ledOnTargGrn();
    }
-   if (hitOffTargGrn) {
+   if (hitOffTargGrn && !hitOffTargGrnSignaled) {
+      hitOffTargGrnSignaled = true;
       ledOffTargGrn();
    }
-   if (hitOffTargRed) {
+   if (hitOffTargRed && !hitOffTargRedSignaled) {
+      hitOffTargRedSignaled = true;
       ledOffTargRed();
    }
-   if (hitOnTargRed) {
+   if (hitOnTargRed && !hitOnTargRedSignaled) {
+      hitOnTargRedSignaled = true;
       ledOnTargRed();
    }
    if (lockedOut) {
@@ -586,6 +560,10 @@ void resetValues() {
    hitOffTargGrn  = false;
    hitOnTargRed   = false;
    hitOffTargRed  = false;
+   hitOnTargGrnSignaled  = false;
+   hitOffTargGrnSignaled = false;
+   hitOffTargRedSignaled = false;
+   hitOnTargRedSignaled  = false;
 }
 
 
@@ -627,7 +605,7 @@ void testLights() {
 // Print an E to the LED matrix
 //===============================
 // This prints an E to the centre of the LED matrix to show that the 
-// mode has been changed to Epee.
+// weapon has been changed to Epee.
 void ledEpee() {
    clearLEDs();
    grn_matrix.setPixelColor( 9, grn_matrix.Color(5,6,42));
@@ -658,7 +636,7 @@ void ledEpee() {
 // Print an F to the LED matrix
 //===============================
 // This prints an F to the centre of the LED matrix to show that the 
-// mode has been changed to Foil.
+// weapon has been changed to Foil.
 void ledFoil() {
    clearLEDs();
    grn_matrix.setPixelColor( 9, grn_matrix.Color(5,6,42));
@@ -687,7 +665,7 @@ void ledFoil() {
 // Print an S to the LED matrix
 //===============================
 // This prints an S to the centre of the LED matrix to show that the 
-// mode has been changed to Sabre.
+// weapon has been changed to Sabre.
 void ledSabre() {
    clearLEDs();
    grn_matrix.setPixelColor( 9, grn_matrix.Color(5,6,42));
@@ -720,12 +698,13 @@ void ledSabre() {
 //==================
 // Print a red rectangle to show an on target hit
 void ledOnTargRed() {
+   long now = micros();
    // turn on single led output
    digitalWrite(onTargetRed, HIGH);
    // setup led matrix to signal hit
    for(int i=0;i<9;i++){
       for(int j=0;j<9;j++){
-         red_matrix.setPixelColor(j*8+i, red_matrix.Color(0,25*MATRIX_BRIGHTNESS,0));
+         red_matrix.setPixelColor(j*8+i, red_matrix.Color(25*MATRIX_BRIGHTNESS,0,0));
       }
    }
   red_matrix.show();
@@ -742,7 +721,7 @@ void ledOnTargGrn() {
    // setup led matrix to signal hit
    for(int i=0;i<9;i++){
       for(int j=0;j<9;j++){
-         grn_matrix.setPixelColor(j*8+i, grn_matrix.Color(25*MATRIX_BRIGHTNESS,0,0));
+         grn_matrix.setPixelColor(j*8+i, grn_matrix.Color(0,25*MATRIX_BRIGHTNESS,0));
       }
    }
    grn_matrix.show();
