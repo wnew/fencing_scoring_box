@@ -1128,6 +1128,7 @@
 			(uuid "39fcaae1-fef3-4cd6-934a-0ec416a92140")
 		)
 		(model "${KICAD8_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x05_P2.54mm_Vertical.wrl"
+			(hide yes)
 			(offset
 				(xyz 0 0 0)
 			)
@@ -1148,6 +1149,7 @@
 		(property "Reference" "J4"
 			(at 0 -2.33 0)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "41e00fff-20e7-429e-87a9-7e9097fe54f2")
 			(effects
 				(font
@@ -1362,17 +1364,6 @@
 			(layer "F.Fab")
 			(uuid "2744eaad-e4cb-4233-aa3c-ad9039bf2ce4")
 		)
-		(fp_text user "${REFERENCE}"
-			(at 0 3.81 90)
-			(layer "F.Fab")
-			(uuid "be0f9792-7ac3-4675-ac70-0fb40450525c")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
 		(pad "1" thru_hole rect
 			(at 0 0)
 			(size 1.7 1.7)
@@ -1418,6 +1409,7 @@
 			(uuid "3554f2e3-dc17-47bc-94d7-458694ccb5d6")
 		)
 		(model "${KICAD8_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x04_P2.54mm_Vertical.wrl"
+			(hide yes)
 			(offset
 				(xyz 0 0 0)
 			)
@@ -1438,6 +1430,7 @@
 		(property "Reference" "J3"
 			(at 0 -2.33 0)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "3c46ae17-221a-4de8-b4ed-6131b6268ddc")
 			(effects
 				(font
@@ -1675,6 +1668,7 @@
 			(uuid "5f739f8d-58e0-49f2-ba6b-114f28647e6d")
 		)
 		(model "${KICAD8_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x01_P2.54mm_Vertical.wrl"
+			(hide yes)
 			(offset
 				(xyz 0 0 0)
 			)
@@ -4106,6 +4100,18 @@
 			(pintype "passive")
 			(uuid "6007ea74-8b4b-46f3-81f8-7abcf1099b6e")
 		)
+		(model "${KICAD8_3DMODEL_DIR}/Resistor_THT.3dshapes/R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal.step"
+			(hide yes)
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 		(layer "F.Cu")
@@ -5079,6 +5085,7 @@
 			(uuid "37d2dd50-4f42-4bf2-b401-fd65be8a9da9")
 		)
 		(model "${KICAD8_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x03_P2.54mm_Vertical.wrl"
+			(hide yes)
 			(offset
 				(xyz 0 0 0)
 			)
@@ -7391,6 +7398,7 @@
 		(property "Reference" "J10"
 			(at 0 -2.33 0)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "535bb251-3bde-4823-a1ed-ba016e4803f5")
 			(effects
 				(font
@@ -7605,17 +7613,6 @@
 			(layer "F.Fab")
 			(uuid "6dce08fb-fe81-4042-99fc-5d1dab03b1a2")
 		)
-		(fp_text user "${REFERENCE}"
-			(at 0 3.81 90)
-			(layer "F.Fab")
-			(uuid "74692999-71e1-4172-9e06-2659d240527f")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
 		(pad "1" thru_hole rect
 			(at 0 0)
 			(size 1.7 1.7)
@@ -7661,6 +7658,7 @@
 			(uuid "4d15db95-7080-48ed-9c7b-6a6e03b4924e")
 		)
 		(model "${KICAD8_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x04_P2.54mm_Vertical.wrl"
+			(hide yes)
 			(offset
 				(xyz 0 0 0)
 			)
@@ -8171,6 +8169,7 @@
 			(uuid "264f2d44-76a1-47f8-9a84-2c26c5f46258")
 		)
 		(model "${KICAD8_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x03_P2.54mm_Vertical.wrl"
+			(hide yes)
 			(offset
 				(xyz 0 0 0)
 			)
@@ -8191,6 +8190,7 @@
 		(property "Reference" "J7"
 			(at 0 -2.33 180)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "b64ff3de-69ca-4054-bb9b-9b41d47c9d3c")
 			(effects
 				(font
@@ -8405,17 +8405,6 @@
 			(layer "F.Fab")
 			(uuid "0a110a87-478c-4a8d-96f1-95f3895a37ed")
 		)
-		(fp_text user "${REFERENCE}"
-			(at 0 3.81 -90)
-			(layer "F.Fab")
-			(uuid "c456fe4f-c982-426e-ab14-f5b809299388")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-			)
-		)
 		(pad "1" thru_hole rect
 			(at 0 0 180)
 			(size 1.7 1.7)
@@ -8461,6 +8450,7 @@
 			(uuid "a02f7cad-05c6-4e83-a4dc-23b548235fe3")
 		)
 		(model "${KICAD8_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x04_P2.54mm_Vertical.wrl"
+			(hide yes)
 			(offset
 				(xyz 0 0 0)
 			)
