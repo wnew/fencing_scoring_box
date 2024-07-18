@@ -1,0 +1,49 @@
+
+
+Epee           | Grn Lame | Grn Weapon | Grn Guard | Red Lame | Red Weapon | Red Guard |
+               |   Pin A  |   Pin B    |   Pin C   |   Pin A  |   Pin B    |   Pin C   |
+----------------------------------------------------------------------------------------
+At rest        |     5v   |      0v    |     0v    |     5v   |     0v     |     0v    | 
+Hit on target  |   2.5v   |    2.5v    |     0v    |     5v   |     0v     |     0v    | 
+Hit guard      |   1.7v   |    1.7v    |     0v    |     5v   |     0v     |   1.7v    | No lights
+Hit gnd/piste  |     0v   |      0v    |     0v    |     5v   |     0v     |     0v    | No lights
+
+Normally open switch between weapon and lame pins
+
+
+
+Foil           | Grn Lame | Grn Weapon | Grn Guard | Red Lame | Red Weapon | Red Guard |
+               |   Pin A  |   Pin B    |   Pin C   |   Pin A  |   Pin B    |   Pin C   |
+----------------------------------------------------------------------------------------
+At rest        |    0v    |    2.5v    |   2.5v    |     0v   |   2.5v     |   2.5v    | No lights
+Hit on target  |    0v    |    2.5v    |     0v    |   2.5v   |     5v     |     0v    | on target light
+Hit off target |    0v    |      5v    |     0v    |     0v   |     5v     |     0v    | off target light
+Hit guard      |    0v    |    2.5v    |     0v    |     0v   |     5v     |   2.5v    | No lights
+Hit gnd/piste  |    0v    |    2.5v    |     0v    |     0v   |     5v     |   2.5v    | No lights
+Hit on target  |    0v    |   1.25v    |  1.25v    |  1.25v   |     5v     |  1.25v    | both on target lights
+
+Normally close switch between weapon and guard (return) pins
+
+There is a strange case where FA hits FB ontarget but FB has his guard against his lame, this still
+needs to register a hit
+
+
+
+Sabre          | Grn Lame | Grn Weapon | Grn Guard | Red Lame | Red Weapon | Red Guard |
+               |   Pin A  |   Pin B    |   Pin C   |   Pin A  |   Pin B    |   Pin C   |
+----------------------------------------------------------------------------------------
+At rest        |     0v   |      5v    |     0v    |     0v   |     5v     |     0v    | 
+Hit on target  |     0v   |    2.5v    |     0v    |   2.5v   |     5v     |     0v    | 
+Hit off target |     0v   |      5v    |     0v    |     0v   |     5v     |     0v    | No lights
+Hit guard      |     0v   |    2.5v    |     0v    |     0v   |     5v     |   2.5v    | No lights
+Hit gnd/piste  |     0v   |    2.5v    |     0v    |     0v   |     5v     |   2.5v    | No lights
+
+
+
+=====================
+ Volts to ADC values
+=====================
+5    = 1000
+2.5  =  500
+1.7  =  340
+1.25 =  200
