@@ -5,6 +5,175 @@
 	(uuid "094a0d5b-ccff-43e0-8828-cb960e22191d")
 	(paper "A4")
 	(lib_symbols
+		(symbol "Device:LED"
+			(pin_numbers hide)
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "LED"
+				(at 0 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Light emitting diode"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "LED diode"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "LED* LED_SMD:* LED_THT:*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "LED_0_1"
+				(polyline
+					(pts
+						(xy -1.27 -1.27) (xy -1.27 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 0) (xy 1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 -1.27) (xy 1.27 1.27) (xy -1.27 0) (xy 1.27 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -3.048 -0.762) (xy -4.572 -2.286) (xy -3.81 -2.286) (xy -4.572 -2.286) (xy -4.572 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.778 -0.762) (xy -3.302 -2.286) (xy -2.54 -2.286) (xy -3.302 -2.286) (xy -3.302 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "LED_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "MCU_Module:Arduino_Nano_v3.x"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -1768,6 +1937,16 @@
 	)
 	(wire
 		(pts
+			(xy 85.09 100.33) (xy 85.09 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0a583124-3baa-4c7d-abc3-dd9d7499260d")
+	)
+	(wire
+		(pts
 			(xy 153.67 58.42) (xy 162.56 58.42)
 		)
 		(stroke
@@ -1888,6 +2067,16 @@
 	)
 	(wire
 		(pts
+			(xy 85.09 109.22) (xy 85.09 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "525edf2a-036a-41e9-b4c4-5a17524f29f4")
+	)
+	(wire
+		(pts
 			(xy 73.66 64.77) (xy 77.47 64.77)
 		)
 		(stroke
@@ -1998,6 +2187,16 @@
 	)
 	(wire
 		(pts
+			(xy 85.09 115.57) (xy 85.09 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9267726d-0fcb-4ed6-a7e8-b2b22dcb1a1d")
+	)
+	(wire
+		(pts
 			(xy 149.86 36.83) (xy 153.67 36.83)
 		)
 		(stroke
@@ -2005,6 +2204,16 @@
 			(type default)
 		)
 		(uuid "93ed163c-ddff-48a9-9f36-ef61ec2de37a")
+	)
+	(wire
+		(pts
+			(xy 78.74 100.33) (xy 85.09 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "95556cc0-23df-4cbb-818f-675289a41373")
 	)
 	(wire
 		(pts
@@ -2286,6 +2495,26 @@
 			)
 		)
 	)
+	(global_label "OnT_LED"
+		(shape input)
+		(at 78.74 100.33 180)
+		(effects
+			(font
+				(size 1.524 1.524)
+			)
+			(justify right)
+		)
+		(uuid "0230a12e-5314-475d-826c-03b4d48642a4")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 78.74 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "C"
 		(shape input)
 		(at 140.97 36.83 180)
@@ -2466,7 +2695,7 @@
 			)
 		)
 	)
-	(global_label "Grn_OnT_LED"
+	(global_label "OnT_LED"
 		(shape input)
 		(at 43.18 59.69 180)
 		(effects
@@ -3496,6 +3725,71 @@
 		)
 	)
 	(symbol
+		(lib_id "fencing_scoring-box-rescue:GND-RESCUE-fencing_scoring_box")
+		(at 85.09 119.38 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "5fb8a296-9ff0-46b4-867d-b7396f4dee47")
+		(property "Reference" "#PWR03"
+			(at 85.09 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 85.217 123.7742 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 85.09 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 85.09 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 85.09 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9e0f09e5-6266-4493-b3b1-ed6cd0e33913")
+		)
+		(instances
+			(project "epee_buzz_box"
+				(path "/094a0d5b-ccff-43e0-8828-cb960e22191d"
+					(reference "#PWR03")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "MCU_Module:Arduino_Nano_v3.x")
 		(at 60.96 57.15 0)
 		(unit 1)
@@ -3717,6 +4011,76 @@
 			(project "fencing_scoring_box_v4_thc"
 				(path "/094a0d5b-ccff-43e0-8828-cb960e22191d"
 					(reference "J13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 85.09 105.41 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8a8addf0-b921-42dd-a696-8d7617be7048")
+		(property "Reference" "D1"
+			(at 88.9 105.7274 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 88.9 108.2674 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 85.09 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 85.09 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Light emitting diode"
+			(at 85.09 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "24bccbe1-ce21-4553-9cb8-254a5968734d")
+		)
+		(pin "2"
+			(uuid "698e1a0f-edae-4161-88db-b2cca668bc39")
+		)
+		(instances
+			(project ""
+				(path "/094a0d5b-ccff-43e0-8828-cb960e22191d"
+					(reference "D1")
 					(unit 1)
 				)
 			)
@@ -4056,6 +4420,75 @@
 			(project "fencing_scoring_box_v4_thc"
 				(path "/094a0d5b-ccff-43e0-8828-cb960e22191d"
 					(reference "R23")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "fencing_scoring-box-rescue:R_Small-RESCUE-fencing_scoring_box")
+		(at 85.09 113.03 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ec648f19-adad-48a9-80a3-9ecf15ee30c7")
+		(property "Reference" "R1"
+			(at 83.5914 114.1984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "220"
+			(at 83.5914 111.887 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "my_library:resistor_THT_and_0805"
+			(at 85.09 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 85.09 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 85.09 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "06fff4e7-7c99-4869-9c9f-b1c5bacb62cc")
+		)
+		(pin "2"
+			(uuid "9be2584b-d5f6-405a-b75f-0807c5648667")
+		)
+		(instances
+			(project "epee_buzz_box"
+				(path "/094a0d5b-ccff-43e0-8828-cb960e22191d"
+					(reference "R1")
 					(unit 1)
 				)
 			)
