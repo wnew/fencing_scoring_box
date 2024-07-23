@@ -1,14 +1,13 @@
 //===========================================================================//
 //                                                                           //
-//  Desc:    Arduino Code to implement a fencing scoring apparatus           //
+//  Desc:    Arduino Code to implement a fencing epee buzz box               //
 //  Dev:     Wnew                                                            //
 //  Date:    Nov  2012                                                       //
 //  Updated: Jul  2024                                                       //
 //  Notes:   1. This compiles, but will need to be tested                    //
 //                                                                           //
-//  To do:   1. Implement short circuit LEDs (already provision for it)      //
-//           2. Test Sabre with real fencers (these are hard to find here)   //
-//           3. Implement whip-over for sabre                                //
+//  To do:   1. Test on a circuit (This code has just been modified from the //
+//              all weapons box)                                             //
 //                                                                           //
 //===========================================================================//
 
@@ -22,9 +21,6 @@
 // #defines
 //============
 #define DEBUG                // prints debug info to the serial terminal
-#define TEST_LIGHTS          // turns on lights for a second on start up
-#define NEOPIXELS            // if this is set then sketch uses the neopixel display, if not then individual leds per pin are assumed.
-#define BUZZERSOUNDON        // buzzer will only sound if this is defined
 #define BUZZERTIME   500     // length of time the buzzer is kept on after a hit (ms)
 #define LIGHTTIME   3000     // length of time the lights are kept on after a hit (ms)
 #define BAUDRATE   57600     // baudrate of the serial debug interface
