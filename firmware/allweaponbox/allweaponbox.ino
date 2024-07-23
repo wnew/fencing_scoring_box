@@ -35,7 +35,7 @@
 #define LIGHTTIME   3000     // length of time the lights are kept on after a hit (ms)
 #define BAUDRATE   57600     // baudrate of the serial debug interface
 
-#define GRN_LED_PIN        7 // neopixels data pin
+#define GRN_LED_PIN       A6 // neopixels data pin
 #define RED_LED_PIN       15 // neopixels data pin
 #define NUMPIXELS         40 // number of NeoPixels on display
 #define MATRIX_BRIGHTNESS  1 // 1-5, 1 being the dimmest and 5 the brightest, anything above 1 please ensure you have
@@ -46,44 +46,35 @@
 Adafruit_NeoPixel grn_matrix = Adafruit_NeoPixel(NUMPIXELS, GRN_LED_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel red_matrix = Adafruit_NeoPixel(NUMPIXELS, RED_LED_PIN, NEO_GRB + NEO_KHZ800);
 
-//============
-// Pin Setup
-//============
+//=========================================
+// Pin Setup PCB ver 5, Arduino Nano
+//=========================================
 // LED pins
-const uint8_t onTargetGrn  =  5;    // On Target Grn Light
-const uint8_t offTargetGrn =  4;    // Off Target Grn Light
-const uint8_t shortLEDGrn  =  3;    // Short Circuit Grn Light
-const uint8_t shortLEDRed  = 15;    // Short Circuit Red Light
-const uint8_t offTargetRed = 16;    // Off Target Red Light
-const uint8_t onTargetRed  = 10;    // On Target Red Light
+const uint8_t onTargetGrn  =  7;    // On Target Grn Light
+const uint8_t offTargetGrn =  8;    // Off Target Grn Light
+const uint8_t shortLEDGrn  =  9;    // Short Circuit Grn Light
+const uint8_t shortLEDRed  = 10;    // Short Circuit Red Light
+const uint8_t offTargetRed = 11;    // Off Target Red Light
+const uint8_t onTargetRed  = 12;    // On Target Red Light
 
-// PCB rev1, fencer pins
-//const uint8_t groundPinGrn = A0;  // Grn Ground pin (C) - Analog
-//const uint8_t weaponPinGrn = A2;  // Grn Weapon pin (B) - Analog
-//const uint8_t lamePinGrn   = A3;  // Grn Lame   pin (A) - Analog (Epee return path)
-//const uint8_t lamePinRed   = A0;  // Red Lame   pin (A) - Analog (Epee return path)
-//const uint8_t weaponPinRed = A1;  // Red Weapon pin (B) - Analog
-//const uint8_t groundPinRed = A5;  // Red Ground pin (C) - Analog
+// Fencer pins
+const uint8_t groundPinGrn = A4;    // Grn Ground pin (C) - Analog
+const uint8_t weaponPinGrn = A2;    // Grn Weapon pin (B) - Analog
+const uint8_t lamePinGrn   = A0;    // Grn Lame   pin (A) - Analog (Epee return path)
+const uint8_t lamePinRed   = A1;    // Red Lame   pin (A) - Analog (Epee return path)
+const uint8_t weaponPinRed = A3;    // Red Weapon pin (B) - Analog
+const uint8_t groundPinRed = A5;    // Red Ground pin (C) - Analog
 
-// PCB ver4, fencer pins
-//const uint8_t groundPinGrn = 6;     // Grn Ground pin (C) - Analog
-const uint8_t weaponPinGrn = A0;    // Grn Weapon pin (B) - Analog
-const uint8_t lamePinGrn   = A3;    // Grn Lame   pin (A) - Analog (Epee return path)
-const uint8_t lamePinRed   = A2;    // Red Lame   pin (A) - Analog (Epee return path)
-const uint8_t weaponPinRed = A1;    // Red Weapon pin (B) - Analog
-//const uint8_t groundPinRed = A2;    // Red Ground pin (C) - Analog
-
+// Button and buzzer pins
 const uint8_t weaponSelectPin =  2; // Weapon select button interrupt pin 0 (digital pin 2)
-const uint8_t buzzerPin       =  6; // buzzer pin
+const uint8_t buzzerPin       =  3; // buzzer pin
 
-// there are not enough pins on the pro micro to have 3 pins dedicated to the weapon select LEDs
-// if you are using another arduino with enough pins, you can set this to pins that 
-// arent used for other things.
-// the weapon is currently signaled by setting:
+// if you wish to save pins, the hit leds can be used to signal the weapon selected as follows.
 // red on target LED for Epee
 // grn on target LED for Foil
 // both red and grn on target LEDs for Sabre
-const uint8_t weaponSelectLeds[] = {7, 8, 9}; // LED pins to indicate weapon is selected {e f s}
+// otherwise set the correct pins here
+const uint8_t weaponSelectLeds[] = {4, 5, 6}; // LED pins to indicate weapon is selected {e f s}
 
 //=================================
 // initial values of analog reads

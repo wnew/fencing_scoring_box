@@ -46,9 +46,9 @@
 			(plot_on_all_layers_selection 0x0000000_00000000)
 			(disableapertmacros no)
 			(usegerberextensions no)
-			(usegerberattributes yes)
-			(usegerberadvancedattributes yes)
-			(creategerberjobfile yes)
+			(usegerberattributes no)
+			(usegerberadvancedattributes no)
+			(creategerberjobfile no)
 			(dashed_line_dash_ratio 12.000000)
 			(dashed_line_gap_ratio 3.000000)
 			(svgprecision 4)
@@ -71,7 +71,7 @@
 			(plotfptext yes)
 			(plotinvisibletext no)
 			(sketchpadsonfab no)
-			(subtractmaskfromsilk no)
+			(subtractmaskfromsilk yes)
 			(outputformat 1)
 			(mirror no)
 			(drillshape 0)
@@ -1998,7 +1998,7 @@
 	(footprint "Graphics:Fencers_20mm_h"
 		(layer "F.Cu")
 		(uuid "e15dcb3d-6a04-4139-9337-5c305377a6d4")
-		(at 150.645168 71.899493)
+		(at 150.645168 69)
 		(property "Reference" "G***"
 			(at 0 0 0)
 			(layer "F.SilkS")
@@ -3620,7 +3620,7 @@
 		(uuid "436dc500-50a5-4cb7-b646-722451ad26c5")
 		(effects
 			(font
-				(size 1.5 1.5)
+				(size 2 2)
 				(thickness 0.15)
 			)
 			(justify bottom)

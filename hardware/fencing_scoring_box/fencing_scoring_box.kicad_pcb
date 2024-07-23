@@ -88,7 +88,7 @@
 			(layerselection 0x00010fc_ffffffff)
 			(plot_on_all_layers_selection 0x0001000_00000000)
 			(disableapertmacros no)
-			(usegerberextensions yes)
+			(usegerberextensions no)
 			(usegerberattributes no)
 			(usegerberadvancedattributes no)
 			(creategerberjobfile no)
@@ -110,7 +110,7 @@
 			(psnegative no)
 			(psa4output no)
 			(plotreference yes)
-			(plotvalue no)
+			(plotvalue yes)
 			(plotfptext yes)
 			(plotinvisibletext no)
 			(sketchpadsonfab no)
@@ -2315,7 +2315,7 @@
 				)
 			)
 		)
-		(property "Value" "SW_Push"
+		(property "Value" "Weapon Select"
 			(at 9.75 2.05 180)
 			(layer "F.SilkS")
 			(uuid "15ae0506-0645-4906-b819-9e6f24cbb1fd")
@@ -6118,7 +6118,7 @@
 		(property "Value" "D_Zen"
 			(at -3.13 0 0)
 			(unlocked yes)
-			(layer "F.Fab")
+			(layer "F.SilkS")
 			(uuid "1c8c57bd-0365-45ef-bab9-22d81d57a4fe")
 			(effects
 				(font
@@ -6384,7 +6384,7 @@
 		(property "Value" "D_Zen"
 			(at -3.18 0 0)
 			(unlocked yes)
-			(layer "F.Fab")
+			(layer "F.SilkS")
 			(uuid "5ae692da-bf1a-4884-89fa-f5e7d115c013")
 			(effects
 				(font
@@ -7033,11 +7033,10 @@
 				)
 			)
 		)
-		(property "Value" "Piste Connetor"
-			(at 0.25 -5 0)
+		(property "Value" "Piste Gnd"
+			(at -8.5 3.5 0)
 			(unlocked yes)
-			(layer "F.Fab")
-			(hide yes)
+			(layer "F.SilkS")
 			(uuid "029518ee-b848-44c6-af7d-54f6945b11d7")
 			(effects
 				(font
