@@ -35,16 +35,15 @@
 #define LIGHTTIME   3000     // length of time the lights are kept on after a hit (ms)
 #define BAUDRATE   57600     // baudrate of the serial debug interface
 
-#define GRN_LED_PIN       A6 // neopixels data pin
+#define GRN_LED_PIN        4 // neopixels data pin
 #define RED_LED_PIN       15 // neopixels data pin
-#define NUMPIXELS         40 // number of NeoPixels on display
+#define NUMPIXELS         64 // number of NeoPixels on display
 #define MATRIX_BRIGHTNESS  1 // 1-5, 1 being the dimmest and 5 the brightest, anything above 1 please ensure you have
                              // a good power supply otherwise the board can brown out and hang.
 #define INITIAL_WEAPON     0 // define the weapon which is active on startup, 0 - epee, 1 - foil, 2 - sabre
 
-// initialise the 2 neopixel classes, one for each matrix
-Adafruit_NeoPixel grn_matrix = Adafruit_NeoPixel(NUMPIXELS, GRN_LED_PIN, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel red_matrix = Adafruit_NeoPixel(NUMPIXELS, RED_LED_PIN, NEO_GRB + NEO_KHZ800);
+// initialise the neopixel to control the led matrix
+Adafruit_NeoPixel matrix = Adafruit_NeoPixel(NUMPIXELS, GRN_LED_PIN, NEO_GRB + NEO_KHZ800);
 
 //=========================================
 // Pin Setup PCB ver 5, Arduino Nano
@@ -66,8 +65,8 @@ const uint8_t weaponPinRed = A3;    // Red Weapon pin (B) - Analog
 const uint8_t groundPinRed = A5;    // Red Ground pin (C) - Analog
 
 // Button and buzzer pins
-const uint8_t weaponSelectPin =  2; // Weapon select button interrupt pin 0 (digital pin 2)
-const uint8_t buzzerPin       =  3; // buzzer pin
+const uint8_t weaponSelectPin = 2; // Weapon select button interrupt pin 0 (digital pin 2)
+const uint8_t buzzerPin       = 3; // buzzer pin
 
 // if you wish to save pins, the hit leds can be used to signal the weapon selected as follows.
 // red on target LED for Epee
@@ -164,8 +163,7 @@ void setup() {
    pinMode(buzzerPin,  OUTPUT);
 
    // initialise the LED display
-   grn_matrix.begin();
-   red_matrix.begin();
+   matrix.begin();
 
 #ifdef TEST_LIGHTS
    testLights();
@@ -505,6 +503,7 @@ void signalHits() {
    }
 }
 
+
 //=======================
 // Clear the LED matrix
 //=======================
@@ -518,12 +517,10 @@ void clearLEDs() {
 
    for(int i=0;i<8;i++) {
       for(int j=0;j<9;j++) {
-         grn_matrix.setPixelColor(j*8+i, grn_matrix.Color(0,0,0));
-         red_matrix.setPixelColor(j*8+i, red_matrix.Color(0,0,0));
+         matrix.setPixelColor(j*8+i, matrix.Color(0,0,0));
       }
    }
-   grn_matrix.show();
-   red_matrix.show();
+   matrix.show();
 }
 
 
@@ -599,27 +596,20 @@ void testLights() {
 // weapon has been changed to Epee.
 void ledEpee() {
    clearLEDs();
-   grn_matrix.setPixelColor( 9, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(13, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(17, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(19, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(21, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(25, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(26, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(27, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(28, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(29, grn_matrix.Color(5,6,42));
-   grn_matrix.show();
+   matrix.setPixelColor( 0, matrix.Color(5,6,42));
+   matrix.setPixelColor( 1, matrix.Color(5,6,42));
+   matrix.setPixelColor( 2, matrix.Color(5,6,42));
+   matrix.setPixelColor( 3, matrix.Color(5,6,42));
+   matrix.setPixelColor( 4, matrix.Color(5,6,42));
+   matrix.setPixelColor( 6, matrix.Color(5,6,42));
+   matrix.setPixelColor( 8, matrix.Color(5,6,42));
+   matrix.setPixelColor(10, matrix.Color(5,6,42));
 
-   red_matrix.setPixelColor(17, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(18, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(19, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(20, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(21, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(22, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(10, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(26, red_matrix.Color(5,6,42));
-   red_matrix.show();
+   matrix.setPixelColor(16, matrix.Color(5,6,42));
+   matrix.setPixelColor(20, matrix.Color(5,6,42));
+   matrix.setPixelColor(24, matrix.Color(5,6,42));
+
+   matrix.show();
 }
 
 
@@ -630,25 +620,17 @@ void ledEpee() {
 // weapon has been changed to Foil.
 void ledFoil() {
    clearLEDs();
-   grn_matrix.setPixelColor( 9, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(17, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(19, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(25, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(26, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(27, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(28, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(29, grn_matrix.Color(5,6,42));
-   grn_matrix.show();
+   matrix.setPixelColor( 0, matrix.Color(5,6,42));
+   matrix.setPixelColor( 1, matrix.Color(5,6,42));
+   matrix.setPixelColor( 2, matrix.Color(5,6,42));
+   matrix.setPixelColor( 3, matrix.Color(5,6,42));
+   matrix.setPixelColor( 4, matrix.Color(5,6,42));
+   matrix.setPixelColor( 6, matrix.Color(5,6,42));
+   matrix.setPixelColor( 8, matrix.Color(5,6,42));
 
-   red_matrix.setPixelColor(17, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(18, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(19, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(20, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(21, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(22, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(10, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(26, red_matrix.Color(5,6,42));
-   red_matrix.show();
+   matrix.setPixelColor(16, matrix.Color(5,6,42));
+
+   matrix.show();
 }
 
 
@@ -659,123 +641,99 @@ void ledFoil() {
 // weapon has been changed to Sabre.
 void ledSabre() {
    clearLEDs();
-   grn_matrix.setPixelColor( 9, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(11, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(12, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(13, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(17, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(19, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(21, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(25, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(26, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(27, grn_matrix.Color(5,6,42));
-   grn_matrix.setPixelColor(29, grn_matrix.Color(5,6,42));
-   grn_matrix.show();
+   matrix.setPixelColor( 0, matrix.Color(5,6,42));
+   matrix.setPixelColor( 1, matrix.Color(5,6,42));
+   matrix.setPixelColor( 2, matrix.Color(5,6,42));
+   matrix.setPixelColor( 4, matrix.Color(5,6,42));
+   matrix.setPixelColor( 6, matrix.Color(5,6,42));
+   matrix.setPixelColor( 8, matrix.Color(5,6,42));
+   matrix.setPixelColor(10, matrix.Color(5,6,42));
+   matrix.setPixelColor(11, matrix.Color(5,6,42));
 
-   red_matrix.setPixelColor(17, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(18, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(19, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(20, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(21, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(22, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(10, red_matrix.Color(5,6,42));
-   red_matrix.setPixelColor(26, red_matrix.Color(5,6,42));
-   red_matrix.show();
+   matrix.setPixelColor(16, matrix.Color(5,6,42));
+   matrix.setPixelColor(20, matrix.Color(5,6,42));
+   matrix.setPixelColor(24, matrix.Color(5,6,42));
+
+   matrix.show();
 }
 
 
-//==================
-// Show red LEDs
-//==================
-// Print a red rectangle to show an on target hit
+//=========================
+// Set grn on target LEDs
+//=========================
+// Sets a group of grn LEDs to show a red on target hit
+void ledOnTargGrn() {
+   // turn on single led output
+   digitalWrite(onTargetGrn, HIGH);
+   // setup led matrix to signal hit
+   for(int i=0;i<32;i++){
+      matrix.setPixelColor(i, matrix.Color(0,25*MATRIX_BRIGHTNESS,0));
+   }
+   matrix.show();
+}
+
+
+//=========================
+// Set red on target LEDs
+//=========================
+// Sets a group of red LEDs to show a red on target hit
 void ledOnTargRed() {
    long now = micros();
    // turn on single led output
    digitalWrite(onTargetRed, HIGH);
    // setup led matrix to signal hit
-   for(int i=0;i<9;i++){
-      for(int j=0;j<9;j++){
-         red_matrix.setPixelColor(j*8+i, red_matrix.Color(25*MATRIX_BRIGHTNESS,0,0));
-      }
+   for(int i=32;i<64;i++){
+      matrix.setPixelColor(i, matrix.Color(25*MATRIX_BRIGHTNESS,0,0));
    }
-  red_matrix.show();
+  matrix.show();
 }
 
 
-//============================================
-// Show green LEDs
-//============================================
-// Print a green rectangle to show an on target hit
-void ledOnTargGrn() {
-   // turn on single led output
-   digitalWrite(onTargetGrn, HIGH);
-   // setup led matrix to signal hit
-   for(int i=0;i<9;i++){
-      for(int j=0;j<9;j++){
-         grn_matrix.setPixelColor(j*8+i, grn_matrix.Color(0,25*MATRIX_BRIGHTNESS,0));
-      }
-   }
-   grn_matrix.show();
-}
-
-
-//==================
-// Show white LEDs
-//==================
-// Print a white rectangle to show a red off target hit
-void ledOffTargRed() {
-   // turn on single led output
-   digitalWrite(offTargetRed, HIGH);
-   // setup led matrix to signal hit
-   for(int i=1;i<4;i++){
-      for(int j=2;j<6;j++){
-         red_matrix.setPixelColor(j+8*i, red_matrix.Color(25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS));
-      }
-   }
-   red_matrix.show();
-}
-
-
-//==================
-// Show white LEDs
-//==================
-// Print a white rectangle to show a green off target hit
+//==========================
+// Set grn off target LEDs
+//==========================
+// Sets a group of white LEDs to show a grn off target hit
 void ledOffTargGrn() {
    // turn on single led output
    digitalWrite(offTargetGrn, HIGH);
    // setup led matrix to signal hit
-   for(int i=1;i<4;i++){
-      for(int j=2;j<6;j++){
-         grn_matrix.setPixelColor(j+8*i, grn_matrix.Color(25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS));
-      }
+   for(int i=16;i<32;i++){
+      matrix.setPixelColor(i, matrix.Color(25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS));
    }
-   grn_matrix.show();
+   matrix.show();
 }
 
 
-//===================
-// Show yellow LEDs
-//===================
-// Print a yellow square to show a red short circuit
-void ledShortRed() {
-   for(int i=6;i<8;i++){
-      for(int j=3;j<5;j++){
-         red_matrix.setPixelColor(j*8+i, red_matrix.Color(50*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,0));
-      }
+//==========================
+// Set red off target LEDs
+//==========================
+// Sets a group of white LEDs to show a red off target hit
+void ledOffTargRed() {
+   // turn on single led output
+   digitalWrite(offTargetRed, HIGH);
+   // setup led matrix to signal hit
+   for(int i=32;i<48;i++){
+      matrix.setPixelColor(i, matrix.Color(25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS));
    }
-   red_matrix.show();
+   matrix.show();
 }
 
 
-//===================
-// Show yellow LEDs
-//===================
-// Print a yellow square to show a grn short circuit
+//=============================
+// Set grn short circuit LEDs
+//=============================
+// Sets a single yellow led on the matrix to show a grn short circuit
 void ledShortGrn() {
-   for(int i=0;i<2;i++){
-      for(int j=3;j<5;j++){
-         grn_matrix.setPixelColor(j*8+i, grn_matrix.Color(50*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,0));
-     }
-   }
-   grn_matrix.show();
+   matrix.setPixelColor(31, matrix.Color(50*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,0));
+   matrix.show();
+}
+
+
+//=============================
+// Set red short circuit LEDs
+//=============================
+// Sets a single yellow led on the matrix to show a red short circuit
+void ledShortRed() {
+   matrix.setPixelColor(44, matrix.Color(50*MATRIX_BRIGHTNESS,25*MATRIX_BRIGHTNESS,0));
+   matrix.show();
 }

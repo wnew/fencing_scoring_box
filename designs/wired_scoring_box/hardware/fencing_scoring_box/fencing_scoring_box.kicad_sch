@@ -2951,8 +2951,8 @@
 		(uuid "12ad80be-9a9f-4dd0-9e96-3c2d501cc41b")
 	)
 	(no_connect
-		(at 123.19 82.55)
-		(uuid "56c4ebdf-3ede-4887-8595-cbc32da546a8")
+		(at 153.67 80.01)
+		(uuid "17db2b43-05f3-43b6-a57e-3a2c826046ca")
 	)
 	(no_connect
 		(at 138.43 39.37)
@@ -3633,16 +3633,6 @@
 			(type default)
 		)
 		(uuid "89284b94-620f-45e7-85cf-ed2ea4f4bee5")
-	)
-	(wire
-		(pts
-			(xy 153.67 80.01) (xy 157.48 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "893bec45-aa11-4c20-9704-b258cc307ae9")
 	)
 	(wire
 		(pts
@@ -4357,6 +4347,26 @@
 			)
 		)
 	)
+	(global_label "display1"
+		(shape input)
+		(at 123.19 82.55 180)
+		(effects
+			(font
+				(size 1.524 1.524)
+			)
+			(justify right)
+		)
+		(uuid "1a45ff9e-be33-4d23-8bed-577f4570062a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 123.19 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "Red_A_out"
 		(shape input)
 		(at 208.28 95.25 0)
@@ -4709,26 +4719,6 @@
 		(uuid "4b49ed16-9687-44a0-8857-16a9a8deaece")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 224.79 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "display1"
-		(shape input)
-		(at 157.48 80.01 0)
-		(effects
-			(font
-				(size 1.524 1.524)
-			)
-			(justify left)
-		)
-		(uuid "4eb84230-0c26-46d9-957f-72452a72132d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 157.48 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5807,7 +5797,7 @@
 				)
 			)
 		)
-		(property "Value" "D_Zener"
+		(property "Value" "D_Zen"
 			(at 196.85 78.74 0)
 			(effects
 				(font
@@ -6277,7 +6267,7 @@
 				)
 			)
 		)
-		(property "Value" "D_Zener"
+		(property "Value" "D_Zen"
 			(at 250.19 78.74 0)
 			(effects
 				(font
@@ -6478,7 +6468,7 @@
 				)
 			)
 		)
-		(property "Value" "D_Zener"
+		(property "Value" "D_Zen"
 			(at 196.85 100.33 0)
 			(effects
 				(font
@@ -6679,7 +6669,7 @@
 				)
 			)
 		)
-		(property "Value" "D_Zener"
+		(property "Value" "D_Zen"
 			(at 250.19 100.33 0)
 			(effects
 				(font
@@ -6811,7 +6801,7 @@
 				)
 			)
 		)
-		(property "Value" "D_Zener"
+		(property "Value" "D_Zen"
 			(at 198.12 129.54 0)
 			(effects
 				(font
@@ -7012,7 +7002,7 @@
 				)
 			)
 		)
-		(property "Value" "D_Zener"
+		(property "Value" "D_Zen"
 			(at 251.46 129.54 0)
 			(effects
 				(font
@@ -9826,7 +9816,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "SW_Push"
+		(property "Value" "Weapon Select"
 			(at 68.326 81.28 0)
 			(effects
 				(font
