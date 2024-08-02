@@ -15,11 +15,6 @@ Email me if you have any questions: wesnew(at)gmail(dot)com
 
 ## Directory Structure
 
-Design: Notes and research. 
-
-**Software**: python code which communicates over the serial interface with the
-arduino to allow displaying of lights on a laptop or PC screen. This is a simple 
-test and further development is required.
 
 **Firmware**: the code that runs on the arduino including scoring boxes and test
 sketches.
@@ -27,6 +22,11 @@ sketches.
 **Hardware**: the circuit designs around the arduino showing how to connect up the
 lights and body wires.
 
+**Software**: python code which communicates over the serial interface with the
+arduino to allow displaying of lights on a laptop or PC screen. This is a simple 
+test and further development is required.
+
+**Notes and research**  Pretty self explanitory
 
 ## Hardware Requirements
 
