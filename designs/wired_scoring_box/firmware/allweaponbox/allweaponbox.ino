@@ -23,6 +23,7 @@
 // #includes
 //============
 #include <Adafruit_NeoPixel.h>  // adafruit's library for neopixel displays
+#include <arduino-timer.h>      // timer for scheduling the short circuit checker
 
 //============
 // #defines
@@ -35,15 +36,16 @@
 #define LIGHTTIME   3000     // length of time the lights are kept on after a hit (ms)
 #define BAUDRATE   57600     // baudrate of the serial debug interface
 
-#define GRN_LED_PIN        4 // neopixels data pin
-#define RED_LED_PIN       15 // neopixels data pin
+#define LED_MATRIX_PIN    13 // neopixels data pin
 #define NUMPIXELS         64 // number of NeoPixels on display
 #define MATRIX_BRIGHTNESS  1 // 1-5, 1 being the dimmest and 5 the brightest, anything above 1 please ensure you have
                              // a good power supply otherwise the board can brown out and hang.
 #define INITIAL_WEAPON     0 // define the weapon which is active on startup, 0 - epee, 1 - foil, 2 - sabre
 
 // initialise the neopixel to control the led matrix
-Adafruit_NeoPixel matrix = Adafruit_NeoPixel(NUMPIXELS, GRN_LED_PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel matrix = Adafruit_NeoPixel(NUMPIXELS, LED_MATRIX_PIN, NEO_GRB + NEO_KHZ800);
+// initialise the short circuit check timer
+auto short_circuit_timer = timer_create_default();
 
 //=========================================
 // Pin Setup PCB ver 5, Arduino Nano
@@ -158,9 +160,11 @@ void setup() {
    pinMode(offTargetRed, OUTPUT);
    pinMode(onTargetGrn,  OUTPUT);
    pinMode(onTargetRed,  OUTPUT);
-   //pinMode(shortLEDGrn,  OUTPUT);
-   //pinMode(shortLEDRed,  OUTPUT);
+   pinMode(shortLEDGrn,  OUTPUT);
+   pinMode(shortLEDRed,  OUTPUT);
    pinMode(buzzerPin,  OUTPUT);
+
+   short_circuit_timer.every(2000, shortCircuitCheck);
 
    // initialise the LED display
    matrix.begin();
@@ -185,6 +189,8 @@ void loop() {
       redA = analogRead(lamePinRed);
       grnB = analogRead(weaponPinGrn);
       redB = analogRead(weaponPinRed);
+      grnC = analogRead(groundPinGrn);
+      redC = analogRead(groundPinRed);
       signalHits();
       // decide which weapon is currently selected
       if      (currentWeapon == EPEE_MODE)
@@ -193,18 +199,7 @@ void loop() {
          foil();
       else if (currentWeapon == SABRE_MODE)
          sabre();
-
-#ifdef TEST_ADC_SPEED
-      if (loopCount == 0) {
-         now = micros();
-      }
-      loopCount++;
-      if ((micros()-now >= 1000000) && done == false) {
-         Serial.print(loopCount);
-         Serial.println(" readings in 1 sec");
-         done = true;
-      }
-#endif
+      short_circuit_timer.tick();
    }
 }
 
@@ -266,6 +261,42 @@ void setweaponSelectLeds() {
    digitalWrite(onTargetGrn, LOW);
    digitalWrite(onTargetRed, LOW);
    clearLEDs();
+}
+
+
+void shortCircuitCheck() {
+   // Cant check A-C shorts with the current setup, they are both pulled to
+   // ground via 1k and so should already be at the same voltage
+   // confirm standby voltages for each weapon.
+   clearLEDs();
+   if (currentWeapon == EPEE_MODE) { // Check A-C and B-C
+      if (abs(grnB - grnC) < 50) { // check grn fencer B-C short
+        ledShortGrn();
+      }
+      if (abs(redB - redC) < 50) { // check red fencer B-C short
+        ledShortRed();
+      }
+   } else if (currentWeapon == FOIL_MODE) { // Check A-B and B-C
+      if (abs(grnA - grnB) < 50) { // check grn fencer A-B short
+        ledShortGrn();
+      }
+      if (abs(redA - redB) < 50) { // check red fencer A-B short
+        ledShortRed();
+      }
+      if (abs(grnB - grnC) < 50) { // check grn fencer B-C short
+        ledShortGrn();
+      }
+      if (abs(redB - redC) < 50) { // check red fencer B-C short
+        ledShortRed();
+      }
+   } else if (currentWeapon == SABRE_MODE) { // Check A-B, A-C and B-C
+      if (abs(grnA - grnB) < 50) { // check grn fencer A-B short
+        ledShortGrn();
+      }
+      if (abs(redA - redB) < 50) { // check red fencer A-B short
+        ledShortRed();
+      }
+   }
 }
 
 
