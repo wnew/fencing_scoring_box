@@ -3,12 +3,9 @@
 //  Desc:    Arduino Code to implement a fencing scoring apparatus           //
 //  Dev:     Wnew                                                            //
 //  Date:    Nov  2012                                                       //
-//  Updated: Jul  2024                                                       //
-//  Notes:   1.                                                              //
+//  Updated: Aug  2024                                                       //
 //                                                                           //
-//  To do:   1. Implement short circuit LEDs (already provision for it)      //
-//           2. Test Sabre with real fencers (these are hard to find here)   //
-//           3. Implement whip-over for sabre                                //
+//  To do:   1. Implement whip-over for sabre                                //
 //                                                                           //
 //===========================================================================//
 
@@ -162,8 +159,11 @@ void setup() {
    pinMode(onTargetRed,  OUTPUT);
    pinMode(shortLEDGrn,  OUTPUT);
    pinMode(shortLEDRed,  OUTPUT);
-   pinMode(buzzerPin,  OUTPUT);
 
+   // set up buzzer pin to an output
+   pinMode(buzzerPin,  OUTPUT);
+   
+   // initialise the timer for the short circuit checks
    short_circuit_timer.every(2000, shortCircuitCheck);
 
    // initialise the LED display
@@ -269,14 +269,24 @@ void shortCircuitCheck() {
    // ground via 1k and so should already be at the same voltage
    // confirm standby voltages for each weapon.
    clearLEDs();
-   if (currentWeapon == EPEE_MODE) { // Check A-C and B-C
+    // Check A-C and B-C for epee
+   if (currentWeapon == EPEE_MODE) {
       if (abs(grnB - grnC) < 50) { // check grn fencer B-C short
         ledShortGrn();
       }
       if (abs(redB - redC) < 50) { // check red fencer B-C short
         ledShortRed();
       }
-   } else if (currentWeapon == FOIL_MODE) { // Check A-B and B-C
+   // Check A-B and A-C for foil
+   } else if (currentWeapon == FOIL_MODE) {
+      if (abs(grnA - grnB) < 50) { // check grn fencer A-B short
+        ledShortGrn();
+      }
+      if (abs(redA - redB) < 50) { // check red fencer A-B short
+        ledShortRed();
+      }
+   // Check A-B, A-C and B-C for sabre
+   } else if (currentWeapon == SABRE_MODE) {
       if (abs(grnA - grnB) < 50) { // check grn fencer A-B short
         ledShortGrn();
       }
@@ -287,16 +297,40 @@ void shortCircuitCheck() {
         ledShortGrn();
       }
       if (abs(redB - redC) < 50) { // check red fencer B-C short
-        ledShortRed();
-      }
-   } else if (currentWeapon == SABRE_MODE) { // Check A-B, A-C and B-C
-      if (abs(grnA - grnB) < 50) { // check grn fencer A-B short
-        ledShortGrn();
-      }
-      if (abs(redA - redB) < 50) { // check red fencer A-B short
         ledShortRed();
       }
    }
+
+   // as A and C are both pulled low, they should be at the same voltage at
+   // rest, so this code puts C into output mode and sets C high, then reads
+   // A to see if it also goes high. If it goes high there is a short. It then
+   // sets the pins back to output mode so that the ADCs can be read again.
+   // at 16MHz this code takes about 480uS to complete, this means it is 
+   // unlikely to interfere with hit detection. It is also only run once
+   // every 5 seconds
+
+   // set the C pins to outputs
+   pinMode(groundPinGrn,  OUTPUT);
+   pinMode(groundPinRed,  OUTPUT);
+   // write a high to the C pins
+   digitalWrite(groundPinGrn, HIGH);
+   digitalWrite(groundPinRed, HIGH);
+   // get the adc values of the A pins
+   grnA = analogRead(lamePinGrn);
+   redA = analogRead(lamePinRed);
+   // check if the A pins respond to the high C pins
+   if (grnA > 700) {
+      ledShortGrn();
+   }
+   if (redA > 700) {
+      ledShortRed();
+   }
+   // set the C pins back to inputs
+   pinMode(groundPinGrn,  INPUT);
+   pinMode(groundPinRed,  INPUT);
+   // read the adcs again to remove the possible high value
+   grnA = analogRead(lamePinGrn);
+   redA = analogRead(lamePinRed);
 }
 
 
