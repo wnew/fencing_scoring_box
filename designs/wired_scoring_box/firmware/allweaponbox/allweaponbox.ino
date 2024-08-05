@@ -33,11 +33,12 @@
 #define LIGHTTIME   3000     // length of time the lights are kept on after a hit (ms)
 #define BAUDRATE   57600     // baudrate of the serial debug interface
 
-#define LED_MATRIX_PIN    13 // neopixels data pin
-#define NUMPIXELS         64 // number of NeoPixels on display
-#define MATRIX_BRIGHTNESS  1 // 1-5, 1 being the dimmest and 5 the brightest, anything above 1 please ensure you have
-                             // a good power supply otherwise the board can brown out and hang.
-#define INITIAL_WEAPON     0 // define the weapon which is active on startup, 0 - epee, 1 - foil, 2 - sabre
+#define LED_MATRIX_PIN      13 // neopixels data pin
+#define NUMPIXELS           64 // number of NeoPixels on display
+#define MATRIX_BRIGHTNESS    1 // 1-5, 1 being the dimmest and 5 the brightest, anything above 1 please ensure you have
+                               // a good power supply otherwise the board can brown out and hang.
+#define INITIAL_WEAPON       0 // define the weapon which is active on startup, 0 - epee, 1 - foil, 2 - sabre
+#define SC_CHECK_INTERVAL 5000 // time between short circuit checks in milliseconds
 
 // initialise the neopixel to control the led matrix
 Adafruit_NeoPixel matrix = Adafruit_NeoPixel(NUMPIXELS, LED_MATRIX_PIN, NEO_GRB + NEO_KHZ800);
@@ -164,7 +165,7 @@ void setup() {
    pinMode(buzzerPin,  OUTPUT);
    
    // initialise the timer for the short circuit checks
-   short_circuit_timer.every(2000, shortCircuitCheck);
+   short_circuit_timer.every(SC_CHECK_INTERVAL, shortCircuitCheck);
 
    // initialise the LED display
    matrix.begin();
@@ -268,6 +269,7 @@ void shortCircuitCheck() {
    // Cant check A-C shorts with the current setup, they are both pulled to
    // ground via 1k and so should already be at the same voltage
    // confirm standby voltages for each weapon.
+   long now = micros();
    clearLEDs();
     // Check A-C and B-C for epee
    if (currentWeapon == EPEE_MODE) {
@@ -328,9 +330,12 @@ void shortCircuitCheck() {
    // set the C pins back to inputs
    pinMode(groundPinGrn,  INPUT);
    pinMode(groundPinRed,  INPUT);
-   // read the adcs again to remove the possible high value
-   grnA = analogRead(lamePinGrn);
-   redA = analogRead(lamePinRed);
+   // read the C wire adcs again to remove the possible high value
+   grnC = analogRead(groundPinGrn);
+   redC = analogRead(groundPinRed);
+   // if this isnt here then this timer interupt function doesnt seem to run again.
+   // WHAT!!?!?!
+   Serial.println(micros()-now);
 }
 
 
