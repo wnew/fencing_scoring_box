@@ -138,7 +138,7 @@ void setup() {
    Serial.println("====================");
    Serial.print  ("Weapon : ");
    Serial.println(currentWeapon);
-#endif
+#endif DEBUG
 
    // set the internal pullup resistor on weaponSelectPin
    pinMode(weaponSelectPin, INPUT_PULLUP);
@@ -161,9 +161,10 @@ void setup() {
    pinMode(shortLEDGrn,  OUTPUT);
    pinMode(shortLEDRed,  OUTPUT);
 
-   // set up buzzer pin to an output
+   // set up buzzer pin to an output and set it to low
    pinMode(buzzerPin,  OUTPUT);
-   
+   digitalWrite(buzzerPin, LOW);
+
    // initialise the timer for the short circuit checks
    short_circuit_timer.every(SC_CHECK_INTERVAL, shortCircuitCheck);
 
@@ -172,7 +173,7 @@ void setup() {
 
 #ifdef TEST_LIGHTS
    testLights();
-#endif
+#endif TEST_LIGHTS
 
    setweaponSelectLeds();
 }
@@ -225,7 +226,7 @@ void changeMode() {
       Serial.print("Weapon changed to: ");
       Serial.println(currentWeapon);
       setweaponSelectLeds();
-//#endif
+//#endif DEBUG
    }
    interrupts();
 }
@@ -256,7 +257,7 @@ void setweaponSelectLeds() {
       digitalWrite(buzzerPin, HIGH);
       while (millis() < now + 100) {} // delay to keep the buzzer on
       digitalWrite(buzzerPin, LOW);
-   #endif
+   #endif BUZZERSOUNDON
 
    while (millis() < now + 1000) {} // delay to keep the leds on for 1 second
    digitalWrite(onTargetGrn, LOW);
@@ -269,6 +270,17 @@ void shortCircuitCheck() {
    // Cant check A-C shorts with the current setup, they are both pulled to
    // ground via 1k and so should already be at the same voltage
    // confirm standby voltages for each weapon.
+
+#ifdef DEBUG
+   Serial.println("=====");
+   Serial.println(grnA);
+   Serial.println(grnB);
+   Serial.println(grnC);
+   Serial.println(redA);
+   Serial.println(redB);
+   Serial.println(redC);
+   Serial.println("=====");
+#endif DEBUG
    long now = micros();
    clearLEDs();
     // Check A-C and B-C for epee
@@ -287,18 +299,12 @@ void shortCircuitCheck() {
       if (abs(redA - redB) < 50) { // check red fencer A-B short
         ledShortRed();
       }
-   // Check A-B, A-C and B-C for sabre
+   // Check A-B and A-C for sabre
    } else if (currentWeapon == SABRE_MODE) {
       if (abs(grnA - grnB) < 50) { // check grn fencer A-B short
         ledShortGrn();
       }
       if (abs(redA - redB) < 50) { // check red fencer A-B short
-        ledShortRed();
-      }
-      if (abs(grnB - grnC) < 50) { // check grn fencer B-C short
-        ledShortGrn();
-      }
-      if (abs(redB - redC) < 50) { // check red fencer B-C short
         ledShortRed();
       }
    }
@@ -482,7 +488,7 @@ void sabre() {
    // weapon Grn
    if (hitOnTargGrn == false && hitOffTargGrn == false) { // ignore if Grn has already hit
       // on target
-      if (400 < grnB && grnB < 600 && 400 < redA && redA < 600) {
+      if (300 < grnB && grnB < 400 && 300 < redA && redA < 400) {
          if (!depressedGrn) {
             depressGrnTime = micros();
             depressedGrn   = true;
@@ -501,7 +507,7 @@ void sabre() {
    // weapon Red
    if (hitOnTargRed == false && hitOffTargRed == false) { // ignore if Red has already hit
       // on target
-      if (400 < redB && redB < 600 && 400 < grnA && grnA < 600) {
+      if (300 < redB && redB < 400 && 300 < grnA && grnA < 400) {
          if (!depressedRed) {
             depressRedTime = micros();
             depressedRed   = true;
@@ -533,7 +539,7 @@ void signalHits() {
    if (hitOnTargGrn || hitOnTargRed || hitOffTargGrn || hitOffTargRed) {
    #ifdef BUZZERSOUNDON
       digitalWrite(buzzerPin, HIGH);
-   #endif
+   #endif BUZZERSOUNDON
 
    }
    if (hitOnTargGrn && !hitOnTargGrnSignaled) {
@@ -568,7 +574,7 @@ void signalHits() {
       serData = String("Red depressed time  : ") + depressRedTime  + "\n"
                      + "Grn depressed time : "  + depressGrnTime + "\n";
       Serial.println(serData);
-   #endif
+   #endif DEBUG
       resetValues();
    }
 }
