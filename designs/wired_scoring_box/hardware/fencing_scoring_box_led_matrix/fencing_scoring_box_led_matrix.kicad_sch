@@ -390,6 +390,627 @@
 				)
 			)
 		)
+		(symbol "WS2812b_4x4_Matrix_1"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" ""
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "my_library:WS2812b_4x4_matrix"
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Symbol for a 4x4 matrix of WS2812b RGB LEDs"
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "WS2812b_4x4_Matrix_1_0_1"
+				(rectangle
+					(start -10.16 -44.45)
+					(end 10.16 -55.88)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "WS2812b_4x4_Matrix_1_1_1"
+				(pin power_in line
+					(at -5.08 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 -49.53 0)
+					(length 2.54)
+					(name "In"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -2.54 -41.91 270)
+					(length 2.54)
+					(name "+5V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -2.54 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 2.54 -41.91 270)
+					(length 2.54)
+					(name "+5V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 12.7 -49.53 180)
+					(length 2.54)
+					(name "Output"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 2.54 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "WS2812b_4x4_Matrix_2"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" ""
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "my_library:WS2812b_4x4_matrix"
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Symbol for a 4x4 matrix of WS2812b RGB LEDs"
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "WS2812b_4x4_Matrix_2_0_1"
+				(rectangle
+					(start -10.16 -44.45)
+					(end 10.16 -55.88)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "WS2812b_4x4_Matrix_2_1_1"
+				(pin power_in line
+					(at -5.08 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 -49.53 0)
+					(length 2.54)
+					(name "In"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -2.54 -41.91 270)
+					(length 2.54)
+					(name "+5V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -2.54 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 2.54 -41.91 270)
+					(length 2.54)
+					(name "+5V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 12.7 -49.53 180)
+					(length 2.54)
+					(name "Output"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 2.54 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "WS2812b_4x4_Matrix_3"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" ""
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "my_library:WS2812b_4x4_matrix"
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Symbol for a 4x4 matrix of WS2812b RGB LEDs"
+				(at 0 -36.83 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "WS2812b_4x4_Matrix_3_0_1"
+				(rectangle
+					(start -10.16 -44.45)
+					(end 10.16 -55.88)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "WS2812b_4x4_Matrix_3_1_1"
+				(pin power_in line
+					(at -5.08 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -12.7 -49.53 0)
+					(length 2.54)
+					(name "In"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -2.54 -41.91 270)
+					(length 2.54)
+					(name "+5V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -2.54 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 2.54 -41.91 270)
+					(length 2.54)
+					(name "+5V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 12.7 -49.53 180)
+					(length 2.54)
+					(name "Output"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 2.54 -58.42 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "my_library:WS2812b_4x4_Matrix"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -588,24 +1209,6 @@
 						)
 					)
 					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 5.08 -58.42 90)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -989,18 +1592,6 @@
 		(uuid "5e20aa39-9f33-4177-ace3-840239e19546")
 	)
 	(junction
-		(at 184.15 83.82)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "86fec214-c36a-415a-8a65-b5572b0cf7ce")
-	)
-	(junction
-		(at 152.4 83.82)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "879fb7bd-56fc-4e5e-9a8f-6b1c042904b9")
-	)
-	(junction
 		(at 147.32 83.82)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1023,12 +1614,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b018a6e8-2aa4-49d3-b632-7b70749e1d6a")
-	)
-	(junction
-		(at 120.65 83.82)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b5cdbd47-7df3-445c-992f-caf1db613474")
 	)
 	(junction
 		(at 176.53 83.82)
@@ -1060,25 +1645,9 @@
 		(color 0 0 0 0)
 		(uuid "f134b5de-ea43-4214-bbfd-056f7ea33f31")
 	)
-	(junction
-		(at 88.9 83.82)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f137efe3-8f5e-4362-9aaa-a3027da33715")
-	)
 	(no_connect
 		(at 194.31 74.93)
 		(uuid "0d4311c4-d125-4d1e-b3f9-33ded890c52b")
-	)
-	(wire
-		(pts
-			(xy 152.4 83.82) (xy 154.94 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "053cdeea-93f2-494c-91d3-f8b15cc03921")
 	)
 	(wire
 		(pts
@@ -1109,16 +1678,6 @@
 			(type default)
 		)
 		(uuid "14e63dbc-4b8f-4a15-95e5-1e5204ee30fb")
-	)
-	(wire
-		(pts
-			(xy 184.15 83.82) (xy 186.69 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "174f4ac8-f993-403e-b72a-8bc76c012a48")
 	)
 	(wire
 		(pts
@@ -1172,16 +1731,6 @@
 	)
 	(wire
 		(pts
-			(xy 120.65 83.82) (xy 123.19 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "502ccb40-072f-4b5b-8a99-2e5309bab991")
-	)
-	(wire
-		(pts
 			(xy 64.77 69.85) (xy 64.77 72.39)
 		)
 		(stroke
@@ -1189,16 +1738,6 @@
 			(type default)
 		)
 		(uuid "536b9ad3-1fa3-487c-9a3e-40df3c468840")
-	)
-	(wire
-		(pts
-			(xy 88.9 83.82) (xy 91.44 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "59df5073-684b-4092-b906-29b16c3caeb8")
 	)
 	(wire
 		(pts
@@ -2236,9 +2775,6 @@
 				(hide yes)
 			)
 		)
-		(pin "9"
-			(uuid "dfb77925-4f2f-4fc6-9505-e9e6c4b16848")
-		)
 		(pin "8"
 			(uuid "cc71387f-08c1-48b8-ac0b-6318496a26c4")
 		)
@@ -2669,6 +3205,7 @@
 		)
 	)
 	(symbol
+		(lib_name "WS2812b_4x4_Matrix_1")
 		(lib_id "my_library:WS2812b_4x4_Matrix")
 		(at 86.36 25.4 0)
 		(unit 1)
@@ -2720,9 +3257,6 @@
 				)
 				(hide yes)
 			)
-		)
-		(pin "9"
-			(uuid "ded9bc3d-50ed-46c3-8396-eb1d110f1a37")
 		)
 		(pin "8"
 			(uuid "75d5a100-ef21-4f61-ab4b-914fc83960dd")
@@ -2825,6 +3359,7 @@
 		)
 	)
 	(symbol
+		(lib_name "WS2812b_4x4_Matrix_3")
 		(lib_id "my_library:WS2812b_4x4_Matrix")
 		(at 149.86 25.4 0)
 		(unit 1)
@@ -2876,9 +3411,6 @@
 				)
 				(hide yes)
 			)
-		)
-		(pin "9"
-			(uuid "f520b1e4-41fc-478c-bc94-eac171580d93")
 		)
 		(pin "8"
 			(uuid "da935a12-e69c-443d-ad1b-8af88a0729bb")
@@ -3112,6 +3644,7 @@
 		)
 	)
 	(symbol
+		(lib_name "WS2812b_4x4_Matrix_2")
 		(lib_id "my_library:WS2812b_4x4_Matrix")
 		(at 118.11 25.4 0)
 		(unit 1)
@@ -3163,9 +3696,6 @@
 				)
 				(hide yes)
 			)
-		)
-		(pin "9"
-			(uuid "d861e0c3-0792-4b16-9ac9-1fb43df39ad5")
 		)
 		(pin "8"
 			(uuid "3813c5ad-0482-432f-ac1d-5d3fefd55402")
