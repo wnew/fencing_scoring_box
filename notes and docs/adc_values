@@ -20,9 +20,14 @@ Hit on target  |    0v    |    2.5v    |     0v    |   2.5v   |   2.5v     |   2
 Hit off target |    0v    |      5v    |     0v    |     0v   |   2.5v     |   2.5v    | off target light
 Hit guard      |    0v    |    2.5v    |     0v    |     0v   |   2.5v     |   2.5v    | No lights
 Hit gnd/piste  |    0v    |      0v    |     0v    |     0v   |   2.5v     |   2.5v    | No lights
-??Hit on target  |    0v    |   1.25v    |  1.25v    |  1.25v   |     5v     |  1.25v    | both on target lights
-Hit on target while opponents guard and lame are touching ()double check this
-               |    0v    |    1.7v   |      0v    |    1.7v  |   1.7v     |     0v    |
+Double hit off |    0v    |      5v    |     0v    |     0v   |     5v     |     0v    | both off target lights
+Double hit on  |    2.5v  |    2.5v    |     0v    |   2.5v   |   2.5v     |     0v    | both on target lights
+Guard to own lame
+               |    1.7v  |    1.7v    |   1.7v    |     0v   |   2.5v     |   2.5v    |
+
+Hit on target while opponents guard and lame are touching
+               |    0v    |    2.5v   |      0v    |   2.5v   |   2.5v     |   2.5v    |
+
 
 Normally close switch between weapon and guard (return) pins
 
@@ -34,11 +39,10 @@ needs to register a hit
 Sabre          | Grn Lame | Grn Weapon | Grn Guard | Red Lame | Red Weapon | Red Guard |
                |  Pin A   |   Pin B    |   Pin C   |  Pin A   |   Pin B    |   Pin C   |
 ----------------------------------------------------------------------------------------
-At rest        |     0v   |      5v    |     0v    |     0v   |     5v     |     0v    | 
-Hit on target  |     0v   |    2.5v    |     0v    |   2.5v   |     5v     |     0v    | 
-Hit off target |     0v   |      5v    |     0v    |     0v   |     5v     |     0v    | No lights
-Hit guard      |     0v   |    2.5v    |     0v    |     0v   |     5v     |   2.5v    | No lights
-Hit gnd/piste  |     0v   |    2.5v    |     0v    |     0v   |     5v     |   2.5v    | No lights
+At rest        |     0v   |    2.5v    |   2.5v    |     0v   |   2.5v     |   2.5v    | 
+Hit on target  |     0v   |    1.7v    |   1.7v    |   1.7v   |   2.5v     |   2.5v    | 
+Hit guard      |     0v   |    2.5v    |   2.5v    |     0v   |   2.5v     |   2.5v    | No lights
+Hit gnd/piste  |     0v   |    1.7v    |   1.7v    |     0v   |   2.5v     |   2.5v    | No lights
 
 
 

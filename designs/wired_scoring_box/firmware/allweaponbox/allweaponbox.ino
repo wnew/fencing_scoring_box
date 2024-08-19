@@ -28,7 +28,7 @@
 #define DEBUG                // prints debug info to the serial terminal
 #define TEST_LIGHTS          // turns on lights for a second on start up
 #define NEOPIXELS            // if this is set then sketch uses the neopixel display, if not then individual leds per pin are assumed.
-#define BUZZERSOUNDON        // buzzer will only sound if this is defined
+//#define BUZZERSOUNDON        // buzzer will only sound if this is defined
 #define BUZZERTIME   500     // length of time the buzzer is kept on after a hit (ms)
 #define LIGHTTIME   3000     // length of time the lights are kept on after a hit (ms)
 #define BAUDRATE   57600     // baudrate of the serial debug interface
@@ -106,9 +106,9 @@ bool lockedOut      = false;
 const long lockout [] = {45000, 300000, 120000};  // the lockout time between hits
 const long depress [] = { 2000,  14000,   1000};  // the minimum amount of time the tip needs to be depressed
 
-//=======================
+//========================
 // weapon mode constants
-//=======================
+//========================
 const uint8_t EPEE_MODE  = 0;
 const uint8_t FOIL_MODE  = 1;
 const uint8_t SABRE_MODE = 2;
@@ -116,15 +116,25 @@ const uint8_t SABRE_MODE = 2;
 // set the initial mode
 uint8_t currentWeapon = INITIAL_WEAPON;
 
-//=========
-// states
-//=========
-boolean depressedGrn  = false;
-boolean depressedRed  = false;
-boolean hitOnTargGrn  = false;
-boolean hitOffTargGrn = false;
-boolean hitOnTargRed  = false;
-boolean hitOffTargRed = false;
+//=========================
+// depress and hit states
+//=========================
+bool depressedGrn  = false;
+bool hitOnTargGrn  = false;
+bool hitOffTargGrn = false;
+bool depressedRed  = false;
+bool hitOnTargRed  = false;
+bool hitOffTargRed = false;
+
+//================
+// signal states
+//================
+bool hitOnTargGrnSignaled    = false;
+bool hitOffTargGrnSignaled   = false;
+bool shortCircuitGrnSignaled = false;
+bool hitOffTargRedSignaled   = false;
+bool hitOnTargRedSignaled    = false;
+bool shortCircuitRedSignaled = false;
 
 
 //================
@@ -151,7 +161,7 @@ void setup() {
    pinMode(weaponSelectLeds[EPEE_MODE],  OUTPUT);
    pinMode(weaponSelectLeds[FOIL_MODE],  OUTPUT);
    pinMode(weaponSelectLeds[SABRE_MODE], OUTPUT);
-   digitalWrite(weaponSelectLeds[currentWeapon], HIGH);
+   //digitalWrite(weaponSelectLeds[currentWeapon], HIGH);
 
    // set the light pins to outputs
    pinMode(offTargetGrn, OUTPUT);
@@ -282,7 +292,6 @@ void shortCircuitCheck() {
    Serial.println("=====");
 #endif DEBUG
    long now = micros();
-   clearLEDs();
     // Check A-C and B-C for epee
    if (currentWeapon == EPEE_MODE) {
       if (abs(grnB - grnC) < 50) { // check grn fencer B-C short
@@ -480,13 +489,13 @@ void foil() {
 void sabre() {
 
    long now = micros();
-   if (((hitOnTargGrn || hitOffTargGrn) && (depressGrnTime + lockout[SABRE_MODE] < now)) || 
-       ((hitOnTargRed || hitOffTargRed) && (depressRedTime + lockout[SABRE_MODE] < now))) {
+   if (((hitOnTargGrn) && (depressGrnTime + lockout[SABRE_MODE] < now)) || 
+       ((hitOnTargRed) && (depressRedTime + lockout[SABRE_MODE] < now))) {
       lockedOut = true;
    }
 
    // weapon Grn
-   if (hitOnTargGrn == false && hitOffTargGrn == false) { // ignore if Grn has already hit
+   if (hitOnTargGrn == false) { // ignore if Grn has already hit
       // on target
       if (300 < grnB && grnB < 400 && 300 < redA && redA < 400) {
          if (!depressedGrn) {
@@ -505,7 +514,7 @@ void sabre() {
    }
 
    // weapon Red
-   if (hitOnTargRed == false && hitOffTargRed == false) { // ignore if Red has already hit
+   if (hitOnTargRed == false) { // ignore if Red has already hit
       // on target
       if (300 < redB && redB < 400 && 300 < grnA && grnA < 400) {
          if (!depressedRed) {
@@ -524,11 +533,6 @@ void sabre() {
    }
 }
 
-
-bool hitOnTargGrnSignaled  = false;
-bool hitOffTargGrnSignaled = false;
-bool hitOffTargRedSignaled = false;
-bool hitOnTargRedSignaled  = false;
 
 //==============
 // Signal Hits
