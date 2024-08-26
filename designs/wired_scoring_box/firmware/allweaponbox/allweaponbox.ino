@@ -489,46 +489,100 @@ void foil() {
 void sabre() {
 
    long now = micros();
-   if (((hitOnTargGrn) && (depressGrnTime + lockout[SABRE_MODE] < now)) || 
-       ((hitOnTargRed) && (depressRedTime + lockout[SABRE_MODE] < now))) {
+   if (((hitOnTargGrn || hitOffTargGrn) && (depressGrnTime + lockout[SABRE_MODE] < now)) || 
+       ((hitOnTargRed || hitOffTargRed) && (depressRedTime + lockout[SABRE_MODE] < now))) {
       lockedOut = true;
    }
 
    // weapon Grn
-   if (hitOnTargGrn == false) { // ignore if Grn has already hit
-      // on target
-      if (300 < grnB && grnB < 400 && 300 < redA && redA < 400) {
+   if (hitOnTargGrn == false && hitOffTargGrn == false) { // ignore if Grn has already hit
+      // off target
+      if (900 < grnB && redA < 100) {
          if (!depressedGrn) {
             depressGrnTime = micros();
             depressedGrn   = true;
          } else {
-            if (depressGrnTime + depress[SABRE_MODE] <= micros()) {
-               hitOnTargGrn = true;
+            if (depressGrnTime + depress[FOIL_MODE] <= micros()) {
+               hitOffTargGrn = true;
             }
          }
       } else {
-         // reset these values if the depress time is short.
-         depressGrnTime = 0;
-         depressedGrn   = 0;
+         // on target
+         if (400 < grnB && grnB < 600 && 400 < redA && redA < 600) {
+            if (!depressedGrn) {
+               depressGrnTime = micros();
+               depressedGrn   = true;
+            } else {
+               if (depressGrnTime + depress[FOIL_MODE] <= micros()) {
+                  hitOnTargGrn = true;
+               }
+            }
+         } else {
+            // reset these values if the depress time is short.
+            depressGrnTime = 0;
+            depressedGrn   = 0;
+         }
+      }
+   }
+   // weapon Grn
+   if (hitOnTargGrn == false && hitOffTargGrn == false) { // ignore if Grn has already hit
+      // off target - yes sabre has an offtarget, if the B and C wires are open circuit
+      if (900 < grnB) {
+         if (!depressedGrn) {
+            depressGrnTime = micros();
+            depressedGrn   = true;
+         } else {
+            if (depressGrnTime + depress[FOIL_MODE] <= micros()) {
+               hitOffTargGrn = true;
+            }
+         }
+      } else {
+         // on target
+         if (300 < grnB && grnB < 400 && 300 < redA && redA < 400) {
+            if (!depressedGrn) {
+               depressGrnTime = micros();
+               depressedGrn   = true;
+            } else {
+               if (depressGrnTime + depress[SABRE_MODE] <= micros()) {
+                  hitOnTargGrn = true;
+               }
+            }
+         } else {
+            // reset these values if the depress time is short.
+            depressGrnTime = 0;
+            depressedGrn   = 0;
+         }
       }
    }
 
    // weapon Red
-   if (hitOnTargRed == false) { // ignore if Red has already hit
-      // on target
-      if (300 < redB && redB < 400 && 300 < grnA && grnA < 400) {
+   if (hitOnTargRed == false && hitOffTargRed == false) { // ignore if Red has already hit
+      // off target - yes sabre has an offtarget, if the B and C wires are open circuit
+      if (900 < redB) {
          if (!depressedRed) {
             depressRedTime = micros();
             depressedRed   = true;
          } else {
             if (depressRedTime + depress[SABRE_MODE] <= micros()) {
-               hitOnTargRed = true;
+               hitOffTargRed = true;
             }
          }
       } else {
-         // reset these values if the depress time is short.
-         depressRedTime = 0;
-         depressedRed   = 0;
+      // on target
+         if (300 < redB && redB < 400 && 300 < grnA && grnA < 400) {
+            if (!depressedRed) {
+               depressRedTime = micros();
+               depressedRed   = true;
+            } else {
+               if (depressRedTime + depress[SABRE_MODE] <= micros()) {
+                  hitOnTargRed = true;
+               }
+            }
+         } else {
+            // reset these values if the depress time is short.
+            depressRedTime = 0;
+            depressedRed   = 0;
+         }
       }
    }
 }
