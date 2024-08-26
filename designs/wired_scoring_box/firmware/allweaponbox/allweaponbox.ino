@@ -496,36 +496,6 @@ void sabre() {
 
    // weapon Grn
    if (hitOnTargGrn == false && hitOffTargGrn == false) { // ignore if Grn has already hit
-      // off target
-      if (900 < grnB && redA < 100) {
-         if (!depressedGrn) {
-            depressGrnTime = micros();
-            depressedGrn   = true;
-         } else {
-            if (depressGrnTime + depress[FOIL_MODE] <= micros()) {
-               hitOffTargGrn = true;
-            }
-         }
-      } else {
-         // on target
-         if (400 < grnB && grnB < 600 && 400 < redA && redA < 600) {
-            if (!depressedGrn) {
-               depressGrnTime = micros();
-               depressedGrn   = true;
-            } else {
-               if (depressGrnTime + depress[FOIL_MODE] <= micros()) {
-                  hitOnTargGrn = true;
-               }
-            }
-         } else {
-            // reset these values if the depress time is short.
-            depressGrnTime = 0;
-            depressedGrn   = 0;
-         }
-      }
-   }
-   // weapon Grn
-   if (hitOnTargGrn == false && hitOffTargGrn == false) { // ignore if Grn has already hit
       // off target - yes sabre has an offtarget, if the B and C wires are open circuit
       if (900 < grnB) {
          if (!depressedGrn) {
